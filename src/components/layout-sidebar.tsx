@@ -1,0 +1,114 @@
+import { BotIcon, HandCoins, Wallet, ChartBar, Vault } from "lucide-react"
+
+import {
+    Sidebar,
+    SidebarHeader,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarFooter,
+    SidebarRail
+} from "@/components/ui/sidebar"
+
+import {
+    IconSpeakerphone,
+    IconDashboard,
+} from "@tabler/icons-react"
+
+import { NavUser } from "./nav-user"
+import { Icons } from "./icon"
+
+// Menu items.
+const items = [
+    {
+        title: "Dashboard",
+        url: "/",
+        icon: IconDashboard,
+    },
+    {
+        title: "Agents",
+        url: "/agents",
+        icon: BotIcon,
+    },
+    {
+        title: "Vaults",
+        url: "/vaults",
+        icon: Vault,
+    },
+    {
+        title: "Signals",
+        url: "/signals",
+        icon: ChartBar,
+    },
+    {
+        title: "Staking",
+        url: "/staking",
+        icon: HandCoins,
+    },
+    {
+        title: "Portfolio",
+        url: "/portfolio",
+        icon: Wallet,
+    },
+    {
+        title: "Chat",
+        url: "/chat",
+        icon: IconSpeakerphone,
+    },
+]
+
+
+export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    return (
+        <Sidebar collapsible="offcanvas" {...props}>
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            className="data-[slot=sidebar-menu-button]:!p-1.5"
+                        >
+                            <a href="#">
+                                <Icons.logo className="!size-5" />
+                                <span className="text-base font-semibold">AITA Protocol</span>
+                            </a>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Menu</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {items.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <a href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </a>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter>
+               <NavUser
+                    user={{
+                        name: "Coder",
+                        email: "dev@aitaprotocol.com",
+                        avatar: "https://avatars.githubusercontent.com/u/135222678?v=4"
+                    }}
+                />
+            </SidebarFooter>
+            <SidebarRail />
+        </Sidebar>
+    )
+}
