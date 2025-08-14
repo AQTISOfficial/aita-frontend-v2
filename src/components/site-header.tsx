@@ -8,10 +8,10 @@ const pageTitles: Record<string, string> = {
   "/": "Dashboard",
   "/agents": "Agents",
   "/vaults": "Vaults",
-  "/signals": "Signals",
-  "/staking": "Staking",
-  "/portfolio": "Portfolio",
-  "/chat": "Chat",
+  // "/signals": "Signals",
+  // "/staking": "Staking",
+  // "/portfolio": "Portfolio",
+  // "/chat": "Chat",
 }
 
 export function SiteHeader() {

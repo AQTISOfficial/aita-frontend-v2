@@ -40,7 +40,7 @@ export function TableAgents() {
 
     // Parameters for the API request
     const params = {
-        limit: 5,
+        limit: 25,
         offset: 0,
         sort: "asc",
     }
@@ -113,7 +113,7 @@ function TableCellViewer({ item }: { item: any }) {
     return (
         <Drawer direction={isMobile ? "bottom" : "right"}>
             <DrawerTrigger asChild>
-                <Button variant="link" className="text-foreground w-fit px-0 text-left">
+                <Button variant="link" className="text-foreground w-fit px-0 text-left" type="button">
                     {item.ticker}
                 </Button>
             </DrawerTrigger>
@@ -128,7 +128,7 @@ function TableCellViewer({ item }: { item: any }) {
 
                 </div>
                 <DrawerFooter>
-                    <Button>Details</Button>
+                    <Button type="button">Details</Button>
                     <DrawerClose asChild>
                         <Button variant="outline">Close</Button>
                     </DrawerClose>

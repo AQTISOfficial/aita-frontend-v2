@@ -1,0 +1,73 @@
+"use client";
+
+import '@rainbow-me/rainbowkit/styles.css';
+import {
+    darkTheme,
+    getDefaultConfig,
+    RainbowKitProvider,
+    getDefaultWallets
+} from '@rainbow-me/rainbowkit';
+import { WagmiProvider, http } from 'wagmi';
+import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
+
+import {
+    metaMaskWallet,
+    rainbowWallet,
+    rabbyWallet,
+    trustWallet
+} from '@rainbow-me/rainbowkit/wallets';
+
+import {
+    QueryClientProvider,
+    QueryClient,
+} from "@tanstack/react-query";
+import { ReactNode } from "react";
+import { publicEnv } from '@/lib/env.public';
+
+const { wallets } = getDefaultWallets();
+
+const config = getDefaultConfig({
+    appName: 'AITA - AI Trading Agent',
+    wallets: [
+        {
+            groupName: 'Recommended',
+            wallets: [rabbyWallet, metaMaskWallet, rainbowWallet, trustWallet],
+        },
+        ...wallets,
+    ],
+    projectId: publicEnv.NEXT_PUBLIC_REOWN_ID!,
+    chains: [arbitrum, arbitrumSepolia],
+    transports: {
+        [arbitrum.id]: http(publicEnv.NEXT_PUBLIC_RPC_URL_ARBITRUM!),
+        [arbitrumSepolia.id]: http(publicEnv.NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA!),
+    },
+    ssr: true,
+});
+
+const queryClient = new QueryClient();
+
+interface ProvidersProps {
+    children: ReactNode;
+}
+
+export default function Providers({ children }: ProvidersProps) {
+    return (
+        <WagmiProvider reconnectOnMount={true} config={config}>
+            <QueryClientProvider client={queryClient}>
+                <RainbowKitProvider
+                    initialChain={arbitrum}
+                    modalSize="compact"
+                    theme={darkTheme({
+                        accentColor: '#67AB94',
+                        accentColorForeground: 'white',
+                        borderRadius: 'large',
+                        fontStack: 'system',
+                        overlayBlur: 'small',
+                    })}
+                >
+                    {children}
+                </RainbowKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
+    );
+}

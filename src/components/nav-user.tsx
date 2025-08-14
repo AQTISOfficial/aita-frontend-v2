@@ -86,7 +86,7 @@ export function NavUser({
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              
+
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

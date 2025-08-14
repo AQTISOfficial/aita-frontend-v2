@@ -4,6 +4,9 @@ import { Montserrat } from "next/font/google";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { LayoutSidebar } from "@/components/layout-sidebar";
 import { SiteHeader } from "@/components/site-header";
+
+import Providers from "./providers";
+
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -28,18 +31,18 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} antialiased`}
       >
-        
-        <SidebarProvider>
-          <LayoutSidebar variant="inset" />
-          <SidebarInset>
-            <SiteHeader />
-            <main className="p-4">
-              {children}
-            </main>
+        <Providers>
+          <SidebarProvider>
+            <LayoutSidebar variant="inset" />
+            <SidebarInset>
+              <SiteHeader />
+              <main className="p-4">
+                {children}
+              </main>
             </SidebarInset>
-        </SidebarProvider>
+          </SidebarProvider>
+        </Providers>
 
-        
       </body>
     </html>
   );

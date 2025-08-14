@@ -1,4 +1,4 @@
-import { HyperliquidVaults } from "@/components/hyperliquid-vaults"
+import { HyperliquidVaults } from "@/components/vaults/vault-card"
 import { vaults } from "@/lib/vaults"
 
 

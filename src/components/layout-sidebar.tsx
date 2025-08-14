@@ -21,6 +21,7 @@ import {
 
 import { NavUser } from "./nav-user"
 import { Icons } from "./icon"
+import { CustomConnectButton } from "./connect-button"
 
 // Menu items.
 const items = [
@@ -39,26 +40,26 @@ const items = [
         url: "/vaults",
         icon: Vault,
     },
-    {
-        title: "Signals",
-        url: "/signals",
-        icon: ChartBar,
-    },
-    {
-        title: "Staking",
-        url: "/staking",
-        icon: HandCoins,
-    },
-    {
-        title: "Portfolio",
-        url: "/portfolio",
-        icon: Wallet,
-    },
-    {
-        title: "Chat",
-        url: "/chat",
-        icon: IconSpeakerphone,
-    },
+    // {
+    //     title: "Signals",
+    //     url: "/signals",
+    //     icon: ChartBar,
+    // },
+    // {
+    //     title: "Staking",
+    //     url: "/staking",
+    //     icon: HandCoins,
+    // },
+    // {
+    //     title: "Portfolio",
+    //     url: "/portfolio",
+    //     icon: Wallet,
+    // },
+    // {
+    //     title: "Chat",
+    //     url: "/chat",
+    //     icon: IconSpeakerphone,
+    // },
 ]
 
 
@@ -100,13 +101,8 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-               <NavUser
-                    user={{
-                        name: "Coder",
-                        email: "dev@aitaprotocol.com",
-                        avatar: "https://avatars.githubusercontent.com/u/135222678?v=4"
-                    }}
-                />
+               
+                <CustomConnectButton />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>

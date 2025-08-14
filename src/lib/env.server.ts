@@ -10,10 +10,12 @@ const schema = z.object({
   NEXT_PUBLIC_CLOUDFRONT_BASEURL: noTrailingSlash,
   NEXT_PUBLIC_CLOUDFRONT: z.string().min(1),
   NEXT_PUBLIC_HYPERLIQUID_API_URL: noTrailingSlash,
+  NEXT_PUBLIC_RPC_URL_ARBITRUM: noTrailingSlash,
+  NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA: noTrailingSlash,
+  NEXT_PUBLIC_REOWN_ID: z.string().min(1),
 
   // Server vars (secret)
   AITA_ALCHEMY_API_KEY: z.string().min(1),
-  AITA_REOWN_ID: z.string().min(1),
   AITA_MORALIS_KEY: z.string().min(1)
 })
 
@@ -26,7 +28,6 @@ const parsed = schema.parse(process.env)
 // Only server vars
 export const serverEnv: Pick<Env, ServerEnvKeys> = {
   AITA_ALCHEMY_API_KEY: parsed.AITA_ALCHEMY_API_KEY,
-  AITA_REOWN_ID: parsed.AITA_REOWN_ID,
   AITA_MORALIS_KEY: parsed.AITA_MORALIS_KEY
 }
 
@@ -35,5 +36,8 @@ export const clientEnvFromServer: Pick<Env, ClientEnvKeys> = {
   NEXT_PUBLIC_API_URL: parsed.NEXT_PUBLIC_API_URL,
   NEXT_PUBLIC_CLOUDFRONT_BASEURL: parsed.NEXT_PUBLIC_CLOUDFRONT_BASEURL,
   NEXT_PUBLIC_CLOUDFRONT: parsed.NEXT_PUBLIC_CLOUDFRONT,
-  NEXT_PUBLIC_HYPERLIQUID_API_URL: parsed.NEXT_PUBLIC_HYPERLIQUID_API_URL
+  NEXT_PUBLIC_HYPERLIQUID_API_URL: parsed.NEXT_PUBLIC_HYPERLIQUID_API_URL,
+  NEXT_PUBLIC_RPC_URL_ARBITRUM: parsed.NEXT_PUBLIC_RPC_URL_ARBITRUM,
+  NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA: parsed.NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA,
+  NEXT_PUBLIC_REOWN_ID: parsed.NEXT_PUBLIC_REOWN_ID
 }
