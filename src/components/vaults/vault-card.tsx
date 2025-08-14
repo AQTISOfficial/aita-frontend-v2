@@ -2,6 +2,9 @@
 
 import { publicEnv } from "@/lib/env.public";
 import React, { useEffect, useState } from "react";
+
+import { VaultChart } from "./vault-chart";
+
 import { Card, CardContent, CardAction, CardDescription, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 
 interface VaultData {
@@ -124,22 +127,28 @@ export function HyperliquidVaults({ vaultAddress, user }: HyperliquidVaultsProps
       {error && <p className="text-red-500">Error: {error}</p>}
 
       {vault && (
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>{vault.name}</CardTitle>
-            <CardDescription>{vault.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Address: {vault.vaultAddress}</p>
-            <p>APR: {vault.apr}%</p>
-            <p>Leader: {vault.leader}</p>
-            <p>Followers: {vault.followers.length}</p>
-          </CardContent>
-          <CardFooter>
-            <p>Total Vault Value: {totalVaultValue}</p>
-            <p>Total Vault PnL: {totalVaultPnl}</p>
-          </CardFooter>
-        </Card>
+        <>
+          <Card className="my-4">
+            <CardHeader>
+              <CardTitle>{vault.name}</CardTitle>
+              <CardDescription>{vault.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Address: {vault.vaultAddress}</p>
+              <p>APR: {vault.apr}%</p>
+              <p>Leader: {vault.leader}</p>
+              <p>Followers: {vault.followers.length}</p>
+
+
+            </CardContent>
+            <CardFooter>
+              <p>Total Vault Value: {totalVaultValue}</p>
+              <p>Total Vault PnL: {totalVaultPnl}</p>
+            </CardFooter>
+          </Card>
+
+          <VaultChart data={vault.portfolio} defaultTimeframe="week" defaultSeries="accountValueHistory" />
+        </>
       )}
     </div>
   );

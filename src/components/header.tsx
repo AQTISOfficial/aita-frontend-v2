@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react"
 import { IconTrendingUp, IconArrowRight } from "@tabler/icons-react"
-import { BotIcon, HandCoins, Wallet, ChartBar, Vault, LockIcon } from "lucide-react"
+import { BotIcon, Vault, LockIcon } from "lucide-react"
+
+import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -21,6 +23,8 @@ export function Header() {
   const [totalAgents, setTotalAgents] = useState(0)
   const [totalVaults, setTotalVaults] = useState(0)
   const [totalValueLocked, setTotalValueLocked] = useState(0)
+
+  const router = useRouter();
 
   const params = {
     limit: 1000,
@@ -71,13 +75,13 @@ export function Header() {
             {totalAgents}
           </CardTitle>
           <CardAction>
-            <Button variant="outline" className="" type="button" onClick={() => window.location.href = "/agents/create"}>
+            <Button variant="outline" className="" type="button" onClick={() => router.push("/agents/create")}>
               Create Agent
             </Button>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start text-sm">
-          <Button variant="link" className="text-foreground text-left flex items-center" type="button" onClick={() => window.location.href = "/agents"}>
+          <Button variant="link" className="text-foreground text-left flex items-center" type="button" onClick={() => router.push("/agents")}>
             View Agents <IconArrowRight className="size-4" />
           </Button>
         </CardFooter>
@@ -92,7 +96,7 @@ export function Header() {
 
         </CardHeader>
         <CardFooter className="flex-col items-start text-sm">
-          <Button variant="link" className="text-foreground text-left flex items-center" type="button" onClick={() => window.location.href = "/vaults"}>
+          <Button variant="link" className="text-foreground text-left flex items-center" type="button" onClick={() => router.push("/vaults")}>
             View Vaults <IconArrowRight className="size-4" />
           </Button>
         </CardFooter>
