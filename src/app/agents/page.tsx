@@ -6,23 +6,13 @@ import { AgentCard } from "@/components/agents/agent-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-interface Agent {
-  id: string;
-  ticker: string;
-  name: string;
-  description: string;
-  ownerAddress: string;
-  image: string;
-  created: number;
-  strategy: any;
-}
 
 export default function Home() {
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState("desc");
   const [search, setSearch] = useState("");
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agents, setAgents] = useState([]);
   const [totalAgents, setTotalAgents] = useState(0);
 
   useEffect(() => {
@@ -38,24 +28,13 @@ export default function Home() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log(data);
+        const list = data?.data || [];
 
-        const list =
-          Array.isArray(data)
-            ? data
-            : data?.agents ??
-            data?.items ??
-            data?.results ??
-            data?.rows ??
-            data?.data ??
-            [];
-
-        setAgents(list as Agent[]);
+        setAgents(list);
         setTotalAgents(data?.meta?.totalCount || 0);
 
       } catch (err) {
-        if ((err as any).name !== "AbortError") console.error(err);
-        setAgents([]); 
+        console.error("Failed to fetch agents:", err);
       }
     })();
 
@@ -73,8 +52,8 @@ export default function Home() {
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6 md:py-6">
-        {Array.isArray(agents) && agents.map((agent) => (
-          <AgentCard key={agent.id} agent={agent} />
+        {Array.isArray(agents) && agents.map((agent, index) => (
+          <AgentCard key={index} agent={agent} />
         ))}
 
       </div>

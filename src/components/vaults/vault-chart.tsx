@@ -111,7 +111,7 @@ function ChartLineLinear({
                                 <ChartTooltipContent
                                     hideIndicator={false}
                                     labelFormatter={(_label, items) => {
-                                        const ts = (items?.[0]?.payload as any)?.ts as number
+                                        const ts = (items?.[0]?.payload as { ts: number })?.ts as number
                                         return new Date(ts).toLocaleString("en-US", {
                                             weekday: "short",
                                             day: "2-digit",

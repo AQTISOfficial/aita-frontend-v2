@@ -10,14 +10,25 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react";
 
+interface Follower {
+  user: string;
+  pnl: number | string | null | undefined;
+  vaultEquity: number | string | null | undefined;
+  allTimePnl: number | string | null | undefined;
+  daysFollowing: number;
+  vaultEntryTime: number | string | null | undefined;
+  lockupUntil: number | string | null | undefined;
+}
+
+
+
 interface VaultData {
   name: string;
   description: string;
   vaultAddress: string;
   apr: number;
   leader: string;
-  followers: any[];
-  portfolio: any[];
+  followers: Follower[];
 }
 
 interface HyperliquidVaultsProps {
@@ -53,10 +64,6 @@ export function HyperliquidVaults({ vaultAddress, user }: HyperliquidVaultsProps
         if (!res.ok) throw new Error("Failed to fetch vault data");
         const data: VaultData = await res.json();
         if (!data || !data.name) throw new Error("Invalid vault data received");
-
-
-        console.log("Portfolio data:", data.portfolio);
-        console.log("Vault data:", data);
 
         setVault(data);
 
@@ -120,11 +127,6 @@ export function HyperliquidVaults({ vaultAddress, user }: HyperliquidVaultsProps
           setTotalVaultPnl(formattedPnl);
           setTotalVaultValue(formattedTvl);
           setCurrentApy(apy);
-
-          console.log("Total Vault Value (formatted):", totalValueEquityFormatted);
-          for (const follower of data.followers) {
-            console.log("Follower:", follower);
-          }
         }
 
       } catch (err) {

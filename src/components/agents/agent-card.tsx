@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "../ui/button"
 import Image from "next/image"
-import { Separator } from "../ui/separator";
+import { arrayOutputType } from "zod";
 
 interface AgentCardProps {
   agent: {
@@ -22,9 +22,29 @@ interface AgentCardProps {
     ownerAddress: string;
     image: string;
     created: number;
-    strategy: any
+    strategy: {
+      backtested: {
+        accumulatedReturns: number;
+        CAGR: number;
+        maxDrawdown: number;
+      },
+      timeframe: string,
+      signal_detection_entry: string,
+      signal_detection_exit: string,
+      ranking_method: string,
+      assets: string,
+      comet: string,
+      liquidity_filter: string,
+      direction: string,
+      exchange: string,
+      id: string,
+      risk_management: string,
+      type: string
+    };
   };
 }
+
+
 
 export function AgentCard({ agent }: AgentCardProps) {
   return (
