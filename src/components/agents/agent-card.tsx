@@ -50,26 +50,30 @@ export function AgentCard({ agent }: AgentCardProps) {
   return (
     <Card className="my-4 flex h-full flex-col">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Image
-            aria-hidden
-            src={agent.image}
-            alt={agent.name}
-            width={40}
-            height={40}
-            className="rounded aspect-square object-cover mr-2"
-            loading="lazy"
-          />
-          {agent.name}
-        </CardTitle>
-        <CardAction>
-          <Badge
+        <CardTitle className="flex flex-col items-start p-0">
+          <div className="w-full mb-2 relative">
+            <Image
+              aria-hidden
+              src={agent.image}
+              alt={agent.name}
+              width={400}
+              height={400}
+              className="w-full h-96 object-cover rounded"
+              loading="lazy"
+            />
+            <Badge
             variant="outline"
-            className={`font-mono text-xs ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
+            className={`absolute right-2 top-2 bg-neutral-900 font-mono text-xs ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
           >
             {agent.ticker}
             {agent.strategy?.backtested && " (Backtested)"}
           </Badge>
+          </div>
+          <span className="mt-1">{agent.name}</span>
+          
+        </CardTitle>
+        <CardAction>
+          
         </CardAction>
         <CardDescription className="py-2">{agent.description}</CardDescription>
       </CardHeader>
