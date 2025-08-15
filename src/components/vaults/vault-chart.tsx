@@ -89,7 +89,7 @@ function ChartLineLinear({
         <Card className="@container/card">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
-                <CardDescription>{subtitle ?? "Vault over tijd"}</CardDescription>
+                <CardDescription>{subtitle ?? "Timeframe Vault"}</CardDescription>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
@@ -146,7 +146,7 @@ function ChartLineLinear({
                     Indicatie trend <TrendingUp className="h-4 w-4" />
                 </div>
                 <div className="text-muted-foreground leading-none">
-                    {series === "pnlHistory" ? "PnL" : "Account value"} voor {timeframe}
+                    {series === "pnlHistory" ? "PnL" : "Account value"} for {timeframe}
                 </div>
             </CardFooter>
         </Card>

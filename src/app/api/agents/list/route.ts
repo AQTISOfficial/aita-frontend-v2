@@ -1,21 +1,23 @@
+// app/api/agent/list/route.ts
 import { publicEnv } from "@/lib/env.public";
 
-// app/api/agent/list/route.ts
 export async function POST(req: Request) {
-  const params = await req.json();
-  const limit = params.limit || "100";
-  const offset = params.offset || "0";
-  const sort = params.sort || "desc";   
+  const { limit = 100, offset = 0, sort = "desc", search = "" } = await req.json().catch(() => ({}));
 
-  const data = await fetch(`${publicEnv.NEXT_PUBLIC_API_URL}/tokens?limit=${limit}&offset=${offset}&sort=${sort}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    next: {
-      revalidate: 60, // Revalidate every 60 seconds
-    },
-  }).then((res) => res.json());
+  const url = new URL(`${publicEnv.NEXT_PUBLIC_API_URL}/tokens`);
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("offset", String(offset));
+  url.searchParams.set("sort", String(sort));
+  url.searchParams.set("search", search);
 
+  const res = await fetch(url.toString(), {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) {
+    return new Response("Upstream error", { status: 502 });
+  }
+
+  const data = await res.json();
   return Response.json(data);
 }

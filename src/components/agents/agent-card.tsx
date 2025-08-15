@@ -1,84 +1,92 @@
-import { IconTrendingUp } from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardAction,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "../ui/button"
+import Image from "next/image"
+import { Separator } from "../ui/separator";
 
-export function SectionCards() {
+interface AgentCardProps {
+  agent: {
+    id: string;
+    ticker: string;
+    name: string;
+    description: string;
+    ownerAddress: string;
+    image: string;
+    created: number;
+    strategy: any
+  };
+}
+
+export function AgentCard({ agent }: AgentCardProps) {
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-3">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Agents</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {Math.floor(Math.random() * 2000).toLocaleString()}
-            </CardTitle>
-          <CardAction>
-            <Badge variant="outline" className="text-teal-500">
-              <IconTrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Up 12.5% this month <IconTrendingUp className="size-4" />
+    <Card className="my-4 flex h-full flex-col">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Image
+            aria-hidden
+            src={agent.image}
+            alt={agent.name}
+            width={40}
+            height={40}
+            className="rounded aspect-square object-cover mr-2"
+            loading="lazy"
+          />
+          {agent.name}
+        </CardTitle>
+        <CardAction>
+          <Badge
+            variant="outline"
+            className={`font-mono text-xs ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
+          >
+            {agent.ticker}
+            {agent.strategy?.backtested && " (Backtested)"}
+          </Badge>
+        </CardAction>
+        <CardDescription className="py-2">{agent.description}</CardDescription>
+      </CardHeader>
+
+      <CardContent className="text-sm text-neutral-300 flex-1">
+        <div className="grid grid-cols-2 gap-1 my-2">
+          <span>Owner Address:</span>
+          <span>{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
+          <span>Created:</span>
+          <span>{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
+        </div>
+
+        {agent?.strategy?.backtested && (
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="rounded-md px-4 py-2 text-neutral-400 flex flex-col justify-between border">
+              <span>Cumulative returns</span>
+              <span className="font-bold text-teal-500 font-mono">
+                {agent.strategy?.backtested?.accumulatedReturns}%
+              </span>
+            </div>
+            <div className="rounded-md px-4 py-2 text-neutral-400 flex flex-col justify-between border">
+              <span>CAGR</span>
+              <span className="font-bold text-teal-500 font-mono">
+                {agent.strategy?.backtested?.CAGR}%
+              </span>
+            </div>
           </div>
-          <div className="text-muted-foreground">
-            Performance exceeds expectations
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Cumulative Volume</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${Math.floor(Math.random() * 1_000_000).toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline" className="text-teal-500">
-              <IconTrendingUp />
-              +31%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Up 31% from last month <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Strong growth in trading volume
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Value Locked</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${Math.floor(Math.random() * 2_000_000).toLocaleString()}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline" className="text-teal-500">
-              <IconTrendingUp />
-              +18%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Up 18% this quarter <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Significant increase in TVL
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="mt-auto flex items-end justify-end gap-1 text-sm border-t">
+        <Button variant="outline" type="button" onClick={() => console.log("View Details clicked")}>
+          View Details
+        </Button>
+      </CardFooter>
+    </Card>
+
+
   )
 }

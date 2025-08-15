@@ -101,7 +101,6 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-               
                 <CustomConnectButton />
             </SidebarFooter>
             <SidebarRail />
