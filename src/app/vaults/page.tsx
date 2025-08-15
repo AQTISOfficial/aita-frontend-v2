@@ -8,6 +8,7 @@ export default function VaultList() {
         <HyperliquidVaults
           key={vault.address}
           vaultAddress={vault.address}
+          details={false}
         />
       ))}
     </div>

@@ -41,7 +41,7 @@ type SeriesKey = keyof Pick<SeriesBlock, "accountValueHistory" | "pnlHistory">
 
 // ---------- Helpers ----------
 const chartConfig = {
-    desktop: { label: "Desktop", color: "var(--chart-1)" },
+    desktop: { label: "Desktop", color: "var(--chart-2)" },
 } satisfies ChartConfig
 
 function fmtTick(ts: number, tf: AllowedTf) {
@@ -143,7 +143,7 @@ function ChartLineLinear({
             </CardContent>
             <CardFooter className="flex-col items-start gap-2 text-sm">
                 <div className="flex gap-2 leading-none font-medium">
-                    Indicatie trend <TrendingUp className="h-4 w-4" />
+                    Indication trend <TrendingUp className="h-4 w-4" />
                 </div>
                 <div className="text-muted-foreground leading-none">
                     {series === "pnlHistory" ? "PnL" : "Account value"} for {timeframe}
@@ -179,12 +179,12 @@ export function VaultChart({
                     type="single"
                     value={tf}
                     onValueChange={(v) => v && setTf(v as AllowedTf)}
-                    className="gap-1"
+                    className="gap-1 bg-neutral-900 border"
                 >
-                    <ToggleGroupItem value="day" aria-label="day">Day</ToggleGroupItem>
-                    <ToggleGroupItem value="week" aria-label="week">Week</ToggleGroupItem>
-                    <ToggleGroupItem value="month" aria-label="month">Month</ToggleGroupItem>
-                    <ToggleGroupItem value="allTime" aria-label="allTime">All time</ToggleGroupItem>
+                    <ToggleGroupItem value="day" aria-label="day" className="px-2">Day</ToggleGroupItem>
+                    <ToggleGroupItem value="week" aria-label="week" className="px-2">Week</ToggleGroupItem>
+                    <ToggleGroupItem value="month" aria-label="month" className="px-2">Month</ToggleGroupItem>
+                    <ToggleGroupItem value="allTime" aria-label="allTime" className="px-4">All time</ToggleGroupItem>
                 </ToggleGroup>
 
                 <Select

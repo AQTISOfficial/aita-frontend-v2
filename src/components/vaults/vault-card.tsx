@@ -2,7 +2,7 @@
 
 import { publicEnv } from "@/lib/env.public";
 import React, { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 import { VaultChart } from "./vault-chart";
 
 import { Card, CardContent, CardAction, CardDescription, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
@@ -20,8 +20,6 @@ interface Follower {
   lockupUntil: number | string | null | undefined;
 }
 
-
-
 interface VaultData {
   name: string;
   description: string;
@@ -32,17 +30,20 @@ interface VaultData {
 }
 
 interface HyperliquidVaultsProps {
-  vaultAddress: string
+  vaultAddress: string;
+  details: boolean;
 }
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL;
 
-export function HyperliquidVaults({ vaultAddress }: HyperliquidVaultsProps) {
+export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsProps) {
   const [vault, setVault] = useState<VaultData | null>(null);
   const [totalVaultValue, setTotalVaultValue] = useState<string | null>(null);
   const [totalVaultPnl, setTotalVaultPnl] = useState<string | null>(null);
   const [currentApy, setCurrentApy] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchVaultData = async () => {
@@ -188,10 +189,12 @@ export function HyperliquidVaults({ vaultAddress }: HyperliquidVaultsProps) {
               </div>
             </CardContent>
             <CardFooter className="flex-col items-end gap-2 text-sm">
-              <Button variant="outline" type="button"
-                onClick={() => console.log("View Details clicked")}
-              >
-                View Details</Button>
+              {!details && (
+                <Button variant="outline" type="button"
+                  onClick={() => router.push(`/vaults/${vaultAddress}`)}
+                >
+                  View Details</Button>
+              )}
             </CardFooter>
           </Card>
 
