@@ -41,7 +41,7 @@ type SeriesKey = keyof Pick<SeriesBlock, "accountValueHistory" | "pnlHistory">
 
 // ---------- Helpers ----------
 const chartConfig = {
-    desktop: { label: "Desktop", color: "var(--chart-2)" },
+    desktop: { label: "Desktop", color: "var(--color-teal-500)" },
 } satisfies ChartConfig
 
 function fmtTick(ts: number, tf: AllowedTf) {
