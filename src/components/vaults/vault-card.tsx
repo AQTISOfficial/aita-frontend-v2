@@ -33,12 +33,11 @@ interface VaultData {
 
 interface HyperliquidVaultsProps {
   vaultAddress: string
-  user: string
 }
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL;
 
-export function HyperliquidVaults({ vaultAddress, user }: HyperliquidVaultsProps) {
+export function HyperliquidVaults({ vaultAddress }: HyperliquidVaultsProps) {
   const [vault, setVault] = useState<VaultData | null>(null);
   const [totalVaultValue, setTotalVaultValue] = useState<string | null>(null);
   const [totalVaultPnl, setTotalVaultPnl] = useState<string | null>(null);
