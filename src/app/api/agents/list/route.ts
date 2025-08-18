@@ -2,13 +2,17 @@
 import { publicEnv } from "@/lib/env.public";
 
 export async function POST(req: Request) {
-  const { limit = 100, offset = 0, sort = "desc", search = "" } = await req.json().catch(() => ({}));
+  const { limit = 100, offset = 0, sort = "desc", search = "", address = "", strategy = false, userAgents = false } = await req.json().catch(() => ({}));
 
   const url = new URL(`${publicEnv.NEXT_PUBLIC_API_URL}/tokens`);
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("offset", String(offset));
   url.searchParams.set("sort", String(sort));
   url.searchParams.set("search", search);
+  if (userAgents && address.length > 0) url.searchParams.set("address", String(address.toLowerCase()));
+  url.searchParams.set("isBacktested", String(strategy));
+
+  console.log("Fetching agents:", url.toString());
 
   const res = await fetch(url.toString(), {
     next: { revalidate: 60 },
