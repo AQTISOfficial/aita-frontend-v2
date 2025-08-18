@@ -56,7 +56,7 @@ export function AgentCard({ agent }: AgentCardProps) {
           width={240}
           height={240}
           quality={75}
-          className="w-full h-60 object-cover rounded-t-lg border-b border-neutral-800"
+          className="w-full h-80 object-cover rounded-t-lg border-b border-neutral-800"
           priority
         />
         <Badge
