@@ -105,7 +105,7 @@ export default function Home() {
         />
         <Select
           value={sort}
-          onValueChange={(v) => setSort(v as SortKey)}
+          onValueChange={(v) => { setCurrentPage(1); setSort(v as SortKey); }}
         >
           <SelectTrigger className="w-[160px] focus:outline-none focus:ring-1">
             <SelectValue placeholder="Order" />
@@ -117,7 +117,7 @@ export default function Home() {
         </Select>
         <Select
           value={limit.toString()}
-          onValueChange={(v) => setLimit(parseInt(v, 10))}
+          onValueChange={(v) => { setCurrentPage(1); setLimit(parseInt(v, 10)); }}
         >
           <SelectTrigger className="w-[80px] focus:outline-none focus:ring-1">
             <SelectValue placeholder="Limit" />
