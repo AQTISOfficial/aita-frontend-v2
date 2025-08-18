@@ -12,8 +12,6 @@ export async function POST(req: Request) {
   if (userAgents && address.length > 0) url.searchParams.set("address", String(address.toLowerCase()));
   url.searchParams.set("isBacktested", String(strategy));
 
-  console.log("Fetching agents:", url.toString());
-
   const res = await fetch(url.toString(), {
     next: { revalidate: 60 },
   });

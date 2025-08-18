@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "../ui/button"
 import Image from "next/image"
+import { CircleCheckBigIcon } from "lucide-react";
 
 interface AgentCardProps {
   agent: {
@@ -55,26 +56,26 @@ export function AgentCard({ agent }: AgentCardProps) {
           width={240}
           height={240}
           quality={75}
-          className="w-full object-cover rounded-t-lg border-b border-neutral-800"
+          className="w-full h-60 object-cover rounded-t-lg border-b border-neutral-800"
           priority
         />
         <Badge
           variant="outline"
-          className={`absolute right-2 top-2 bg-neutral-900 font-mono text-xs ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
+          className={`absolute right-2 top-2 bg-neutral-900 font-mono text-sm ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
         >
           {agent.ticker}
-          {agent.strategy?.backtested && " (Backtested)"}
+          {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4" />}
         </Badge>
       </div>
       <CardHeader>
         <CardTitle className="flex flex-col items-start p-0">
-          <span className="mt-1">{agent.name}</span>
+          <span className="mt-1 flex">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-400" />}</span>
         </CardTitle>
         <CardAction />
-        <CardDescription className="py-2">{agent.description}</CardDescription>
+        <CardDescription className="py-2 min-h-40">{agent.description}</CardDescription>
       </CardHeader>
 
-      <CardContent className="text-sm text-neutral-300 flex-1">
+      <CardContent className="text-xs text-neutral-300 flex-1">
         <div className="grid grid-cols-2 gap-1 my-2">
           <span>Owner Address:</span>
           <span>{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>

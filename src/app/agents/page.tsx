@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 import { useAccount } from "wagmi";
+import { IconRobotFace } from "@tabler/icons-react";
 
 
 type SortKey = "asc" | "desc";
@@ -83,33 +84,35 @@ export default function Home() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="w-5/6 flex items-center justify-between gap-2 py-2 md:gap-4 md:py-4">
-        <Card className="p-2 border rounded-md text-sm">Total Agents: {totalAgents}</Card>
-        <Button className="bg-white text-black" variant="secondary" type="button" onClick={() => console.log("Add Agent clicked")}>
+      <div className="w-5/6 flex items-center justify-between py-1">
+        <Button variant="outline" className="p-2 border rounded-md text-sm flex"><IconRobotFace />  Total Agents: {totalAgents}</Button>
+        <Button className="bg-white text-black" variant="secondary" type="button" onClick={() => console.log("Add Agent clicked")}
+          disabled={!isConnected}>
           Create Agent
         </Button>
+        {/* <div>
+          {totalAgents > 0 && (
+            <div className="flex justify-end items-center text-xs space-x-1 text-neutral-500">
+              <span
+                onClick={currentPage === 1 ? undefined : handlePrevious}
+                className="p-2 text-xs"
+              >
+                <ArrowLeftIcon className="inline-block" />
+              </span>
+              <span>
+                page {currentPage} of {totalPages}
+              </span>
+              <span
+                onClick={currentPage === totalPages ? undefined : handleNext}
+                className="p-2 text-xs"
+              >
+                <ArrowRightIcon className="inline-block" />
+              </span>
+            </div>
+          )}
+        </div> */}
       </div>
-      {/* <div>
-        {totalAgents > 0 && (
-          <div className="w-5/6 flex justify-end items-center text-xs space-x-1 text-neutral-500">
-            <span
-              onClick={currentPage === 1 ? undefined : handlePrevious}
-              className="p-2 text-xs"
-            >
-              <ArrowLeftIcon className="inline-block" />
-            </span>
-            <span>
-              page {currentPage} of {totalPages}
-            </span>
-            <span
-              onClick={currentPage === totalPages ? undefined : handleNext}
-              className="p-2 text-xs"
-            >
-              <ArrowRightIcon className="inline-block" />
-            </span>
-          </div>
-        )}
-      </div> */}
+
       <div className="w-5/6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <input
@@ -150,7 +153,7 @@ export default function Home() {
           </Select>
           {isConnected && (
             <div className="flex items-center space-x-2">
-              <Switch id="user-agents" 
+              <Switch id="user-agents"
                 checked={userAgents}
                 onCheckedChange={setUserAgents}
               />
@@ -158,16 +161,16 @@ export default function Home() {
             </div>
           )}
           <div className="flex items-center space-x-2">
-              <Switch id="strategy" 
-                checked={strategy}
-                onCheckedChange={setStrategy}
-              />
-              <Label htmlFor="strategy">Backtested</Label>
-            </div>
+            <Switch id="strategy"
+              checked={strategy}
+              onCheckedChange={setStrategy}
+            />
+            <Label htmlFor="strategy">Backtested</Label>
+          </div>
         </div>
 
       </div>
-      
+
       <div className="w-5/6 grid grid-cols-1 gap-4 py-4 lg:grid-cols-2 xl:grid-cols-3 md:gap-6 md:py-6">
         {Array.isArray(agents) && agents.map((agent, index) => (
           <AgentCard key={index} agent={agent} />
