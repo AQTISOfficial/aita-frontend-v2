@@ -155,7 +155,7 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <Switch id="user-agents"
                 checked={userAgents}
-                onCheckedChange={setUserAgents}
+                onCheckedChange={() => { setCurrentPage(1); setUserAgents(!userAgents); }}
               />
               <Label htmlFor="user-agents">My Agents</Label>
             </div>
@@ -163,7 +163,7 @@ export default function Home() {
           <div className="flex items-center space-x-2">
             <Switch id="strategy"
               checked={strategy}
-              onCheckedChange={setStrategy}
+              onCheckedChange={() => { setCurrentPage(1); setStrategy(!strategy); }}
             />
             <Label htmlFor="strategy">Backtested</Label>
           </div>
@@ -171,7 +171,7 @@ export default function Home() {
 
       </div>
 
-      <div className="w-5/6 grid grid-cols-1 gap-4 py-4 lg:grid-cols-2 xl:grid-cols-3 md:gap-6 md:py-6">
+      <div className="w-5/6 grid grid-cols-1 gap-4 py-4 lg:grid-cols-2 2xl:grid-cols-3 md:gap-6 md:py-6">
         {Array.isArray(agents) && agents.map((agent, index) => (
           <AgentCard key={index} agent={agent} />
         ))}

@@ -72,7 +72,7 @@ export function AgentCard({ agent }: AgentCardProps) {
           <span className="mt-1 flex">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-400" />}</span>
         </CardTitle>
         <CardAction />
-        <CardDescription className="py-2 min-h-40">{agent.description}</CardDescription>
+        <CardDescription className="py-2 min-h-34">{agent.description}</CardDescription>
       </CardHeader>
 
       <CardContent className="text-xs text-neutral-300 flex-1">
