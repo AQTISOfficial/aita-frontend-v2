@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 
 
 export default function Home() {
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(15);
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState("desc");
   const [search, setSearch] = useState("");
@@ -51,7 +51,7 @@ export default function Home() {
           Add Agent
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-4 py-4 md:grid-cols-2 md:gap-6 md:py-6">
+      <div className="mx-auto w-5/6 grid grid-cols-1 gap-4 py-4 lg:grid-cols-2 xl:grid-cols-3 md:gap-6 md:py-6">
         {Array.isArray(agents) && agents.map((agent, index) => (
           <AgentCard key={index} agent={agent} />
         ))}
