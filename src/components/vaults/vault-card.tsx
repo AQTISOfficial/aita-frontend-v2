@@ -176,7 +176,7 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
                   {(Number(totalVaultPnl) < 0) ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
                 </span>
 
-                <span>Current APY:</span>
+                <span>Current APR:</span>
                 <span
                   className={`flex items-center ${Number(currentApy) < 0 ? "text-red-500" : "text-teal-500"
                     }`}

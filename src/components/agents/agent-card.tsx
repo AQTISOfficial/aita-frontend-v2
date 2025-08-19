@@ -12,8 +12,19 @@ import {
 import { Button } from "../ui/button"
 import Image from "next/image"
 import { CircleCheckBigIcon } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
+import clsx from "clsx";
+import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
+import { Separator } from "../ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+import { AssetCategory, assets } from "@/lib/assets";
 
 interface AgentCardProps {
   agent: {
@@ -46,11 +57,10 @@ interface AgentCardProps {
   };
 }
 
-
 export function AgentCard({ agent }: AgentCardProps) {
 
   const router = useRouter();
-  const {address, isConnected} = useAccount();
+  const { address, isConnected } = useAccount();
 
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
@@ -66,7 +76,7 @@ export function AgentCard({ agent }: AgentCardProps) {
           width={240}
           height={240}
           quality={75}
-          className="w-full h-80 object-cover rounded-t-lg border-b border-neutral-800"
+          className="w-full h-80 object-cover aspect-square rounded-t-lg border-b border-neutral-800"
           priority
         />
         <Badge
@@ -82,33 +92,72 @@ export function AgentCard({ agent }: AgentCardProps) {
           <span className="mt-1 flex">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-400" />}</span>
         </CardTitle>
         <CardAction />
-        <CardDescription className="py-2 min-h-34">{agent.description}</CardDescription>
+        <CardDescription className="py-2 h-24">{agent.description}</CardDescription>
       </CardHeader>
 
-      <CardContent className="text-xs text-neutral-300 flex-1">
-        <div className="grid grid-cols-2 gap-1 my-2">
-          <span>Owner Address:</span>
-          <span>{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
-          <span>Created:</span>
-          <span>{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
-        </div>
+      <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
+        {agent?.strategy?.backtested ? (
+          <>
+            <Separator className="mt-2" />
+            <div className="flex flex-wrap items-center my-2 gap-2 font-mono ">
 
-        {agent?.strategy?.backtested && (
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            <div className="rounded-md px-4 py-2 text-neutral-400 flex flex-col justify-between border">
-              <span>Cumulative returns</span>
-              <span className="font-bold text-teal-500 font-mono">
-                {agent.strategy?.backtested?.accumulatedReturns}%
-              </span>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['type']?.[agent.strategy.type] || "text-white", "strategy-item")}>{valueLabels['type'][agent.strategy.type]}</Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['direction']?.[agent.strategy.direction] || "text-white", "strategy-item")}>{valueLabels['direction'][agent.strategy.direction]}</Badge>
+              <Badge variant={"outline"} className="strategy-item capitalize text-white">
+
+
+                <Popover>
+                  <PopoverTrigger className="capitalize">{agent.strategy.assets.replaceAll("_", " ")}</PopoverTrigger>
+                  <PopoverContent>
+                    <div className="flex flex-wrap gap-1 text-xs">
+                      {assets[agent.strategy.assets as AssetCategory]?.map((asset, index) => (
+                        <>
+                          <span key={index} className="border p-1 rounded">{asset}</span>
+                        </>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[agent.strategy.timeframe] || "text-white", "strategy-item")}>{valueLabels['timeframe'][agent.strategy.timeframe]}</Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[agent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][agent.strategy.signal_detection_entry]}</Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[agent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][agent.strategy.signal_detection_exit]}</Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['risk_management']?.[agent.strategy.risk_management] || "text-white", "strategy-item")}>{valueLabels['risk_management'][agent.strategy.risk_management]}</Badge>
+              <Badge variant={"outline"} className={clsx(valueColorClasses['ranking_method']?.[agent.strategy.ranking_method] || "text-white", "strategy-item")}>{valueLabels['ranking_method'][agent.strategy.ranking_method]}</Badge>
+              {agent.strategy?.exchange && (
+                <Badge variant={"outline"} className="strategy-item text-neutral-400 capitalize">
+                  {agent.strategy.exchange}
+                </Badge>
+              )}
+              <Separator className="my-2" />
+              {agent.strategy?.backtested && (
+                <>
+                  <Badge variant={"outline"} className="strategy-item text-sky-300">Cumulative return: {agent.strategy?.backtested?.accumulatedReturns}%</Badge>
+                  <Badge variant={"outline"} className="strategy-item text-sky-300">CAGR: {agent.strategy?.backtested?.CAGR}%</Badge>
+                  <Badge variant={"outline"} className="strategy-item text-sky-300">Max drawdown: {agent.strategy?.backtested?.maxDrawdown}%</Badge>
+                </>
+              )}
             </div>
-            <div className="rounded-md px-4 py-2 text-neutral-400 flex flex-col justify-between border">
-              <span>CAGR</span>
-              <span className="font-bold text-teal-500 font-mono">
-                {agent.strategy?.backtested?.CAGR}%
-              </span>
-            </div>
+          </>
+        )
+        : 
+          <div>
+            <Separator className="my-2" />
+          <span className="text-neutral-500 font-mono ">
+            No backtest data available
+          </span>
+          
           </div>
-        )}
+        }
+        <div className="mt-2">
+          <Separator className="mb-4" />
+          <div className="grid grid-cols-2 gap-1">
+            <span>Owner Address:</span>
+            <span>{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
+            <span>Created:</span>
+            <span>{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
+        </div>
+        </div>
       </CardContent>
 
       <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm border-t">
