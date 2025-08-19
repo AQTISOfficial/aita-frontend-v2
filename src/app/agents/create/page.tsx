@@ -264,7 +264,7 @@ export default function CreateAgentPage() {
     return (
         <div className="px-4">
             <div className="text-center text-sm text-neutral-300 mb-4">Create new Agent</div>
-            <div className="text-center text-xl text-neutral-100 mb-4">Let's get to know your AI Agent</div>
+            <div className="text-center text-xl text-neutral-100 mb-4">Let&apos;s get to know your AI Agent</div>
             <form onSubmit={handleSubmit}>
                 <Card className="px-4 py-6 w-full lg:w-1/2 mx-auto">
                     <CardContent>
