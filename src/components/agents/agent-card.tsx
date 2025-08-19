@@ -51,7 +51,7 @@ export function AgentCard({ agent }: AgentCardProps) {
   const router = useRouter();
 
   const handleViewDetails = () => {
-    router.push(`/agents/${agent.id}`);
+    router.push(`/agents/details/${agent.id}`);
   };
 
   return (
