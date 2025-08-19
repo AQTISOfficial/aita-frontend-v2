@@ -13,6 +13,7 @@ import { Button } from "../ui/button"
 import Image from "next/image"
 import { CircleCheckBigIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
 
 interface AgentCardProps {
   agent: {
@@ -49,6 +50,7 @@ interface AgentCardProps {
 export function AgentCard({ agent }: AgentCardProps) {
 
   const router = useRouter();
+  const {address, isConnected} = useAccount();
 
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
@@ -109,8 +111,13 @@ export function AgentCard({ agent }: AgentCardProps) {
         )}
       </CardContent>
 
-      <CardFooter className="mt-auto flex items-end justify-end gap-1 text-sm border-t">
-        <Button variant="outline" type="button" onClick={handleViewDetails}>
+      <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm border-t">
+        {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy ? (
+          <Button variant={"tertiary"} onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} size={"lg"}>
+            Add Strategy
+          </Button>
+        ) : <div>&nbsp;</div>}
+        <Button variant="outline" type="button" onClick={handleViewDetails} size={"lg"}>
           View Details
         </Button>
       </CardFooter>
