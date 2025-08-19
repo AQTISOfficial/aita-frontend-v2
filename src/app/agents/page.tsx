@@ -106,7 +106,7 @@ export default function Home() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="md:w-5/6 flex items-center justify-between py-1 ">
+      <div className="md:w-5/6 flex items-center justify-between px-2 ">
         <Button variant="outline" className="p-2 border rounded-md text-sm flex"><IconRobotFace />  Total Agents: {totalAgents}</Button>
         <Button className="bg-white text-black" variant="secondary" type="button" onClick={createAgent}
           disabled={!isConnected}>
@@ -191,7 +191,7 @@ export default function Home() {
   );
 }
 
-export function PaginationFunction({
+function PaginationFunction({
   currentPage,
   totalPages,
   onPageChange,
