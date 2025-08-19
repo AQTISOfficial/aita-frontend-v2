@@ -109,10 +109,7 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
             maximumFractionDigits: 2
           }).format(totalValueEquity);
 
-          console.log("Total PnL (formatted):", totalPnlFormatted);
-
           const apy = parseFloat((data.apr * 100).toFixed(2));
-
 
           const formattedTvl = Number(totalValueEquity).toLocaleString("en-US", {
             style: "currency",
@@ -148,7 +145,7 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
 
       {vault && (
         <>
-          <Card className="my-4">
+          <Card className="my-4 h-96 flex flex-col justify-between">
             <CardHeader>
               <CardTitle>{vault.name}</CardTitle>
               <CardAction>

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 
 import { AgentCard } from "@/components/agents/agent-card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -13,25 +12,32 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 import { IconRobotFace } from "@tabler/icons-react";
 
 
 type SortKey = "asc" | "desc";
 
 export default function Home() {
+
+  // State
   const [limit, setLimit] = useState(15);
-  const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState<SortKey>("desc");
   const [search, setSearch] = useState("");
   const [agents, setAgents] = useState([]);
   const [userAgents, setUserAgents] = useState(false);
   const [strategy, setStrategy] = useState(false);
   const [totalAgents, setTotalAgents] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Wagmi
   const { address, isConnected } = useAccount();
+
+  // Router
+  const router = useRouter();
 
   useEffect(() => {
 
@@ -52,15 +58,15 @@ export default function Home() {
         setAgents(list);
         setTotalAgents(data?.meta?.totalCount || 0);
 
-      } catch (err) {
-        console.error("Failed to fetch agents:", err);
+      } catch {
+        setError("Failed to fetch agents. Please try again later.");
       }
     };
 
     fetchAgentsList();
 
     setCurrentPage(currentPage);
-  }, [limit, offset, sort, search, currentPage, strategy, address, userAgents]);
+  }, [limit, sort, search, currentPage, strategy, address, userAgents]);
 
 
   const totalPages = Math.ceil(totalAgents / limit);
@@ -81,19 +87,26 @@ export default function Home() {
     setSearch(value);
   };
 
+  const createAgent = () => {
+    router.push("/agents/create");
+  };
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="md:w-5/6 flex items-center justify-between py-1 ">
         <Button variant="outline" className="p-2 border rounded-md text-sm flex"><IconRobotFace />  Total Agents: {totalAgents}</Button>
-        <Button className="bg-white text-black" variant="secondary" type="button" onClick={() => console.log("Add Agent clicked")}
+        <Button className="bg-white text-black" variant="secondary" type="button" onClick={createAgent}
           disabled={!isConnected}>
           Create Agent
         </Button>
 
       </div>
 
-      <div className="md:w-5/6 flex flex-wrap gap-2 border-b pb-2">
+      <div className="md:w-5/6 flex flex-wrap gap-2 p-2 sticky top-0 bg-neutral-950 z-10">
         <input
           id="search"
           type="text"

@@ -79,10 +79,13 @@ function ChartLineLinear({
     title: string
     subtitle?: string
 }) {
-    const rows = block?.[series] ?? []
+    
     const chartData = useMemo(
-        () => rows.map(([ts, v]) => ({ ts, value: Number(v) })),
-        [rows]
+        () => {
+            const rows = block?.[series] ?? []
+            return rows.map(([ts, v]) => ({ ts, value: Number(v) }))
+        },
+        [block, series]
     )
 
     return (

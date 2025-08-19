@@ -1,9 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react"
+import { ChevronRight } from "lucide-react"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -13,23 +13,24 @@ export function SiteHeader() {
     setMounted(true)
   }, [])
 
-  if (!mounted) {
-    return null 
-  }
+  if (!mounted) return null
 
-  let headerTitle = "Dashboard"
-  if (pathname.includes("/vaults")) {
-    headerTitle = "Vaults"
-  } else if (pathname.startsWith("/agents")) {
-    headerTitle = "Agents"
-  }
+  const parts = pathname.split("/").filter(Boolean)
 
+  const headerTitle = parts.length > 0
+    ? parts.map((p, i) => (
+        <span key={p}>
+          {i > 0 && <ChevronRight className="mx-1 size-4 inline" />}
+          {p.charAt(0).toUpperCase() + p.slice(1)}
+        </span>
+      ))
+    : "Dashboard"
+        
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b">
       <div className="flex w-full items-center gap-1 px-4 py-2 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mx-2 h-4" />
-        <h1 className="text-base font-medium">{headerTitle}</h1>
+        <span className="text-base font-medium flex items-center py-1">{headerTitle}</span>
         <div className="ml-auto flex items-center gap-2"></div>
       </div>
     </header>

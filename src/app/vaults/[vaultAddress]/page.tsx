@@ -20,7 +20,6 @@ async function getVaultData(vaultAddress: string) {
 
   if (!res.ok) throw new Error("Failed to fetch vault data")
   const data = await res.json()
-  console.log("Vault data fetched successfully:", data)
   return data
 }
 

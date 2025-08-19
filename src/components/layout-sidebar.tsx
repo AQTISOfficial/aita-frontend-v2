@@ -1,4 +1,4 @@
-import { BotIcon, HandCoins, Wallet, ChartBar, Vault } from "lucide-react"
+import { BotIcon, Vault } from "lucide-react"
 
 import {
     Sidebar,

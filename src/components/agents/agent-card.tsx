@@ -12,6 +12,7 @@ import {
 import { Button } from "../ui/button"
 import Image from "next/image"
 import { CircleCheckBigIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface AgentCardProps {
   agent: {
@@ -46,6 +47,13 @@ interface AgentCardProps {
 
 
 export function AgentCard({ agent }: AgentCardProps) {
+
+  const router = useRouter();
+
+  const handleViewDetails = () => {
+    router.push(`/agents/${agent.id}`);
+  };
+
   return (
     <Card className="flex h-full flex-col">
       <div className="w-full relative -top-6">
@@ -102,7 +110,7 @@ export function AgentCard({ agent }: AgentCardProps) {
       </CardContent>
 
       <CardFooter className="mt-auto flex items-end justify-end gap-1 text-sm border-t">
-        <Button variant="outline" type="button" onClick={() => console.log("View Details clicked")}>
+        <Button variant="outline" type="button" onClick={handleViewDetails}>
           View Details
         </Button>
       </CardFooter>

@@ -40,7 +40,7 @@ export function Header() {
           "Content-Type": "application/json",
         },
         next: {
-          revalidate: 60, // Revalidate every 60 seconds
+          revalidate: 60, 
         },
         body: JSON.stringify(params),
       })
@@ -50,20 +50,17 @@ export function Header() {
 
     fetchlist()
 
-    // const interval = setInterval(fetchlist, 5000); // elke 5 sec
-    // return () => clearInterval(interval); // cleanup
   }, [])
 
   useEffect(() => {
     const fetchVaults = async () => {
-
       setTotalVaults(vaults ? vaults?.length : 0)
+      console.log(vaults)
+      // const totalValue = vaults.reduce((acc, vault) => acc + vault.totalValue, 0)
+      // setTotalValueLocked(totalValue)
     }
 
     fetchVaults()
-
-    // const interval = setInterval(fetchVaults, 5000); // elke 5 sec
-    // return () => clearInterval(interval); // cleanup
   }, [vaults])
 
   return (
