@@ -15,13 +15,11 @@ import {
 } from "@/components/ui/sidebar"
 
 import {
-    IconSpeakerphone,
     IconDashboard,
 } from "@tabler/icons-react"
 
-import { NavUser } from "./nav-user"
 import { Icons } from "./icon"
-import { CustomConnectButton } from "./connect-button"
+
 
 // Menu items.
 const items = [
@@ -65,7 +63,7 @@ const items = [
 
 export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
-        <Sidebar collapsible="offcanvas" {...props}>
+        <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -101,7 +99,7 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                <CustomConnectButton />
+              
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>

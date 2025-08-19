@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react"
 import { ChevronRight } from "lucide-react"
+import { CustomConnectButton } from "./connect-button"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -31,7 +32,7 @@ export function SiteHeader() {
       <div className="flex w-full items-center gap-1 px-4 py-2 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <span className="text-base font-medium flex items-center py-1">{headerTitle}</span>
-        <div className="ml-auto flex items-center gap-2"></div>
+        <div className="ml-auto flex items-center gap-2"><CustomConnectButton /></div>
       </div>
     </header>
   )
