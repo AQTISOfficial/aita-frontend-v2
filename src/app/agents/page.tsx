@@ -162,7 +162,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="md:w-5/6 grid grid-cols-1 gap-4 py-2 lg:grid-cols-2 2xl:grid-cols-3 md:gap-6">
+      <div className="md:w-5/6 grid grid-cols-1 gap-4 p-2 lg:grid-cols-2 2xl:grid-cols-3 md:gap-6">
         {Array.isArray(agents) && agents.map((agent, index) => (
           <AgentCard key={index} agent={agent} />
         ))}

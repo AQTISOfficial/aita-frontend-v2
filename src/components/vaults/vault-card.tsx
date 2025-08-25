@@ -40,7 +40,8 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
   const [vault, setVault] = useState<VaultData | null>(null);
   const [totalVaultValue, setTotalVaultValue] = useState<string | null>(null);
   const [totalVaultPnl, setTotalVaultPnl] = useState<string | null>(null);
-  const [currentApy, setCurrentApy] = useState<number | null>(null);
+  const [currentApr, setCurrentApr] = useState<number | null>(null);
+  const [currentPnl, setCurrentPnl] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
@@ -109,7 +110,7 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
             maximumFractionDigits: 2
           }).format(totalValueEquity);
 
-          const apy = parseFloat((data.apr * 100).toFixed(2));
+          const apr = parseFloat((data.apr * 100).toFixed(2));
 
           const formattedTvl = Number(totalValueEquity).toLocaleString("en-US", {
             style: "currency",
@@ -121,9 +122,12 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
             currency: "USD"
           });
 
+          const pnl = parseFloat(Number((totalPnl / totalValueEquity) * 100).toFixed(2));
+
           setTotalVaultPnl(formattedPnl);
           setTotalVaultValue(formattedTvl);
-          setCurrentApy(apy);
+          setCurrentApr(apr);
+          setCurrentPnl(pnl);
         }
 
       } catch (err) {
@@ -147,29 +151,29 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
         <>
           <Card className="my-4 h-96 flex flex-col justify-between">
             <CardHeader>
-              <CardTitle>{vault.name}</CardTitle>
+              <CardTitle className="font-light text-teal-300 text-xl">{vault.name}</CardTitle>
               <CardAction>
                 <Badge
                   variant="outline"
-                  className={`font-mono 
-                  ${(currentApy ?? 0) < 0 ? "text-red-500" : "text-teal-500"}
+                  className={`font-mono text-sm p-2 bg-neutral-800 
+                  ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}
                 `}
                 >
-                  {(currentApy ?? 0) < 0 ? <IconTrendingDown /> : <IconTrendingUp />}
-                  {(currentApy ?? 0) > 0 && "+"} {(currentApy ?? 0).toFixed(2)}%
+                  {(currentPnl ?? 0) < 0 ? <IconTrendingDown /> : <IconTrendingUp />}
+                  {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}%
                 </Badge>
               </CardAction>
               <CardDescription className="py-2">{vault.description}</CardDescription>
             </CardHeader>
             <CardContent>
 
-              <div className="grid grid-cols-2 gap-2 text-sm font-mono">
+              <div className="grid grid-cols-2 gap-2 text-sm">
                 <span>Total Value Locked:</span>
-                <span className="tabular-nums">{totalVaultValue ?? "N/A"}</span>
+                <span className="text-neutral-300 font-mono text-end">{totalVaultValue ?? "N/A"}</span>
 
                 <span>Unrealized PnL:</span>
                 <span
-                  className={`flex items-center ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"
+                  className={`flex items-center font-mono justify-end ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"
                     }`}
                 >
                   {totalVaultPnl ?? "N/A"}
@@ -178,10 +182,10 @@ export function HyperliquidVaults({ vaultAddress, details }: HyperliquidVaultsPr
 
                 <span>Current APR:</span>
                 <span
-                  className={`flex items-center ${Number(currentApy) < 0 ? "text-red-500" : "text-teal-500"
+                  className={`flex items-center font-mono justify-end ${Number(currentApr) < 0 ? "text-red-500" : "text-teal-500"
                     }`}
                 >
-                  {currentApy == null ? "N/A" : `${currentApy}%`} {(currentApy ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
+                  {currentApr == null ? "N/A" : `${currentApr}%`} {(currentApr ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
                 </span>
               </div>
             </CardContent>

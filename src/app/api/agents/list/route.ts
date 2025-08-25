@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   url.searchParams.set("search", search);
   if (userAgents && address.length > 0) url.searchParams.set("address", String(address.toLowerCase()));
   url.searchParams.set("isBacktested", String(strategy));
+  url.searchParams.set("hasContract", String(true));
 
   const res = await fetch(url.toString(), {
     next: { revalidate: 60 },
