@@ -1,112 +1,136 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
+// Page: Agents Overview
+// ---------------------
+// Purpose: Render a paginated, searchable, and filterable list of agents.
+// Notes:
+// - Client Component: uses wagmi hooks for wallet state and client-side data fetching.
+// - Supports pagination, sorting, search, and filters (user agents, backtested).
+// - Fetches agent data from API (`/api/agents/list`) and displays using `AgentCard`.
+// - Redirects to `/agents/create` when user clicks "Create Agent".
 
-import { AgentCard } from "@/components/agents/agent-card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import React, { useEffect, useState } from "react"
+
+import { AgentCard } from "@/components/agents/agent-card"
+import { Button } from "@/components/ui/button"
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
-import { useAccount } from "wagmi";
-import { useRouter } from "next/navigation";
-import { IconRobotFace } from "@tabler/icons-react";
+import { useAccount } from "wagmi"
+import { useRouter } from "next/navigation"
+import { IconRobotFace } from "@tabler/icons-react"
 
-import { PaginationFunction } from "@/components/ui/pagination-function";
+import { PaginationFunction } from "@/components/ui/pagination-function"
 
-type SortKey = "asc" | "desc";
+type SortKey = "asc" | "desc"
 
 export default function Home() {
+  // --- State ---
+  const [limit, setLimit] = useState(15)
+  const [sort, setSort] = useState<SortKey>("desc")
+  const [search, setSearch] = useState("")
+  const [agents, setAgents] = useState([])
+  const [userAgents, setUserAgents] = useState(false)
+  const [strategy, setStrategy] = useState(false)
+  const [totalAgents, setTotalAgents] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
-  // State
-  const [limit, setLimit] = useState(15);
-  const [sort, setSort] = useState<SortKey>("desc");
-  const [search, setSearch] = useState("");
-  const [agents, setAgents] = useState([]);
-  const [userAgents, setUserAgents] = useState(false);
-  const [strategy, setStrategy] = useState(false);
-  const [totalAgents, setTotalAgents] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  // --- Pagination ---
+  const [currentPage, setCurrentPage] = useState(1)
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  // Wagmi hook for wallet state
+  const { address, isConnected } = useAccount()
 
-  // Wagmi
-  const { address, isConnected } = useAccount();
+  // Router to navigate to Create Agent
+  const router = useRouter()
 
-  // Router
-  const router = useRouter();
-
+  // Fetch agents list whenever filters/pagination change
   useEffect(() => {
-
     const fetchAgentsList = async () => {
       try {
-
-        const offset = (currentPage - 1) * limit;
+        const offset = (currentPage - 1) * limit
 
         const res = await fetch("/api/agents/list", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ limit, offset, sort, search, address, strategy, userAgents }),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const list = data?.data || [];
+          body: JSON.stringify({
+            limit,
+            offset,
+            sort,
+            search,
+            address,
+            strategy,
+            userAgents,
+          }),
+        })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        const list = data?.data || []
 
-        setAgents(list);
-        setTotalAgents(data?.meta?.totalCount || 0);
-
+        setAgents(list)
+        setTotalAgents(data?.meta?.totalCount || 0)
       } catch {
-        setError("Failed to fetch agents. Please try again later.");
+        setError("Failed to fetch agents. Please try again later.")
       }
-    };
+    }
 
-    fetchAgentsList();
+    fetchAgentsList()
+    setCurrentPage(currentPage)
+  }, [limit, sort, search, currentPage, strategy, address, userAgents])
 
-    setCurrentPage(currentPage);
-  }, [limit, sort, search, currentPage, strategy, address, userAgents]);
-
-
-  const totalPages = Math.ceil(totalAgents / limit);
+  const totalPages = Math.ceil(totalAgents / limit)
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handleAgentSearch = (value: string) => {
-    setSearch(value);
-  };
-
-  const createAgent = () => {
-    router.push("/agents/create");
-  };
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1)
   }
 
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1)
+  }
+
+  const handleAgentSearch = (value: string) => {
+    setSearch(value)
+  }
+
+  const createAgent = () => {
+    router.push("/agents/create")
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>
+  }
+
+  // --- Render ---
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="md:w-5/6 flex items-center justify-between px-2 ">
-        <Button variant="outline" className="p-2 border rounded-md text-sm flex"><IconRobotFace />  Total Agents: {totalAgents}</Button>
-        <Button className="bg-white text-black" variant="secondary" type="button" onClick={createAgent}
-          disabled={!isConnected}>
+      {/* Header: total count + create button */}
+      <div className="md:w-5/6 flex items-center justify-between px-2">
+        <Button
+          variant="outline"
+          className="p-2 border rounded-md text-sm flex"
+        >
+          <IconRobotFace /> Total Agents: {totalAgents}
+        </Button>
+        <Button
+          className="bg-white text-black"
+          variant="secondary"
+          type="button"
+          onClick={createAgent}
+          disabled={!isConnected}
+        >
           Create Agent
         </Button>
-
       </div>
 
+      {/* Filters: search, order, limit, toggles */}
       <div className="md:w-5/6 flex flex-wrap gap-2 p-2 sticky top-0 bg-neutral-950 z-10">
         <input
           id="search"
@@ -119,7 +143,10 @@ export default function Home() {
         />
         <Select
           value={sort}
-          onValueChange={(v) => { setCurrentPage(1); setSort(v as SortKey); }}
+          onValueChange={(v) => {
+            setCurrentPage(1)
+            setSort(v as SortKey)
+          }}
         >
           <SelectTrigger className="w-[160px] focus:outline-none focus:ring-1">
             <SelectValue placeholder="Order" />
@@ -131,7 +158,10 @@ export default function Home() {
         </Select>
         <Select
           value={limit.toString()}
-          onValueChange={(v) => { setCurrentPage(1); setLimit(parseInt(v, 10)); }}
+          onValueChange={(v) => {
+            setCurrentPage(1)
+            setLimit(parseInt(v, 10))
+          }}
         >
           <SelectTrigger className="w-[80px] focus:outline-none focus:ring-1">
             <SelectValue placeholder="Limit" />
@@ -146,28 +176,37 @@ export default function Home() {
         </Select>
         {isConnected && (
           <div className="flex items-center space-x-2">
-            <Switch id="user-agents"
+            <Switch
+              id="user-agents"
               checked={userAgents}
-              onCheckedChange={() => { setCurrentPage(1); setUserAgents(!userAgents); }}
+              onCheckedChange={() => {
+                setCurrentPage(1)
+                setUserAgents(!userAgents)
+              }}
             />
             <Label htmlFor="user-agents">My Agents</Label>
           </div>
         )}
         <div className="flex items-center space-x-2">
-          <Switch id="strategy"
+          <Switch
+            id="strategy"
             checked={strategy}
-            onCheckedChange={() => { setCurrentPage(1); setStrategy(!strategy); }}
+            onCheckedChange={() => {
+              setCurrentPage(1)
+              setStrategy(!strategy)
+            }}
           />
           <Label htmlFor="strategy">Backtested</Label>
         </div>
       </div>
 
+      {/* Agents grid */}
       <div className="md:w-5/6 grid grid-cols-1 gap-4 p-2 lg:grid-cols-2 2xl:grid-cols-3 md:gap-6">
-        {Array.isArray(agents) && agents.map((agent, index) => (
-          <AgentCard key={index} agent={agent} />
-        ))}
-
+        {Array.isArray(agents) &&
+          agents.map((agent, index) => <AgentCard key={index} agent={agent} />)}
       </div>
+
+      {/* Pagination */}
       <div className="md:w-5/6 flex justify-end items-center py-2 px-4">
         {totalAgents > 0 && (
           <PaginationFunction
@@ -180,6 +219,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  );
+  )
 }
-
