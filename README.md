@@ -79,20 +79,6 @@ Then open [http://localhost:3011](http://localhost:3011) in your browser.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository  
-2. Create your feature branch: `git checkout -b feature/my-feature`  
-3. Commit your changes: `git commit -m 'Add new feature'`  
-4. Push to the branch: `git push origin feature/my-feature`  
-5. Open a Pull Request  
-
-We follow conventional commit messages and prefer small, focused PRs.
-
----
-
 ## 📝 License
 
 This project is part of the [AITA Protocol](https://github.com/aqtisofficial).  
