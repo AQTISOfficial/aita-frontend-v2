@@ -11,8 +11,8 @@
 // - Wrapper <VaultChart> handles state, <ChartLineLinear> renders chart UI.
 
 import { useMemo, useState } from "react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
-import { TrendingUp } from "lucide-react"
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { TrendingUp, Monitor } from "lucide-react"
 
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
@@ -51,7 +51,7 @@ type SeriesKey = keyof Pick<SeriesBlock, "accountValueHistory" | "pnlHistory">
 
 // ---------- Helpers ----------
 const chartConfig = {
-  desktop: { label: "Desktop", color: "var(--color-teal-500)" },
+  desktop: { label: "Desktop", icon: Monitor, color: "var(--color-teal-500)" },
 } satisfies ChartConfig
 
 // Format ticks depending on timeframe
@@ -114,9 +114,28 @@ function ChartLineLinear({
               type="number"
               domain={["dataMin", "dataMax"]}
               tickFormatter={(value) => fmtTick(value as number, timeframe)}
-              tickLine={false}
-              axisLine={false}
+              tickLine={true}
+              axisLine={true}
               tickMargin={8}
+            />
+            <YAxis
+              dataKey="value"
+              type="number"
+              domain={["auto", "auto"]}
+              tickLine={true}
+              axisLine={true}
+              tickMargin={8}
+              width={56}
+              tickFormatter={(value) =>
+                typeof value === "number"
+                  ? value.toLocaleString("en-US", {
+                    style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 2,
+                      minimumFractionDigits: 2,
+                    })
+                  : value
+              }
             />
             <ChartTooltip
               cursor={false}
@@ -136,6 +155,8 @@ function ChartLineLinear({
                   formatter={(val, _name) => {
                     const num = typeof val === "number" ? val : Number(val ?? 0)
                     const formatted = num.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
                       maximumFractionDigits: 2,
                     })
                     return [formatted]
@@ -147,7 +168,7 @@ function ChartLineLinear({
               dataKey="value"
               type="linear"
               stroke="var(--color-desktop)"
-              strokeWidth={2}
+              strokeWidth={1}
               dot={false}
             />
           </LineChart>
@@ -168,12 +189,14 @@ function ChartLineLinear({
 // ---------- Wrapper ----------
 export function VaultChart({
   data,
-  defaultTimeframe = "week",
-  defaultSeries = "accountValueHistory",
+  defaultTimeframe = "allTime",
+  defaultSeries = "pnlHistory",
+  className,
 }: {
   data: RawPair[]
   defaultTimeframe?: AllowedTf
   defaultSeries?: SeriesKey
+  className?: string
 }) {
   const byKey = useMemo(() => normalizeAllowedOnly(data), [data])
   const [tf, setTf] = useState<AllowedTf>(defaultTimeframe)
@@ -185,31 +208,33 @@ export function VaultChart({
       : `Account value ${tf}`
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${className}`}>
       {/* Controls: timeframe + series + reset */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <ToggleGroup
           type="single"
           value={tf}
           onValueChange={(v) => v && setTf(v as AllowedTf)}
           className="gap-1 bg-neutral-900 border"
         >
-          <ToggleGroupItem value="day" aria-label="day" className="px-2">Day</ToggleGroupItem>
-          <ToggleGroupItem value="week" aria-label="week" className="px-2">Week</ToggleGroupItem>
-          <ToggleGroupItem value="month" aria-label="month" className="px-2">Month</ToggleGroupItem>
-          <ToggleGroupItem value="allTime" aria-label="allTime" className="px-4">All time</ToggleGroupItem>
+          <ToggleGroupItem value="day" aria-label="day" className="px-2 text-xs">Day</ToggleGroupItem>
+          <ToggleGroupItem value="week" aria-label="week" className="px-2 text-xs">Week</ToggleGroupItem>
+          <ToggleGroupItem value="month" aria-label="month" className="px-2 text-xs">Month</ToggleGroupItem>
+          <ToggleGroupItem value="allTime" aria-label="allTime" className="px-4 text-xs">All time</ToggleGroupItem>
         </ToggleGroup>
-
+        <div className="flex space-x-1">
         <Select
           value={series}
           onValueChange={(v) => setSeries(v as SeriesKey)}
+          
         >
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Serie" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="accountValueHistory">Account value</SelectItem>
-            <SelectItem value="pnlHistory">PnL</SelectItem>
+          <SelectContent
+          >
+            <SelectItem value="accountValueHistory" className="text-xs">Account value</SelectItem>
+            <SelectItem value="pnlHistory" className="text-xs">PnL</SelectItem>
           </SelectContent>
         </Select>
 
@@ -222,6 +247,7 @@ export function VaultChart({
         >
           Reset
         </Button>
+        </div>
       </div>
 
       {/* Chart output */}

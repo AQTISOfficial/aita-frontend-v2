@@ -10,9 +10,11 @@
 // - Renders vault details via <HyperliquidVaults> and chart via <VaultChart>.
 
 import React from "react"
-import { HyperliquidVaults } from "@/components/vaults/vault-card"
+import { VaultCardDetails } from "@/components/vaults/vault-card-details"
 import { VaultChart } from "@/components/vaults/vault-chart"
 import { publicEnv } from "@/lib/env.public"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL
 
@@ -45,19 +47,33 @@ export default async function Page({
   }
 
   const vaultData = await getVaultData(vaultAddress)
+  console.log("Vault Data:", vaultData)
+
+  const vaultName = vaultData?.name || "Vault"
+
 
   if (!vaultData) {
     return <div className="text-red-500">Failed to fetch vault data</div>
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
-      <HyperliquidVaults vaultAddress={vaultAddress} details={true} />
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="col-span-2 xl:col-span-4 mb-2 flex justify-between">
+        <span className="text-2xl text-teal-400">{vaultName}</span>
+        <div className="flex space-x-2">
+          <Button variant={"outline"} className="btn">Deposit</Button>
+          <Button variant={"outline"} className="btn">Withdraw</Button>
+        </div>
+      </div>
+
+      <VaultCardDetails vaultAddress={vaultAddress} className="col-span-2 xl:col-span-4" />
       <VaultChart
         data={vaultData.portfolio}
-        defaultTimeframe="week"
-        defaultSeries="accountValueHistory"
+        defaultTimeframe="allTime"
+        defaultSeries="pnlHistory"
+        className="col-span-2 xl:col-span-4"
       />
+
     </div>
   )
 }

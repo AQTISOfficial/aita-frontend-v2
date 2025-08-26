@@ -25,6 +25,8 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { ChartNoAxesCombined, ChartNoAxesCombinedIcon, Info } from "lucide-react";
 
 interface Follower {
   user: string;
@@ -48,12 +50,11 @@ interface VaultData {
 interface HyperliquidVaultsProps {
   vaultAddress: string;
   className?: string;
-  details?: boolean;
 }
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL;
 
-export function HyperliquidVaults({ vaultAddress, className, details }: HyperliquidVaultsProps) {
+export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsProps) {
   const [vault, setVault] = useState<VaultData | null>(null);
   const [totalVaultValue, setTotalVaultValue] = useState<string | null>(null);
   const [totalVaultPnl, setTotalVaultPnl] = useState<string | null>(null);
@@ -63,6 +64,7 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
   const [error, setError] = useState<string | null>(null);
 
   // **local state for toggle**
+  const [tab, setTab] = useState<"about" | "performance">("about");
 
   const router = useRouter();
 
@@ -141,73 +143,96 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
       {error && <Card className={`text-red-500 p-4 ${className}`}>Error: {error}</Card>}
       {loading && <Card className={`text-gray-500 p-4 ${className}`}>Loading...</Card>}
       {vault && (
-        <div className={className}>
-         
-          
-            <Card className={`h-96 flex flex-col justify-between`}>
-              <CardHeader>
-                <CardTitle className="font-light text-teal-300 text-xl">
-                  {vault.name}
-                </CardTitle>
-                <CardAction>
-                  <Badge
-                    variant="outline"
-                    className={`font-mono text-sm p-2 bg-neutral-800
-                      ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {(currentPnl ?? 0) < 0 ? <IconTrendingDown /> : <IconTrendingUp />}
-                    {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}%
-                  </Badge>
-                </CardAction>
-                <CardDescription className="py-2">{vault.description}</CardDescription>
-              </CardHeader>
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-neutral-400 font-light">Total Value Locked</CardTitle>
+            </CardHeader>
+            <CardContent className={`text-2xl font-mono flex items-center`}>
+              {totalVaultValue ?? "N/A"}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-neutral-400 font-light">Current APR</CardTitle>
+            </CardHeader>
+            <CardContent className={`text-2xl font-mono flex items-center ${(currentApr ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+              {(currentApr ?? 0) > 0 && "+"} {(currentApr ?? 0).toFixed(2)}% {(currentApr ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-neutral-400 font-light">Unrealized PnL</CardTitle>
+            </CardHeader>
+            <CardContent className={`text-2xl font-mono flex items-center ${(Number(totalVaultPnl) ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+              {totalVaultPnl ?? "N/A"}
+              {Number(totalVaultPnl) < 0 ? (
+                <IconTrendingDown className="size-4 ml-2" />
+              ) : (
+                <IconTrendingUp className="size-4 ml-2" />
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-neutral-400 font-light">Current PnL</CardTitle>
+            </CardHeader>
+            <CardContent className={`text-2xl font-mono flex items-center ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+              {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}% {(currentPnl ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
+            </CardContent>
+          </Card>
 
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span>Total Value Locked:</span>
+          <div className={className}>
+
+            <ToggleGroup
+              type="single"
+              value={tab}
+              onValueChange={(v) => v && setTab(v as "about" | "performance")}
+              className="gap-1 bg-neutral-900 border w-full mb-4"
+            >
+              <ToggleGroupItem value="about" aria-label="about" className="px-4 flex-none text-xs"><Info className="size-4 mr-1" />About</ToggleGroupItem>
+              <ToggleGroupItem value="performance" aria-label="performance" className="px-4 flex-none items-center text-xs"><ChartNoAxesCombinedIcon className="size-4 mr-1" />Performance</ToggleGroupItem>
+            </ToggleGroup>
+
+            {tab === "about" && (
+              <Card className={`h-60 flex flex-col justify-between`}>
+                <CardHeader>
+
+                  <CardDescription className="py-2">{vault.description}</CardDescription>
+                </CardHeader>
+
+                <CardContent>
+                  <div className="flex text-xs space-x-2">
+                  <span>Leader:</span>
                   <span className="text-neutral-300 font-mono text-end">
-                    {totalVaultValue ?? "N/A"}
+                    {vault.leader ? `${vault.leader.slice(0, 6)}...${vault.leader.slice(-4)}` : "N/A"}
                   </span>
-
-                  <span>Unrealized PnL:</span>
-                  <span
-                    className={`flex items-center font-mono justify-end ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {totalVaultPnl ?? "N/A"}
-                    {Number(totalVaultPnl) < 0 ? (
-                      <IconTrendingDown className="size-4 ml-2" />
-                    ) : (
-                      <IconTrendingUp className="size-4 ml-2" />
-                    )}
+                  {/* <span>Followers:</span>
+                  <span className="text-neutral-300 font-mono text-end">
+                    {vault.followers.length}
                   </span>
+                  <span>Address:</span>
+                  <span className="text-neutral-300 font-mono text-end">
+                    {vault.vaultAddress}
+                  </span> */}
+                  </div>
+                  
+                </CardContent>
 
-                  <span>Current APR:</span>
-                  <span
-                    className={`flex items-center font-mono justify-end ${Number(currentApr) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {currentApr == null ? "N/A" : `${currentApr}%`}{" "}
-                    {(currentApr ?? 0) < 0 ? (
-                      <IconTrendingDown className="size-4 ml-2" />
-                    ) : (
-                      <IconTrendingUp className="size-4 ml-2" />
-                    )}
-                  </span>
-                </div>
-              </CardContent>
+                <CardFooter className="flex-col items-end gap-2 text-sm">
 
-              <CardFooter className="flex-col items-end gap-2 text-sm">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => router.push(`/vaults/${vaultAddress}`)}
-                  >
-                    View Details
-                  </Button>
-              </CardFooter>
-            </Card>
+                </CardFooter>
+              </Card>
 
-         
-        </div>
+            )}
+
+            {tab === "performance" && (
+              <Card className="h-60 flex flex-col justify-center items-center">
+                <p className="text-neutral-400">Performance chart or stats coming here…</p>
+              </Card>
+            )}
+          </div>
+        </>
       )}
     </>
   );

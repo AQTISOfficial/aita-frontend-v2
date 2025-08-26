@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from './ui/button';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Wallet } from "lucide-react";
 
 export const CustomConnectButton = (): React.ReactElement => {
     return (
@@ -66,11 +67,12 @@ export const CustomConnectButton = (): React.ReactElement => {
                                     <Button onClick={openChainModal}
                                         variant="outline"
                                         type="button"
+                                        className="hidden md:flex"
                                     >
                                         {chain.iconUrl && (
                                             <img
                                                 alt={chain.name}
-                                                className="w-6 h-6 rounded-full"
+                                                className="w-4 h-4 md:w-6 md:h-6 rounded-full"
                                                 src={chain.iconUrl}
                                             />
                                         )}
@@ -86,11 +88,11 @@ export const CustomConnectButton = (): React.ReactElement => {
                                                 : ''}
                                         </span>
                                         <div onClick={openAccountModal}
-                                            className="flex items-center space-x-2 rounded-full text-white pr-2"
+                                            className="flex items-center rounded-full text-white"
                                             
                                         >
-
-                                            <div className="text-xs md:text-sm">
+                                            <Wallet className="w-4 h-4 md:w-6 md:h-6 rounded-full mr-0 md:mr-1" />
+                                            <div className="hidden md:block text-xs md:text-sm">
                                                 {account.displayName}
                                             </div>
 

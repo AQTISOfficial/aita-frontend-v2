@@ -1,3 +1,5 @@
+"use client"
+
 import { BotIcon, Vault } from "lucide-react"
 
 import {
@@ -11,7 +13,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarFooter,
-    SidebarRail
+    SidebarRail,
+    useSidebar,
 } from "@/components/ui/sidebar"
 
 import {
@@ -19,6 +22,7 @@ import {
 } from "@tabler/icons-react"
 
 import { Icons } from "./icon"
+import { useEffect } from "react"
 
 
 // Menu items.
@@ -62,8 +66,29 @@ const items = [
 
 
 export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const { open, setOpen } = useSidebar()
+
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 1024px)") // lg breakpoint
+
+        const handleChange = () => {
+            if (mq.matches) {
+                // ≥ lg
+                setOpen(true)   // open / expanded
+            } else {
+                // < lg
+                setOpen(false)  // collapsed
+            }
+        }
+
+        handleChange() // meteen uitvoeren bij mount
+        mq.addEventListener("change", handleChange)
+        return () => mq.removeEventListener("change", handleChange)
+    }, [setOpen])
+
     return (
-        <Sidebar collapsible="icon" {...props}>
+        <Sidebar collapsible="icon"
+            {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -99,7 +124,7 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-              
+
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
