@@ -32,7 +32,7 @@ export function SiteHeader() {
   const headerTitle =
     parts.length > 0
       ? parts.map((p, i) => (
-          <span key={p}>
+          <span key={p} className="">
             {i > 0 && <ChevronRight className="mx-1 size-4 inline" />}
             {p.charAt(0).toUpperCase() + p.slice(1)}
           </span>
@@ -44,7 +44,7 @@ export function SiteHeader() {
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b">
       <div className="flex w-full items-center gap-1 px-4 py-2 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
-        <span className="text-xs lg:text-base font-medium flex items-center py-1 overflow-x-hidden">
+        <span className="text-xs lg:text-base font-medium flex items-center py-1 overflow-x-auto truncate">
           {headerTitle}
         </span>
         <div className="ml-auto flex items-center gap-2">
