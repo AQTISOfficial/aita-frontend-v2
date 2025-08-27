@@ -142,71 +142,66 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
       {loading && <Card className={`text-gray-500 p-4 ${className}`}>Loading...</Card>}
       {vault && (
         <div className={className}>
-         
-          
-            <Card className={`h-96 flex flex-col justify-between`}>
-              <CardHeader>
-                <CardTitle className="font-light text-teal-300 text-xl">
-                  {vault.name}
-                </CardTitle>
-                <CardAction>
-                  <Badge
-                    variant="outline"
-                    className={`font-mono text-sm p-2 bg-neutral-800
+          <Card className={`flex flex-col justify-between`}>
+            <CardHeader>
+              <CardTitle className="font-light text-teal-300 text-xl">
+                {vault.name}
+              </CardTitle>
+              <CardAction>
+                <Badge
+                  variant="outline"
+                  className={`font-mono text-sm p-2 bg-neutral-800
                       ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {(currentPnl ?? 0) < 0 ? <IconTrendingDown /> : <IconTrendingUp />}
-                    {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}%
-                  </Badge>
-                </CardAction>
-                <CardDescription className="py-2">{vault.description}</CardDescription>
-              </CardHeader>
+                >
+                  {(currentPnl ?? 0) < 0 ? <IconTrendingDown /> : <IconTrendingUp />}
+                  {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="mb-4 min-h-20">{vault.description}</CardDescription>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span>Total Value Locked:</span>
+                <span className="text-neutral-300 font-mono text-end">
+                  {totalVaultValue ?? "N/A"}
+                </span>
 
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span>Total Value Locked:</span>
-                  <span className="text-neutral-300 font-mono text-end">
-                    {totalVaultValue ?? "N/A"}
-                  </span>
+                <span>Unrealized PnL:</span>
+                <span
+                  className={`flex items-center font-mono justify-end ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"}`}
+                >
+                  {totalVaultPnl ?? "N/A"}
+                  {Number(totalVaultPnl) < 0 ? (
+                    <IconTrendingDown className="size-4 ml-2" />
+                  ) : (
+                    <IconTrendingUp className="size-4 ml-2" />
+                  )}
+                </span>
 
-                  <span>Unrealized PnL:</span>
-                  <span
-                    className={`flex items-center font-mono justify-end ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {totalVaultPnl ?? "N/A"}
-                    {Number(totalVaultPnl) < 0 ? (
-                      <IconTrendingDown className="size-4 ml-2" />
-                    ) : (
-                      <IconTrendingUp className="size-4 ml-2" />
-                    )}
-                  </span>
+                <span>Current APR:</span>
+                <span
+                  className={`flex items-center font-mono justify-end ${Number(currentApr) < 0 ? "text-red-500" : "text-teal-500"}`}
+                >
+                  {currentApr == null ? "N/A" : `${currentApr}%`}{" "}
+                  {(currentApr ?? 0) < 0 ? (
+                    <IconTrendingDown className="size-4 ml-2" />
+                  ) : (
+                    <IconTrendingUp className="size-4 ml-2" />
+                  )}
+                </span>
+              </div>
+            </CardContent>
 
-                  <span>Current APR:</span>
-                  <span
-                    className={`flex items-center font-mono justify-end ${Number(currentApr) < 0 ? "text-red-500" : "text-teal-500"}`}
-                  >
-                    {currentApr == null ? "N/A" : `${currentApr}%`}{" "}
-                    {(currentApr ?? 0) < 0 ? (
-                      <IconTrendingDown className="size-4 ml-2" />
-                    ) : (
-                      <IconTrendingUp className="size-4 ml-2" />
-                    )}
-                  </span>
-                </div>
-              </CardContent>
-
-              <CardFooter className="flex-col items-end gap-2 text-sm">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => router.push(`/vaults/${vaultAddress}`)}
-                  >
-                    View Details
-                  </Button>
-              </CardFooter>
-            </Card>
-
-         
+            <CardFooter className="flex-col items-end gap-2 text-sm">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => router.push(`/vaults/${vaultAddress}`)}
+              >
+                View Details
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       )}
     </>

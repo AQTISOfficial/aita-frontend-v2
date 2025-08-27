@@ -146,25 +146,25 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-neutral-400 font-light">Total Value Locked</CardTitle>
+              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Total Value Locked</CardTitle>
             </CardHeader>
-            <CardContent className={`text-2xl font-mono flex items-center`}>
+            <CardContent className={`text-lg md:text-2xl font-mono flex items-center`}>
               {totalVaultValue ?? "N/A"}
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-neutral-400 font-light">Current APR</CardTitle>
+              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Current APR</CardTitle>
             </CardHeader>
-            <CardContent className={`text-2xl font-mono flex items-center ${(currentApr ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+            <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(currentApr ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {(currentApr ?? 0) > 0 && "+"} {(currentApr ?? 0).toFixed(2)}% {(currentApr ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-neutral-400 font-light">Unrealized PnL</CardTitle>
+              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Unrealized PnL</CardTitle>
             </CardHeader>
-            <CardContent className={`text-2xl font-mono flex items-center ${(Number(totalVaultPnl) ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+            <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(Number(totalVaultPnl) ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {totalVaultPnl ?? "N/A"}
               {Number(totalVaultPnl) < 0 ? (
                 <IconTrendingDown className="size-4 ml-2" />
@@ -175,9 +175,9 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-neutral-400 font-light">Current PnL</CardTitle>
+              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Current PnL</CardTitle>
             </CardHeader>
-            <CardContent className={`text-2xl font-mono flex items-center ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+            <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}% {(currentPnl ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
             </CardContent>
           </Card>
@@ -195,32 +195,37 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
             </ToggleGroup>
 
             {tab === "about" && (
-              <Card className={`h-60 flex flex-col justify-between`}>
+              <Card className={`flex flex-col justify-between`}>
                 <CardHeader>
 
                   <CardDescription className="py-2">{vault.description}</CardDescription>
                 </CardHeader>
 
                 <CardContent>
-                  <div className="flex text-xs space-x-2">
-                  <span>Leader:</span>
-                  <span className="text-neutral-300 font-mono text-end">
-                    {vault.leader ? `${vault.leader.slice(0, 6)}...${vault.leader.slice(-4)}` : "N/A"}
-                  </span>
-                  {/* <span>Followers:</span>
-                  <span className="text-neutral-300 font-mono text-end">
-                    {vault.followers.length}
-                  </span>
-                  <span>Address:</span>
-                  <span className="text-neutral-300 font-mono text-end">
-                    {vault.vaultAddress}
-                  </span> */}
-                  </div>
-                  
+                  <table className="text-xs w-60 table-auto border-separate border-spacing--1 font-mono">
+                    <tbody>
+                    <tr>
+                      <td>Leader:</td>
+                      <td className="text-neutral-300 text-end">
+                        {vault.leader ? `${vault.leader.slice(0, 6)}...${vault.leader.slice(-4)}` : "N/A"}
+                      </td>
+                    </tr>
+                     <tr>
+                      <td>Vault Address:</td>
+                      <td className="text-neutral-300 text-end">
+                        {vault.vaultAddress ? `${vault.vaultAddress.slice(0, 6)}...${vault.vaultAddress.slice(-4)}` : "N/A"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Followers:</td>
+                      <td className="text-neutral-300 text-end">
+                        {vault.followers.length}
+                      </td>
+                    </tr>
+                   </tbody>
+                  </table>
                 </CardContent>
-
                 <CardFooter className="flex-col items-end gap-2 text-sm">
-
                 </CardFooter>
               </Card>
 

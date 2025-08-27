@@ -228,7 +228,7 @@ export function VaultChart({
           onValueChange={(v) => setSeries(v as SeriesKey)}
           
         >
-          <SelectTrigger className="w-[220px]">
+          <SelectTrigger className="w-40 md:w-[200px]">
             <SelectValue placeholder="Serie" />
           </SelectTrigger>
           <SelectContent
