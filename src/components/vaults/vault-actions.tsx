@@ -31,8 +31,8 @@ export function VaultActions({ vaultAddress }: { vaultAddress: Hex }) {
 
             console.log("vaultTransfer response:", res);
             setMsg(`Deposit transaction id: ${res ?? "ok"}`);
-        } catch (e: any) {
-            setMsg(e?.message ?? "Deposit failed");
+        } catch (e: unknown) {
+            setMsg((e as Error)?.message ?? "Deposit failed");
         } finally {
             setLoading(null);
         }
@@ -51,8 +51,8 @@ export function VaultActions({ vaultAddress }: { vaultAddress: Hex }) {
             const res = await withdrawFromVault(client, { vaultAddress, usd: value });
             console.log("vaultTransfer response:", res);
             setMsg(`Withdraw transaction id: ${res ?? "ok"}`);
-        } catch (e: any) {
-            setMsg(e?.message ?? "Withdraw failed");
+        } catch (e: unknown) {
+            setMsg((e as Error)?.message ?? "Withdraw failed");
         } finally {
             setLoading(null);
         }

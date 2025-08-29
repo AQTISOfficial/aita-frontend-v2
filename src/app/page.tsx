@@ -31,7 +31,7 @@ type Agent = {
 
 export default function Home() {
   // --- State ---
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [agents, setAgents] = useState<Agent[]>([]);        // server page
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -84,8 +84,8 @@ export default function Home() {
         const list = data?.data || [];
         setAgents(list);
         setTotalAgents(data?.meta?.totalCount || 0);
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
+      } catch (err: unknown) {
+        if ((err as Error).name !== "AbortError") {
           setError("Failed to fetch agents. Please try again later.");
         }
       }
@@ -134,7 +134,7 @@ export default function Home() {
       const pageCache = new Map<number, Agent[]>();
       pageCache.set(0, firstPage);
 
-      const chunkSize = 5; 
+      const chunkSize = 5;
       for (let i = 0; i < offsets.length; i += chunkSize) {
         const chunk = offsets.slice(i, i + chunkSize).filter((off) => off !== 0);
         await Promise.all(
@@ -155,8 +155,8 @@ export default function Home() {
       const full: Agent[] = offsets.flatMap((off) => pageCache.get(off) ?? []);
 
       setAllAgents(full);
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
+    } catch (err: unknown) {
+      if ((err as Error).name !== "AbortError") {
         setError("Failed to load full dataset for sorting.");
       }
     } finally {
