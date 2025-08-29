@@ -43,7 +43,7 @@ export function SiteHeader() {
           className="text-xs lg:text-base font-medium flex items-center py-1 overflow-x-auto whitespace-nowrap"
         >
           {parts.length === 0 ? (
-            <span>Dashboard</span>
+            <span>Marketplace</span>
           ) : (
             parts.map((seg, i) => {
               const label = toLabel(seg);

@@ -1,6 +1,6 @@
 "use client"
 
-import { BotIcon, Vault } from "lucide-react"
+import { BotIcon, Landmark, Store } from "lucide-react"
 
 import {
     Sidebar,
@@ -28,9 +28,9 @@ import { useEffect } from "react"
 // Menu items.
 const items = [
     {
-        title: "Dashboard",
+        title: "Marketplace",
         url: "/",
-        icon: IconDashboard,
+        icon: Store,
     },
     {
         title: "Agents",
@@ -40,7 +40,7 @@ const items = [
     {
         title: "Vaults",
         url: "/vaults",
-        icon: Vault,
+        icon: Landmark,
     },
     // {
     //     title: "Signals",

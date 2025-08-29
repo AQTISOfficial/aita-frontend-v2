@@ -202,7 +202,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
                 </CardHeader>
 
                 <CardContent>
-                  <table className="text-xs w-60 table-auto border-separate border-spacing--1 font-mono">
+                  <table className="text-xs w-60 table-auto border-separate border-spacing--1">
                     <tbody>
                     <tr>
                       <td>Leader:</td>

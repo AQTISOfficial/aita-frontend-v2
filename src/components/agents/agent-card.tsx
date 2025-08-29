@@ -1,4 +1,9 @@
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -11,7 +16,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "../ui/button"
 import Image from "next/image"
-import { CircleCheckBigIcon, LinkIcon } from "lucide-react";
+import { CircleCheckBigIcon, LinkIcon, ExternalLinkIcon } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
@@ -78,49 +83,64 @@ export function AgentCard({ agent }: AgentCardProps) {
           width={240}
           height={240}
           quality={75}
-          className="w-full h-80 object-cover aspect-square rounded-t-xl border-b border-neutral-800"
+          className="w-full h-40 object-cover aspect-square rounded-t-xl border-b border-neutral-800"
           priority
         />
         <Badge
           variant="outline"
-          className={`absolute right-2 top-2 bg-neutral-900 font-mono text-sm ${agent.strategy?.backtested ? "text-teal-500" : "text-yellow-500"}`}
+          className={`absolute right-2 top-2 bg-neutral-900 font-mono text-sm ${agent.strategy?.backtested ? "text-teal-500" : "text-white"}`}
         >
           {agent.ticker}
-          {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4" />}
         </Badge>
       </div>
-      <CardHeader>
-        
-        <CardTitle className="flex flex-col items-start">
-          <span className="flex lg:text-xl text-teal-300 font-light">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-400" />}</span>
+      <CardHeader className="-my-8">
+        <CardTitle className="flex flex-col items-start text-white-400">
+          <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />}</span>
         </CardTitle>
         <CardAction />
-        <CardDescription className="py-2 h-24">{agent.description}</CardDescription>
+        <CardDescription className="py-2 min-h-40 md:min-h-36">{agent.description}</CardDescription>
       </CardHeader>
 
       <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
         {agent?.strategy?.backtested ? (
           <>
-            <Separator className="mt-2" />
-            
-            <div className="flex flex-wrap items-center my-2 gap-2 font-mono ">
-              <Badge variant={"outline"} className={clsx(valueColorClasses['type']?.[agent.strategy.type] || "text-white")}>{valueLabels['type'][agent.strategy.type]}</Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['direction']?.[agent.strategy.direction] || "text-white")}>{valueLabels['direction'][agent.strategy.direction]}</Badge>
-              <Badge variant={"outline"} className="strategy-item capitalize text-white">
-                <Popover>
-                  <PopoverTrigger className="capitalize">{agent.strategy.assets.replaceAll("_", " ")}</PopoverTrigger>
-                  <PopoverContent>
-                    <div className="flex flex-wrap gap-1 text-xs">
-                      {assets[agent.strategy.assets as AssetCategory]?.map((asset, index) => (
-                        <>
-                          <span key={index} className="border p-1 rounded">{asset}</span>
-                        </>
-                      ))}
+              {agent.strategy?.backtested && (
+                <>
+                  <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
+                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                      <span>Cum. return</span> <span className="text-white font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
                     </div>
-                  </PopoverContent>
-                </Popover>
-              </Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[agent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][agent.strategy.timeframe]}</Badge>
+                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                      <span>CAGR</span> <span className="text-white font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
+                    </div>
+                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                      <span>Max draw</span> <span className="text-white font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-neutral-400">Strategy:</span>
+                <span className={clsx(valueColorClasses['type']?.[agent.strategy.type] || "text-white")}>{valueLabels['type'][agent.strategy.type]}</span>
+                <span className="text-neutral-400">Direction:</span>
+                <span className={clsx(valueColorClasses['direction']?.[agent.strategy.direction] || "text-white")}>{valueLabels['direction'][agent.strategy.direction]}</span>
+                <span className="text-neutral-400">Assets:</span>
+                <span className="capitalize text-white">
+                  <Popover>
+                    <PopoverTrigger className="capitalize">{agent.strategy.assets.replaceAll("_", " ")}</PopoverTrigger>
+                    <PopoverContent>
+                      <div className="flex flex-wrap gap-1 text-xs">
+                        {assets[agent.strategy.assets as AssetCategory]?.map((asset, index) => (
+                          <>
+                            <span key={index} className="border p-1 rounded">{asset}</span>
+                          </>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </span>
+              </div>
+              {/* <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[agent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][agent.strategy.timeframe]}</Badge>
               <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[agent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][agent.strategy.signal_detection_entry]}</Badge>
               <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[agent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][agent.strategy.signal_detection_exit]}</Badge>
               <Badge variant={"outline"} className={clsx(valueColorClasses['risk_management']?.[agent.strategy.risk_management] || "text-white", "strategy-item")}>{valueLabels['risk_management'][agent.strategy.risk_management]}</Badge>
@@ -129,35 +149,25 @@ export function AgentCard({ agent }: AgentCardProps) {
                 <Badge variant={"outline"} className="strategy-item text-neutral-400 capitalize">
                   {agent.strategy.exchange}
                 </Badge>
-              )}
-              <Separator className="my-2" />
-              {agent.strategy?.backtested && (
-                <>
-                  <Badge variant={"outline"} className="strategy-item text-sky-300">Cumulative return: +{agent.strategy?.backtested?.accumulatedReturns}%</Badge>
-                  <Badge variant={"outline"} className="strategy-item text-sky-300">CAGR: +{agent.strategy?.backtested?.CAGR}%</Badge>
-                  <Badge variant={"outline"} className="strategy-item text-sky-300">Max drawdown: {agent.strategy?.backtested?.maxDrawdown}%</Badge>
-                </>
-              )}
+              )} */}
 
-            </div>
+
             {agent.strategy.comet && (
-              <div className="flex justify-end py-2 font-mono">
-                <Link href={agent.strategy?.comet} target="_blank" className=" text-orange-300 flex underline underline-offset-4">View Backtesting Results<LinkIcon className="size-4 ml-2" /></Link>
+              <div className="flex pt-4">
+                <Link href={agent.strategy?.comet} target="_blank" className=" text-cyan-300 flex hover:underline underline-offset-4">View Backtesting Results<ExternalLinkIcon className="size-4 ml-2" /></Link>
               </div>
             )}
           </>
         )
           :
           <div>
-            <Separator className="my-2" />
-            <span className="text-neutral-500 font-mono ">
+            <span className="text-neutral-500">
               No backtest data available
             </span>
 
           </div>
         }
-        <div className="mt-2">
-          <Separator className="mb-4" />
+        <div className="mt-4 pt-4">
           <div className="grid grid-cols-2 gap-1">
             <span>Contract Address:</span>
             <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
@@ -169,13 +179,13 @@ export function AgentCard({ agent }: AgentCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm border-t">
+      <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm">
         {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy ? (
-          <Button variant={"tertiary"} onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} size={"lg"}>
+          <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
             Add Strategy
           </Button>
         ) : <div>&nbsp;</div>}
-        <Button variant="outline" type="button" className="font-mono text-xs" onClick={handleViewDetails} size={"lg"}>
+        <Button variant="outline" type="button" className="text-xs" onClick={handleViewDetails}>
           {"View Details"}
         </Button>
       </CardFooter>

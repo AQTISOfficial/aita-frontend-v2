@@ -15,6 +15,7 @@ import { VaultChart } from "@/components/vaults/vault-chart"
 import { publicEnv } from "@/lib/env.public"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { VaultActions } from "@/components/vaults/vault-actions";
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL
 
@@ -64,6 +65,7 @@ export default async function Page({
           <Button variant={"outline"} className="btn">Deposit</Button>
           <Button variant={"outline"} className="btn">Withdraw</Button>
         </div>
+        {/* <VaultActions vaultAddress={vaultAddress as `0x${string}`} /> */}
       </div>
 
       <VaultCardDetails vaultAddress={vaultAddress} className="col-span-2 xl:col-span-4" />

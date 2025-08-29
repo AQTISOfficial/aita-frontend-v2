@@ -12,7 +12,7 @@
 
 import React, { useEffect, useState } from "react"
 import { IconTrendingUp, IconArrowRight } from "@tabler/icons-react"
-import { BotIcon, Vault, LockIcon } from "lucide-react"
+import { BotIcon, Vault, LockIcon, Landmark } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 
@@ -41,6 +41,7 @@ export function Header() {
     limit: 1000,
     offset: 0,
     sort: "asc",
+    strategy: true
   }
 
   // --- Fetch total agents ---
@@ -84,7 +85,7 @@ export function Header() {
           </CardTitle>
           <CardAction>
             <Button
-              variant="outline"
+              variant="default"
               type="button"
               onClick={() => router.push("/agents/create")}
             >
@@ -94,12 +95,12 @@ export function Header() {
         </CardHeader>
         <CardFooter className="flex-col items-start text-sm">
           <Button
-            variant="link"
+            variant="outline"
             className="text-foreground text-left flex items-center"
             type="button"
             onClick={() => router.push("/agents")}
           >
-            View Agents <IconArrowRight className="size-4" />
+            View Agents
           </Button>
         </CardFooter>
       </Card>
@@ -108,7 +109,7 @@ export function Header() {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="flex items-center mb-2">
-            <Vault className="mr-2 inline-block size-5" />Total Vaults
+            <Landmark className="mr-2 inline-block size-5" />Total Vaults
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {totalVaults}
@@ -116,12 +117,12 @@ export function Header() {
         </CardHeader>
         <CardFooter className="flex-col items-start text-sm">
           <Button
-            variant="link"
+            variant="outline"
             className="text-foreground text-left flex items-center"
             type="button"
             onClick={() => router.push("/vaults")}
           >
-            View Vaults <IconArrowRight className="size-4" />
+            View Vaults 
           </Button>
         </CardFooter>
       </Card>

@@ -75,7 +75,7 @@ export const valueColorClasses: ValueColorClasses = {
   direction: {
     longonly: "text-teal-500",
     shortonly: "text-red-400",
-    both: "text-neutral-500"
+    both: "text-neutral-400"
   },
   signal_detection_entry: {
     fast: "text-teal-500",
