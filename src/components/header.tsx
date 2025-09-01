@@ -29,11 +29,20 @@ import { Button } from "./ui/button"
 
 import { vaults } from "@/lib/vaults"
 
+
 export function Header() {
   // --- State ---
   const [totalAgents, setTotalAgents] = useState(0)
   const [totalVaults, setTotalVaults] = useState(0)
   const [totalValueLocked, setTotalValueLocked] = useState(0)
+
+  const [data, setData] = useState<{ totalTVL: number; perVault: any[] }>();
+
+  useEffect(() => {
+    fetch("/api/vaults")
+      .then(res => res.json())
+      .then(setData);
+  }, []);
 
   const router = useRouter()
 
@@ -63,10 +72,6 @@ export function Header() {
   useEffect(() => {
     const fetchVaults = async () => {
       setTotalVaults(vaults ? vaults.length : 0)
-      console.log(vaults)
-      // TODO: compute totalValueLocked when vault model supports it
-      // const totalValue = vaults.reduce((acc, vault) => acc + vault.totalValue, 0)
-      // setTotalValueLocked(totalValue)
     }
     fetchVaults()
   }, [vaults])
@@ -134,21 +139,21 @@ export function Header() {
             <LockIcon className="mr-2 inline-block size-5" />Total Value Locked
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            ${totalValueLocked.toLocaleString()}
+            ${data?.totalTVL?.toLocaleString() ?? "0"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="text-teal-500">
+            {/* <Badge variant="outline" className="text-teal-500">
               <IconTrendingUp />
               +0%
-            </Badge>
+            </Badge> */}
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
+          {/* <div className="line-clamp-1 flex gap-2 font-medium">
             Up 0% this quarter <IconTrendingUp className="size-4" />
-          </div>
+          </div> */}
           <div className="text-muted-foreground">
-            Significant increase in TVL
+            Total across all vaults
           </div>
         </CardFooter>
       </Card>
