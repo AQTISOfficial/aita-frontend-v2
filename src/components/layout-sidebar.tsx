@@ -17,10 +17,6 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 
-import {
-    IconDashboard,
-} from "@tabler/icons-react"
-
 import { Icons } from "./icon"
 import { useEffect } from "react"
 
@@ -69,6 +65,7 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
     const { open, setOpen } = useSidebar()
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
         const mq = window.matchMedia("(min-width: 1024px)") // lg breakpoint
 
         const handleChange = () => {
@@ -96,7 +93,7 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                             asChild
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
-                            <a href="#">
+                            <a href="/">
                                 <Icons.logo className="!size-5" />
                                 <span className="text-base font-semibold">AITA Protocol</span>
                             </a>

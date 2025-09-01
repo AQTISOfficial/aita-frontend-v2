@@ -5,7 +5,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
 import { PaginationFunction } from "@/components/ui/pagination-function";
-import { ChevronRight } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet"
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, ExternalLinkIcon } from "lucide-react";
+
+import clsx from "clsx";
+import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link"
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown";
 type SortDir = "asc" | "desc";
@@ -26,6 +42,16 @@ type Agent = {
       CAGR: number;
       maxDrawdown: number;
     };
+    timeframe: string;
+    risk_management: string;
+    ranking_method: string;
+    direction: string;
+    signal_detection_entry: string;
+    signal_detection_exit: string;
+    exchange: string;
+    comet: string;
+    assets: string;
+    type: string;
   };
 };
 
@@ -39,6 +65,10 @@ export default function Home() {
   // Sorting (UI state blijft hetzelfde)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  // Sheet
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [open, setOpen] = useState(false)
 
   // Client-side full dataset
   const [mode, setMode] = useState<Mode>("server");
@@ -188,11 +218,9 @@ export default function Home() {
         return dir === "asc" ? aVal - bVal : bVal - aVal;
       });
     }
-    // server mode: sorteren binnen pagina heeft geen zin -> toon ongewijzigd
     return agents;
   }, [mode, allAgents, agents, sortKey, sortDir]);
 
-  // Slice voor zichtbare pagina (client mode) of direct (server mode)
   const visibleAgents = useMemo(() => {
     if (mode === "client" && source) {
       const start = (currentPage - 1) * limit;
@@ -226,29 +254,6 @@ export default function Home() {
         <p className="text-neutral-400">Explore the agents with backtesting results</p>
       </div>
 
-      {/* Statusbalk */}
-      {/* <div className="px-4 lg:px-6 mb-2 flex items-center gap-3 text-xs text-neutral-400">
-        <span>
-          Mode: <span className="font-medium text-neutral-200">{mode === "server" ? "Server pagination" : "Client sort"}</span>
-        </span>
-        {mode === "client" && (
-          <>
-            {hydratingAll ? <span className="animate-pulse">Loading full dataset…</span> : null}
-            <button
-              className="rounded-md border px-2 py-1 hover:bg-neutral-900"
-              onClick={() => {
-                hydrateControllerRef.current?.abort();
-                setMode("server");
-                setAllAgents(null);
-                setCurrentPage(1);
-              }}
-            >
-              Back to server mode
-            </button>
-          </>
-        )}
-      </div> */}
-
       {error && <div className="px-4 lg:px-6 text-red-400">{error}</div>}
 
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
@@ -267,7 +272,7 @@ export default function Home() {
                     CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("maxDrawdown")}>
-                    Max Drawd. {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
+                    Max DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-8 border-b rounded-tr-md"></th>
                 </tr>
@@ -279,6 +284,10 @@ export default function Home() {
                     <tr
                       key={agent.id}
                       className="hover:bg-neutral-900/80 transition-colors duration-200 cursor-pointer border-b"
+                      onClick={() => {
+                        setSelectedAgent(agent)
+                        setOpen(true)
+                      }}
                     >
                       <td className="p-0.5 md:px-2 md:py-1">
                         <Image
@@ -316,12 +325,97 @@ export default function Home() {
               />
             )}
           </div>
+
+          {/* Dynamische Sheet */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetContent>
+              {selectedAgent && (
+                <>
+                  <SheetHeader>
+                    <SheetTitle>{selectedAgent.name}</SheetTitle>
+                    <SheetDescription>
+                      {selectedAgent.ticker}
+                    </SheetDescription>
+                  </SheetHeader>
+
+                  <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                    <div className="grid gap-3 text-neutral-400 text-xs">
+                      <Image
+                        aria-hidden
+                        src={selectedAgent.image}
+                        alt={selectedAgent.name}
+                        width={140}
+                        height={140}
+                        quality={75}
+                        className="object-cover aspect-square rounded-xl float-right"
+                        priority
+                      />
+                      {selectedAgent.description}
+                    </div>
+                    <div className="grid gap-3 text-sm text-neutral-400">
+                      {selectedAgent?.strategy?.backtested && (
+                        <>
+                          <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
+                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                              <span>Cum. return</span> <span className="text-white font-bold">+{selectedAgent.strategy?.backtested?.accumulatedReturns}%</span>
+                            </div>
+                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                              <span>CAGR</span> <span className="text-white font-bold">+{selectedAgent.strategy?.backtested?.CAGR}%</span>
+                            </div>
+                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                              <span>Max draw</span> <span className="text-white font-bold">{selectedAgent.strategy?.backtested?.maxDrawdown}%</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      <div className="grid grid-cols-2 gap-2">
+                        <span className="text-neutral-400">Strategy:</span>
+                        <span className={clsx(valueColorClasses['type']?.[selectedAgent.strategy.type] || "text-white")}>{valueLabels['type'][selectedAgent.strategy.type]}</span>
+                        <span className="text-neutral-400">Direction:</span>
+                        <span className={clsx(valueColorClasses['direction']?.[selectedAgent.strategy.direction] || "text-white")}>{valueLabels['direction'][selectedAgent.strategy.direction]}</span>
+                        <span className="text-neutral-400">Assets:</span>
+                        <span className="capitalize text-white">
+                          {selectedAgent.strategy.assets.replaceAll("_", " ")}
+
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[selectedAgent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][selectedAgent.strategy.timeframe]}</Badge>
+                        <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[selectedAgent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][selectedAgent.strategy.signal_detection_entry]}</Badge>
+                        <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[selectedAgent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][selectedAgent.strategy.signal_detection_exit]}</Badge>
+                        <Badge variant={"outline"} className={clsx(valueColorClasses['risk_management']?.[selectedAgent.strategy.risk_management] || "text-white", "strategy-item")}>{valueLabels['risk_management'][selectedAgent.strategy.risk_management]}</Badge>
+                        <Badge variant={"outline"} className={clsx(valueColorClasses['ranking_method']?.[selectedAgent.strategy.ranking_method] || "text-white", "strategy-item")}>{valueLabels['ranking_method'][selectedAgent.strategy.ranking_method]}</Badge>
+                        {selectedAgent.strategy?.exchange && (
+                          <Badge variant={"outline"} className="strategy-item text-neutral-400 capitalize">
+                            {selectedAgent.strategy.exchange}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {selectedAgent.strategy.comet && (
+                        <div className="flex pt-4">
+                          <Link href={selectedAgent.strategy?.comet} target="_blank" className=" text-cyan-300 flex hover:underline underline-offset-4">View Backtesting Results<ExternalLinkIcon className="size-4 ml-2" /></Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Button variant="outline">Close</Button>
+                    </SheetClose>
+                  </SheetFooter>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
         </>
       ) : (
         <div className="px-4 lg:px-6 text-neutral-400">
           {hydratingAll ? "Loading…" : "No agents found."}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
