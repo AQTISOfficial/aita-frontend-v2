@@ -1,9 +1,12 @@
 "use client";
 
-import { Header } from "@/components/header";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
+import Link from "next/link"
+
+import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
 import {
   Sheet,
@@ -16,12 +19,12 @@ import {
 } from "@/components/ui/sheet"
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ExternalLinkIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, ExternalLinkIcon, ShieldCheck } from "lucide-react";
 
 import clsx from "clsx";
 import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link"
+import { vaults } from "@/lib/vaults";
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown";
 type SortDir = "asc" | "desc";
@@ -57,7 +60,7 @@ type Agent = {
 
 export default function Home() {
   // --- State ---
-  const [limit] = useState(10);
+  const [limit] = useState(25);
   const [agents, setAgents] = useState<Agent[]>([]);        // server page
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +72,8 @@ export default function Home() {
   // Sheet
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [open, setOpen] = useState(false)
+
+  const vaultIds = new Set(vaults.map(v => v.id));
 
   // Client-side full dataset
   const [mode, setMode] = useState<Mode>("server");
@@ -280,6 +285,7 @@ export default function Home() {
               <tbody>
                 {visibleAgents.map((agent) => {
                   const r = agent.strategy?.backtested;
+                  const isVault = vaultIds.has(agent.id);
                   return (
                     <tr
                       key={agent.id}
@@ -297,11 +303,11 @@ export default function Home() {
                           width={30}
                           height={30}
                           quality={75}
-                          className="object-cover aspect-square rounded-full border border-teal-600"
+                          className="object-cover aspect-square rounded border border-neutral-700"
                         />
                       </td>
                       <td className="p-2 font-medium">{agent.ticker}</td>
-                      <td className="p-2 font-medium truncate">{agent.name}</td>
+                      <td className="p-2 font-medium truncate">{agent.name} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</td>
                       <td className="p-2 text-teal-500/80">{fmt(Number(r?.accumulatedReturns), true)}</td>
                       <td className="p-2 text-amber-500/80">{fmt(Number(r?.CAGR), true)}</td>
                       <td className="p-2 text-neutral-500">{fmt(Number(r?.maxDrawdown))}</td>

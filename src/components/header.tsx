@@ -36,7 +36,7 @@ export function Header() {
   const [totalVaults, setTotalVaults] = useState(0)
   const [totalValueLocked, setTotalValueLocked] = useState(0)
 
-  const [data, setData] = useState<{ totalTVL: number; perVault: any[] }>();
+  const [data, setData] = useState<{ totalTVL: number; perVault: unknown[] }>();
 
   useEffect(() => {
     fetch("/api/vaults")
