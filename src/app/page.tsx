@@ -336,9 +336,10 @@ export default function Home() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent>
               {selectedAgent && (
+                
                 <>
                   <SheetHeader>
-                    <SheetTitle>{selectedAgent.name}</SheetTitle>
+                    <SheetTitle>{selectedAgent.name} {vaultIds.has(selectedAgent.id) && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</SheetTitle>
                     <SheetDescription>
                       {selectedAgent.ticker}
                     </SheetDescription>
