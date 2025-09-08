@@ -60,7 +60,7 @@ type Agent = {
 
 export default function Home() {
   // --- State ---
-  const [limit] = useState(25);
+  const [limit] = useState(10);
   const [agents, setAgents] = useState<Agent[]>([]);        // server page
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -336,40 +336,57 @@ export default function Home() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetContent>
               {selectedAgent && (
+
                 <>
                   <SheetHeader>
-                    <SheetTitle>{selectedAgent.name}</SheetTitle>
+                    <SheetTitle>{selectedAgent.name} {vaultIds.has(selectedAgent.id) && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</SheetTitle>
                     <SheetDescription>
-                      {selectedAgent.ticker}
+                      
+                      {selectedAgent.description}
                     </SheetDescription>
                   </SheetHeader>
 
                   <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                    <div className="grid gap-3 text-neutral-400 text-xs">
-                      <Image
-                        aria-hidden
-                        src={selectedAgent.image}
-                        alt={selectedAgent.name}
-                        width={140}
-                        height={140}
-                        quality={75}
-                        className="object-cover aspect-square rounded-xl float-right"
-                        priority
-                      />
-                      {selectedAgent.description}
+                    <div className="grid grid-cols-1 gap-3 text-neutral-400 text-xs">
+                      <div>
+                        <Image
+                          aria-hidden
+                          src={selectedAgent.image}
+                          alt={selectedAgent.name}
+                          width={140}
+                          height={140}
+                          quality={75}
+                          className="w-full h-40 object-cover aspect-square rounded-xl mb-2 border border-neutral-700"
+                          priority
+                        />
+                      </div>
+                      
+                      <div className="text-neutral-400">
+                        {selectedAgent.contractAddress && (
+                          <div className="grid grid-cols-2 gap-2 mb-4 w-full">
+                            
+                            <span className="text-neutral-400">Ticker:</span>
+                            <span className="text-white">{selectedAgent.ticker}</span>
+                            <span className="text-neutral-400">Contract:</span>
+                            <span className="text-white">{selectedAgent.contractAddress.substring(0, 6)}...{selectedAgent.contractAddress.substring(selectedAgent.contractAddress.length - 4)}</span>
+                            <span className="text-neutral-400">Owner:</span>
+                            <span className="text-white">{selectedAgent.ownerAddress.substring(0, 6)}...{selectedAgent.ownerAddress.substring(selectedAgent.ownerAddress.length - 4)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="grid gap-3 text-sm text-neutral-400">
                       {selectedAgent?.strategy?.backtested && (
                         <>
                           <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                             <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Cum. return</span> <span className="text-white font-bold">+{selectedAgent.strategy?.backtested?.accumulatedReturns}%</span>
+                              <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{selectedAgent.strategy?.backtested?.accumulatedReturns}%</span>
                             </div>
                             <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>CAGR</span> <span className="text-white font-bold">+{selectedAgent.strategy?.backtested?.CAGR}%</span>
+                              <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{selectedAgent.strategy?.backtested?.CAGR}%</span>
                             </div>
                             <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Max draw</span> <span className="text-white font-bold">{selectedAgent.strategy?.backtested?.maxDrawdown}%</span>
+                              <span>Max draw</span> <span className="text-neutral-500/80 font-bold">{selectedAgent.strategy?.backtested?.maxDrawdown}%</span>
                             </div>
                           </div>
                         </>

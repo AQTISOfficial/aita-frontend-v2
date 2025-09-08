@@ -83,7 +83,7 @@ export function Header() {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="flex items-center mb-2">
-            <BotIcon className="mr-2 inline-block size-5" />Total Agents
+            <BotIcon className="mr-2 inline-block size-5" />Total Backtested Agents
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {totalAgents}
@@ -105,7 +105,7 @@ export function Header() {
             type="button"
             onClick={() => router.push("/agents")}
           >
-            View Agents
+            View All Agents
           </Button>
         </CardFooter>
       </Card>
