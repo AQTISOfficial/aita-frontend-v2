@@ -108,18 +108,18 @@ export function AgentCard({ agent }: AgentCardProps) {
                 <>
                   <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>Cum. return</span> <span className="text-white font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
+                      <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
                     </div>
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>CAGR</span> <span className="text-white font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
+                      <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
                     </div>
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>Max draw</span> <span className="text-white font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
+                      <span>Max. DD</span> <span className="text-neutral-500/80 font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
                     </div>
                   </div>
                 </>
               )}
-              <div className="grid grid-cols-2 gap-2">
+              {/* <div className="grid grid-cols-2 gap-2">
                 <span className="text-neutral-400">Strategy:</span>
                 <span className={clsx(valueColorClasses['type']?.[agent.strategy.type] || "text-white")}>{valueLabels['type'][agent.strategy.type]}</span>
                 <span className="text-neutral-400">Direction:</span>
@@ -139,7 +139,7 @@ export function AgentCard({ agent }: AgentCardProps) {
                     </PopoverContent>
                   </Popover>
                 </span>
-              </div>
+              </div> */}
               {/* <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[agent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][agent.strategy.timeframe]}</Badge>
               <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[agent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][agent.strategy.signal_detection_entry]}</Badge>
               <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[agent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][agent.strategy.signal_detection_exit]}</Badge>
@@ -152,11 +152,11 @@ export function AgentCard({ agent }: AgentCardProps) {
               )} */}
 
 
-            {agent.strategy.comet && (
+            {/* {agent.strategy.comet && (
               <div className="flex pt-4">
                 <Link href={agent.strategy?.comet} target="_blank" className=" text-cyan-300 flex hover:underline underline-offset-4">View Backtesting Results<ExternalLinkIcon className="size-4 ml-2" /></Link>
               </div>
-            )}
+            )} */}
           </>
         )
           :
