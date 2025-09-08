@@ -112,7 +112,7 @@ export default function Home() {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       {/* Header: total count + create button */}
-      <div className="md:w-5/6 flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2">
         <Button
           variant="outline"
           className="p-2 border rounded-md text-sm flex"
@@ -131,7 +131,7 @@ export default function Home() {
       </div>
 
       {/* Filters: search, order, limit, toggles */}
-      <div className="md:w-5/6 flex flex-wrap gap-2 p-2 sticky top-0 bg-neutral-950 z-10">
+      <div className="flex flex-wrap gap-2 p-2 sticky top-0 bg-neutral-950 z-10">
         <input
           id="search"
           type="text"
@@ -201,7 +201,7 @@ export default function Home() {
       </div>
 
       {/* Agents grid */}
-      <div className="md:w-5/6 grid grid-cols-1 gap-4 p-2 lg:grid-cols-2 2xl:grid-cols-3 md:gap-6">
+      <div className="grid grid-cols-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 md:gap-6">
         {Array.isArray(agents) &&
           agents.map((agent, index) => <AgentCard key={index} agent={agent} />)}
       </div>

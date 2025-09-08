@@ -4,27 +4,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
-import Link from "next/link"
 
 import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetClose,
-} from "@/components/ui/sheet"
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ExternalLinkIcon, ShieldCheck } from "lucide-react";
 
-import clsx from "clsx";
-import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, ShieldCheck } from "lucide-react";
+
 import { vaults } from "@/lib/vaults";
+import { AgentSheet } from "@/components/agents/agent-sheet";
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown";
 type SortDir = "asc" | "desc";
@@ -271,13 +259,13 @@ export default function Home() {
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
                   <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("accumulatedReturns")}>
-                    Cum. Return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
+                    Cum. return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("CAGR")}>
                     CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("maxDrawdown")}>
-                    Max DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
+                    Max. DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-8 border-b rounded-tr-md"></th>
                 </tr>
@@ -333,105 +321,12 @@ export default function Home() {
           </div>
 
           {/* Dynamische Sheet */}
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetContent>
-              {selectedAgent && (
-
-                <>
-                  <SheetHeader>
-                    <SheetTitle>{selectedAgent.name} {vaultIds.has(selectedAgent.id) && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</SheetTitle>
-                    <SheetDescription>
-                      
-                      {selectedAgent.description}
-                    </SheetDescription>
-                  </SheetHeader>
-
-                  <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                    <div className="grid grid-cols-1 gap-3 text-neutral-400 text-xs">
-                      <div>
-                        <Image
-                          aria-hidden
-                          src={selectedAgent.image}
-                          alt={selectedAgent.name}
-                          width={140}
-                          height={140}
-                          quality={75}
-                          className="w-full h-40 object-cover aspect-square rounded-xl mb-2 border border-neutral-700"
-                          priority
-                        />
-                      </div>
-                      
-                      <div className="text-neutral-400">
-                        {selectedAgent.contractAddress && (
-                          <div className="grid grid-cols-2 gap-2 mb-4 w-full">
-                            
-                            <span className="text-neutral-400">Ticker:</span>
-                            <span className="text-white">{selectedAgent.ticker}</span>
-                            <span className="text-neutral-400">Contract:</span>
-                            <span className="text-white">{selectedAgent.contractAddress.substring(0, 6)}...{selectedAgent.contractAddress.substring(selectedAgent.contractAddress.length - 4)}</span>
-                            <span className="text-neutral-400">Owner:</span>
-                            <span className="text-white">{selectedAgent.ownerAddress.substring(0, 6)}...{selectedAgent.ownerAddress.substring(selectedAgent.ownerAddress.length - 4)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid gap-3 text-sm text-neutral-400">
-                      {selectedAgent?.strategy?.backtested && (
-                        <>
-                          <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{selectedAgent.strategy?.backtested?.accumulatedReturns}%</span>
-                            </div>
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{selectedAgent.strategy?.backtested?.CAGR}%</span>
-                            </div>
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Max draw</span> <span className="text-neutral-500/80 font-bold">{selectedAgent.strategy?.backtested?.maxDrawdown}%</span>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      <div className="grid grid-cols-2 gap-2">
-                        <span className="text-neutral-400">Strategy:</span>
-                        <span className={clsx(valueColorClasses['type']?.[selectedAgent.strategy.type] || "text-white")}>{valueLabels['type'][selectedAgent.strategy.type]}</span>
-                        <span className="text-neutral-400">Direction:</span>
-                        <span className={clsx(valueColorClasses['direction']?.[selectedAgent.strategy.direction] || "text-white")}>{valueLabels['direction'][selectedAgent.strategy.direction]}</span>
-                        <span className="text-neutral-400">Assets:</span>
-                        <span className="capitalize text-white">
-                          {selectedAgent.strategy.assets.replaceAll("_", " ")}
-
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[selectedAgent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][selectedAgent.strategy.timeframe]}</Badge>
-                        <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[selectedAgent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][selectedAgent.strategy.signal_detection_entry]}</Badge>
-                        <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[selectedAgent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][selectedAgent.strategy.signal_detection_exit]}</Badge>
-                        <Badge variant={"outline"} className={clsx(valueColorClasses['risk_management']?.[selectedAgent.strategy.risk_management] || "text-white", "strategy-item")}>{valueLabels['risk_management'][selectedAgent.strategy.risk_management]}</Badge>
-                        <Badge variant={"outline"} className={clsx(valueColorClasses['ranking_method']?.[selectedAgent.strategy.ranking_method] || "text-white", "strategy-item")}>{valueLabels['ranking_method'][selectedAgent.strategy.ranking_method]}</Badge>
-                        {selectedAgent.strategy?.exchange && (
-                          <Badge variant={"outline"} className="strategy-item text-neutral-400 capitalize">
-                            {selectedAgent.strategy.exchange}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {selectedAgent.strategy.comet && (
-                        <div className="flex pt-4">
-                          <Link href={selectedAgent.strategy?.comet} target="_blank" className=" text-cyan-300 flex hover:underline underline-offset-4">View Backtesting Results<ExternalLinkIcon className="size-4 ml-2" /></Link>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <SheetFooter>
-                    <SheetClose asChild>
-                      <Button variant="outline">Close</Button>
-                    </SheetClose>
-                  </SheetFooter>
-                </>
-              )}
-            </SheetContent>
-          </Sheet>
+          <AgentSheet
+            open={open}
+            onOpenChange={setOpen}
+            agent={selectedAgent}
+            vaultIds={vaultIds}
+          />
         </>
       ) : (
         <div className="px-4 lg:px-6 text-neutral-400">
