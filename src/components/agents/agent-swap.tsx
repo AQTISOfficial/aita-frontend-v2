@@ -19,6 +19,7 @@ import { erc20Abi } from "@/lib/abis/erc20Abi";
 import { factoryAbi } from "@/lib/abis/factoryAbi";
 
 import { ExternalLinkIcon } from "lucide-react";
+import { set } from "zod";
 
 /* --------------------
    Constants
@@ -151,6 +152,11 @@ export default function AgentSwap({ tokenAddress }: Props) {
     const [buyMinOut, setBuyMinOut] = useState<string>("0");
     const [sellAmount, setSellAmount] = useState<string>("");
     const [sellMinOut, setSellMinOut] = useState<string>("0");
+    const [btnBuyName, setBtnBuyName] = useState<string>("Buy Agent");
+    const [btnBuyDisabled, setBtnBuyDisabled] = useState<boolean>(false);
+    const [btnSellName, setBtnSellName] = useState<string>("Sell Agent");
+    const [btnSellDisabled, setBtnSellDisabled] = useState<boolean>(false);
+    const [msg, setMsg] = useState<string>("");
 
     /* --------------------
        Derived Values
@@ -238,6 +244,51 @@ export default function AgentSwap({ tokenAddress }: Props) {
         }
     }
 
+    useEffect(() => {
+        if (needUsdcApproval) {
+            setBtnBuyName("Approve USDC");
+        } else {
+            setBtnBuyName("Buy Agent");
+        }
+    }, [needUsdcApproval]);
+
+    useEffect(() => {
+        if (needTokenApproval) {
+            setBtnSellName("Approve " + tokenSymbol);
+        } else {
+            setBtnSellName("Sell Agent");
+        }
+    }, [needTokenApproval]);
+
+
+    useEffect(() => {
+        // Disable buy if user not connected or has no USDC balance
+        if (usdcBal && parsed.buyIn > usdcBal.value) {
+            setBtnBuyName("Insufficient USDC");
+        } else {
+            setBtnBuyName(needUsdcApproval ? "Approve USDC" : "Buy Agent");
+        }
+
+        if (!isConnected || !usdcBal || usdcBal.value === BigInt(0) || parsed.buyIn > usdcBal.value) {
+            setBtnBuyDisabled(true);
+        } else {
+            setBtnBuyDisabled(false);
+        }
+
+        // Disable sell if user not connected or has no token balance
+        if (tokenBal && parsed.sellIn > tokenBal.value) {
+            setBtnSellName("Insufficient " + tokenSymbol);
+        } else {
+            setBtnSellName(needTokenApproval ? "Approve " + tokenSymbol : "Sell Agent");
+        }
+
+        if (!isConnected || !tokenBal || tokenBal.value === BigInt(0) || parsed.sellIn > tokenBal.value) {
+            setBtnSellDisabled(true);
+        } else {
+            setBtnSellDisabled(false);
+        }
+    }, [isConnected, usdcBal, tokenBal, parsed.buyIn, parsed.sellIn]);
+
     /* --------------------
        Buy / Sell Handlers
     -------------------- */
@@ -246,12 +297,16 @@ export default function AgentSwap({ tokenAddress }: Props) {
             if (!address) throw new Error("Connect Wallet");
             if (!usdcAddress) throw new Error("USDC address not found.");
             if (parsed.buyIn <= BigInt(0)) throw new Error("Enter an amount greater than 0.");
+            if (parsed.buyIn > usdcBal?.value!) throw new Error("Insufficient USDC balance.");
 
             if (needUsdcApproval) {
+                setBtnBuyName("Approving USDC...");
                 await approve(factoryAddress, usdcAddress);
                 queryClient.invalidateQueries();
             }
-
+            setBtnBuyName("Buying...");
+            
+            // If buy would overshoot final reserve, adjust to max possible
             let totalIn = parsed.buyIn;
             let totalOut = parsed.buyMin;
 
@@ -264,6 +319,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 totalIn = usdcNeededBeforeFees;
                 totalOut = BigInt(0);
                 setBuyAmount(formatUnits(totalIn, usdcDecimals ?? 6));
+                setMsg("Adjusted buy amount to max available before hitting bonding curve.");
             }
 
             await writeContractAsync({
@@ -273,11 +329,15 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 args: [tokenAddress, totalIn, totalOut],
             });
 
-            setBuyAmount("");
             queryClient.invalidateQueries();
         } catch (err) {
             console.error("Buy failed:", err);
+        } finally {
+            setBtnBuyName("Buy Agent");
+            setBuyAmount("");
+            setMsg("");
         }
+
     }
 
     async function onSell() {
@@ -286,10 +346,12 @@ export default function AgentSwap({ tokenAddress }: Props) {
             if (parsed.sellIn <= BigInt(0)) throw new Error("Enter an amount greater than 0.");
 
             if (needTokenApproval) {
+                setBtnSellName("Approving " + tokenSymbol + "...");
                 await approve(factoryAddress, tokenAddress);
                 queryClient.invalidateQueries();
             }
 
+            setBtnSellName("Selling...");
             await writeContractAsync({
                 address: factoryAddress,
                 abi: AgentFactoryABI,
@@ -297,10 +359,12 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 args: [tokenAddress, parsed.sellIn, parsed.sellMin],
             });
 
-            setSellAmount("");
             queryClient.invalidateQueries();
         } catch (err) {
             console.error("Sell failed:", err);
+        } finally {
+            setBtnSellName("Sell Agent");
+            setSellAmount("");
         }
     }
 
@@ -364,11 +428,10 @@ export default function AgentSwap({ tokenAddress }: Props) {
                         <Button
                             className="w-full h-10"
                             variant="outline"
-                            disabled={isPending || parsed.buyIn <= BigInt(0) || !isConnected}
+                            disabled={isPending || parsed.buyIn <= BigInt(0) || !isConnected || btnBuyDisabled}
                             onClick={onBuy}
                         >
-                            {needUsdcApproval ? "Approve + Buy" : "Buy"}
-                            {isPending && " (Pending)"}
+                            {btnBuyName}
                         </Button>
 
                         <div className="flex items-center justify-end">
@@ -409,11 +472,10 @@ export default function AgentSwap({ tokenAddress }: Props) {
                         <Button
                             className="w-full h-10"
                             variant="outline"
-                            disabled={isPending || parsed.sellIn <= BigInt(0) || !isConnected}
+                            disabled={isPending || parsed.sellIn <= BigInt(0) || !isConnected || btnSellDisabled}
                             onClick={onSell}
                         >
-                            {needTokenApproval ? "Approve + Sell" : "Sell"}
-                            {isPending && " (Pending)"}
+                            {btnSellName}
                         </Button>
 
                         <div className="flex items-center justify-end">
@@ -423,7 +485,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
                         </div>
                     </TabsContent>
                 </Tabs>
-
+                {msg && <div className="text-xs text-cyan-400">{msg}</div>}
                 <Button asChild variant="outline" className="w-full mt-4">
                     <Link
                         href={`https://arbiscan.io/address/${tokenAddress}`}
