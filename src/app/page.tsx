@@ -7,6 +7,7 @@ import clsx from "clsx"
 
 import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, ShieldCheck } from "lucide-react";
@@ -14,7 +15,7 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
 
-type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown";
+type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "type" | "direction";
 type SortDir = "asc" | "desc";
 type Mode = "server" | "client";
 
@@ -53,6 +54,7 @@ export default function Home() {
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<string>("all");
 
   // Sorting (UI state remains the same)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
@@ -124,7 +126,7 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortKey, sortDir]);
+  }, [sortKey, sortDir, filter]);
 
   async function hydrateAllPages() {
     if (allAgents && allAgents.length === totalAgents && totalAgents > 0) {
@@ -212,9 +214,27 @@ export default function Home() {
       const key = sortKey;
       const dir = sortDir;
       return [...allAgents].sort((a, b) => {
-        const aVal = a.strategy?.backtested?.[key] ?? 0;
-        const bVal = b.strategy?.backtested?.[key] ?? 0;
-        return dir === "asc" ? aVal - bVal : bVal - aVal;
+        let aVal: number | string = 0;
+        let bVal: number | string = 0;
+
+        if (key === "accumulatedReturns" || key === "CAGR" || key === "maxDrawdown") {
+          aVal = a.strategy?.backtested?.[key] ?? 0;
+          bVal = b.strategy?.backtested?.[key] ?? 0;
+        } else if (key === "type") {
+          aVal = a.strategy?.type ?? "";
+          bVal = b.strategy?.type ?? "";
+        } else if (key === "direction") {
+          aVal = a.strategy?.direction ?? "";
+          bVal = b.strategy?.direction ?? "";
+        }
+
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return dir === "asc" ? aVal - bVal : bVal - aVal;
+        } else {
+          return dir === "asc"
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
+        }
       });
     }
     return agents;
@@ -242,6 +262,12 @@ export default function Home() {
   const fmt = (v?: number, sign = false) =>
     typeof v === "number" ? `${sign && v >= 0 ? "+" : ""}${v}%` : "—";
 
+  const filteredAgents = useMemo(() => {
+
+    if (filter === "all") return visibleAgents;
+    return visibleAgents.filter(agent => agent.strategy.type === filter);
+  }, [visibleAgents, filter]);
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -255,8 +281,28 @@ export default function Home() {
 
       {error && <div className="px-4 lg:px-6 text-red-400">{error}</div>}
 
-      {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
+      {Array.isArray(filteredAgents) && filteredAgents.length > 0 ? (
         <>
+          <div>
+            {/* 
+              TODO: Add filtering back
+             */}
+            {/*<Select
+              defaultValue="all"
+              onValueChange={(e) => {
+                setFilter(e);
+              }}>
+              <SelectTrigger className="w-48 ml-4">
+                <SelectValue placeholder="Filter by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="breakout">Breakout</SelectItem>
+                <SelectItem value="momentum">Momentum</SelectItem>
+                <SelectItem value="trend">Trend Following</SelectItem>
+              </SelectContent>
+            </Select> */}
+          </div>
           <div className="overflow-x-auto px-4 lg:px-6">
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
@@ -264,22 +310,26 @@ export default function Home() {
                   <th className="p-2 w-12 border-b rounded-tl-md">#</th>
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
-                  <th className="p-2 w-40 border-b">Strategy</th>
-                  <th className="p-2 w-32 border-b">Direction</th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("accumulatedReturns")}>
+                  <th className="p-2 w-40 border-b" onClick={() => handleSort("type")}>
+                    Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
+                    </th>
+                  <th className="p-2 w-32 border-b" onClick={() => handleSort("direction")}>
+                    Direction {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
+                  </th>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("accumulatedReturns")}>
                     Cum. return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("CAGR")}>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("CAGR")}>
                     CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("maxDrawdown")}>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("maxDrawdown")}>
                     Max. DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-8 border-b rounded-tr-md"></th>
                 </tr>
               </thead>
               <tbody>
-                {visibleAgents.map((agent) => {
+                {filteredAgents.map((agent) => {
                   const r = agent.strategy?.backtested;
                   const isVault = vaultIds.has(agent.id);
                   return (
