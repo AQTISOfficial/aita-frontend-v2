@@ -25,6 +25,7 @@ type Agent = {
     id: string;
     ticker: string;
     name: string;
+    created: number;
     description: string;
     ownerAddress: string;
     contractAddress: string;
@@ -119,6 +120,8 @@ export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
                                         {agent.ownerAddress.substring(0, 6)}...
                                         {agent.ownerAddress.substring(agent.ownerAddress.length - 4)}
                                     </span>
+                                    <span className="text-neutral-400">Created:</span>
+                                    <span className="text-white">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
                                 </div>
                             )}
                         </div>
