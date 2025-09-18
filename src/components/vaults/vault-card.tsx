@@ -168,14 +168,16 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
 
                 <span>Unrealized PnL:</span>
                 <span
-                  className={`flex items-center font-mono justify-end ${Number(totalVaultPnl) < 0 ? "text-red-500" : "text-teal-500"}`}
+                  className={`flex items-center font-mono justify-end ${Number(currentPnl) < 0 ? "text-red-500" : "text-teal-500"}`}
                 >
                   {totalVaultPnl ?? "N/A"}
-                  {Number(totalVaultPnl) < 0 ? (
+                  {Number(currentPnl) < 0 ? (
                     <IconTrendingDown className="size-4 ml-2" />
                   ) : (
                     <IconTrendingUp className="size-4 ml-2" />
                   )}
+              
+                 
                 </span>
 
                 <span>Current APR:</span>

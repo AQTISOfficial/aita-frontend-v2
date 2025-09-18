@@ -11,7 +11,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { ReactNode } from "react";
-import { arbitrum } from 'wagmi/chains';
+import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
 
 import { wagmiConfig } from '@/lib/wagmiConfig';
 
@@ -26,7 +26,7 @@ export default function Providers({ children }: ProvidersProps) {
     <WagmiProvider reconnectOnMount={true} config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          initialChain={arbitrum}
+          initialChain={arbitrumSepolia}
           modalSize="compact"
           theme={darkTheme({
             accentColor: '#67AB94',

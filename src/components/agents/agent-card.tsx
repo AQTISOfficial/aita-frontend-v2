@@ -1,9 +1,6 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+"use client";
+
+import React, { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -16,21 +13,10 @@ import {
 } from "@/components/ui/card"
 import { Button } from "../ui/button"
 import Image from "next/image"
-import { CircleCheckBigIcon, LinkIcon, ExternalLinkIcon } from "lucide-react";
+import { CircleCheckBigIcon } from "lucide-react";
 
 import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
-import clsx from "clsx";
-import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
-import { Separator } from "../ui/separator";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-import { AssetCategory, assets } from "@/lib/assets";
-import Link from "next/link";
+import { useAccount, useReadContract } from "wagmi";
 
 interface AgentCardProps {
   agent: {
@@ -68,6 +54,9 @@ export function AgentCard({ agent }: AgentCardProps) {
 
   const router = useRouter();
   const { address, isConnected } = useAccount();
+
+  
+
 
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
@@ -119,44 +108,6 @@ export function AgentCard({ agent }: AgentCardProps) {
                   </div>
                 </>
               )}
-              {/* <div className="grid grid-cols-2 gap-2">
-                <span className="text-neutral-400">Strategy:</span>
-                <span className={clsx(valueColorClasses['type']?.[agent.strategy.type] || "text-white")}>{valueLabels['type'][agent.strategy.type]}</span>
-                <span className="text-neutral-400">Direction:</span>
-                <span className={clsx(valueColorClasses['direction']?.[agent.strategy.direction] || "text-white")}>{valueLabels['direction'][agent.strategy.direction]}</span>
-                <span className="text-neutral-400">Assets:</span>
-                <span className="capitalize text-white">
-                  <Popover>
-                    <PopoverTrigger className="capitalize">{agent.strategy.assets.replaceAll("_", " ")}</PopoverTrigger>
-                    <PopoverContent>
-                      <div className="flex flex-wrap gap-1 text-xs">
-                        {assets[agent.strategy.assets as AssetCategory]?.map((asset, index) => (
-                          <>
-                            <span key={index} className="border p-1 rounded">{asset}</span>
-                          </>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </span>
-              </div> */}
-              {/* <Badge variant={"outline"} className={clsx(valueColorClasses['timeframe']?.[agent.strategy.timeframe] || "text-white")}>{valueLabels['timeframe'][agent.strategy.timeframe]}</Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_entry']?.[agent.strategy.signal_detection_entry] || "text-white", "strategy-item")}>{valueLabels['signal_detection_entry'][agent.strategy.signal_detection_entry]}</Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['signal_detection_exit']?.[agent.strategy.signal_detection_exit] || "text-white", "strategy-item")}>{valueLabels['signal_detection_exit'][agent.strategy.signal_detection_exit]}</Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['risk_management']?.[agent.strategy.risk_management] || "text-white", "strategy-item")}>{valueLabels['risk_management'][agent.strategy.risk_management]}</Badge>
-              <Badge variant={"outline"} className={clsx(valueColorClasses['ranking_method']?.[agent.strategy.ranking_method] || "text-white", "strategy-item")}>{valueLabels['ranking_method'][agent.strategy.ranking_method]}</Badge>
-              {agent.strategy?.exchange && (
-                <Badge variant={"outline"} className="strategy-item text-neutral-400 capitalize">
-                  {agent.strategy.exchange}
-                </Badge>
-              )} */}
-
-
-            {/* {agent.strategy.comet && (
-              <div className="flex pt-4">
-                <Link href={agent.strategy?.comet} target="_blank" className=" text-cyan-300 flex hover:underline underline-offset-4">View Backtesting Results<ExternalLinkIcon className="size-4 ml-2" /></Link>
-              </div>
-            )} */}
           </>
         )
           :
@@ -170,11 +121,11 @@ export function AgentCard({ agent }: AgentCardProps) {
         <div className="mt-4 pt-4">
           <div className="grid grid-cols-2 gap-1">
             <span>Contract Address:</span>
-            <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
+            <span className="text-end">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
             <span>Owner Address:</span>
-            <span className="text-end font-mono">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
+            <span className="text-end">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
             <span>Created:</span>
-            <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
+            <span className="text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
           </div>
         </div>
       </CardContent>
