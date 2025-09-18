@@ -14,4 +14,12 @@ export const vaults = [
         user: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
         twitter: "Sentinel_AITA"
     }
+    // ,
+    // {
+    //     id: "fbf6037d-e3bb-4b5b-939d-2b5fa8db011b",
+    //     name: "Coder Vault",
+    //     address: "0xd0a9d76e2f03e1a67a2dec5675edcbdf7c325d5f",
+    //     user: "0xFF390541d46452b067819AC4D9F11459aa8eE2A7",
+    //     twitter: "thecoderaita"
+    // }
 ];

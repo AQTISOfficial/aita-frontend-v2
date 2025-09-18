@@ -10,20 +10,34 @@
 // - Uses wallet signature for authentication when calling the API.
 // - On success, redirects to the agent success page.
 
-import { useAccount, useSignMessage } from "wagmi"
+import { useAccount, useSignMessage, useReadContract, useWriteContract } from "wagmi"
+import { useQueryClient } from "@tanstack/react-query"
+
 import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
 import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
 
 import forbiddenWords from "@/lib/forbidden_words.json"
 import { publicEnv } from "@/lib/env.public"
 import { Button } from "@/components/ui/button"
 
+import { erc20Abi } from "@/lib/abis/erc20Abi";
+import { factoryAbi } from "@/lib/abis/factoryAbi"
+import { sponsorAbi } from "@/lib/abis/sponsorAbi"
+
 // API endpoints and asset base are injected via env vars.
 const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
 const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
+const agentFactoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
+const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
+const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
+
+const ERC20_ABI = erc20Abi;
+const AgentFactoryABI = factoryAbi;
+const AgentSponsorABI = sponsorAbi;
 
 // Agent data shape
 interface Agent {
@@ -60,6 +74,8 @@ export default function CreateAgentPage() {
   // Wallet + signing hooks
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
+  const { writeContractAsync, isPending } = useWriteContract();
+  const queryClient = useQueryClient();
 
   // Utility: clear error for a given field
   const clearFieldError = (field: keyof Agent | "imageFile") => {
@@ -183,41 +199,69 @@ export default function CreateAgentPage() {
     accept: { "image/*": [] },
   })
 
+  
   // --- Submit ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
 
-    if (!isConnected || !address) {
-      setError("Please connect your wallet to proceed.")
-      setLoading(false)
-      return
-    }
-
-    const isValid = validateForm()
-    if (!isValid) {
-      setLoading(false)
-      return
-    }
+    // voorkom dubbel submits en submit tijdens upload of pending tx
+    if (loading || uploading || isPending) return;
+    setLoading(true);
 
     try {
-      // Ensure we have a cached wallet signature
-      const localStorageKey = `signature-${address.toLowerCase()}`
-      let signature = localStorage.getItem(localStorageKey)
-
-      if (!signature) {
-        const messageToSign = `Welcome to AITA!\n\nVerify your address: ${address.toLowerCase()}`
-        signature = await signMessageAsync({ message: messageToSign })
-        if (!signature) throw new Error("Failed to sign message")
-        localStorage.setItem(localStorageKey, signature)
+      if (!isConnected || !address) {
+        setError("Please connect your wallet to proceed.");
+        return;
       }
 
-      let finalAgentId = agentId
+      // lokale validatie eerst
+      const isValid = validateForm();
+      if (!isValid) return;
 
-      // POST agent to backend if not yet created
+      // vereis dat de upload echt rond is en we een imageId hebben
+      if (!presignedUrlImageId) {
+        setErrors((prev) => ({
+          ...prev,
+          imageFile: "Image is not uploaded yet. Please upload and try again.",
+        }));
+        return;
+      }
+
+      // normaliseer input voor de API en on-chain
+      const { name: nameForCheck, ticker: tickerForCheck } = normalizeForCheck(name, ticker);
+
+      // uniqueness check op submit
+      const exists = await checkAgent(nameForCheck, tickerForCheck);
+      if (exists) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Agent with this name and ticker already exists.",
+          ticker: "Agent with this name and ticker already exists.",
+        }));
+        return;
+      }
+
+      // wallet signature cachen
+      const localStorageKey = `signature-${address.toLowerCase()}`;
+      let signature = localStorage.getItem(localStorageKey);
+      if (!signature) {
+        const messageToSign = `Welcome to AITA!\n\nVerify your address: ${address.toLowerCase()}`;
+        signature = await signMessageAsync({ message: messageToSign });
+        if (!signature) throw new Error("Failed to sign message");
+        localStorage.setItem(localStorageKey, signature);
+      }
+
+      // backend DB create
+      let finalAgentId = agentId;
       if (!finalAgentId) {
-        const params = { name, ticker, description, imageId: presignedUrlImageId }
+        const params = {
+          name: nameForCheck,
+          ticker: tickerForCheck,
+          description,
+          imageId: presignedUrlImageId,
+        };
+
         const createAgentResp = await fetch(`${apiUrl}/token`, {
           method: "POST",
           headers: {
@@ -225,22 +269,43 @@ export default function CreateAgentPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(params),
-        })
+        });
 
-        if (!createAgentResp.ok) throw new Error("Error creating agent in DB")
-        const data = (await createAgentResp.json()) as { id: string }
-        finalAgentId = data.id
-        setAgentId(finalAgentId)
+        if (!createAgentResp.ok) {
+          // Check for 409 Conflict
+          if (createAgentResp.status === 409) {
+            setErrors((prev) => ({
+              ...prev,
+              name: "Agent already exists.",
+              ticker: "Agent already exists.",
+            }));
+            return;
+          }
+          throw new Error("Error creating agent in DB");
+        }
+
+        const data = (await createAgentResp.json()) as { id: string };
+        finalAgentId = data.id;
+        setAgentId(finalAgentId);
       }
 
-      router.push(`/agents/create/success/${finalAgentId}`)
+      // On-chain create via sponsor
+      await writeContractAsync({
+        address: agentSponsorAddress,
+        abi: AgentSponsorABI,
+        functionName: "createAgentForUser",
+        args: [nameForCheck, tickerForCheck],
+      });
+
+      router.push(`/agents/create/success/${finalAgentId}`);
     } catch (err) {
-      console.error("Error during form submission:", err)
-      setError("An error occurred while submitting the form. Please try again.")
+      console.error("Error during form submission:", err);
+      setError("An error occurred while submitting the form. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   // Update state + clear errors on change
   const handleFieldChange = (field: keyof Agent, value: string) => {
@@ -308,9 +373,8 @@ export default function CreateAgentPage() {
                 maxLength={6}
                 autoComplete="off"
                 onChange={(e) => handleFieldChange("ticker", e.target.value.toUpperCase())}
-                className={`p-2 border rounded-md w-full uppercase ${
-                  errors.ticker ? "border-red-400" : ""
-                }`}
+                className={`p-2 border rounded-md w-full uppercase ${errors.ticker ? "border-red-400" : ""
+                  }`}
                 placeholder="Ticker (f.e. AITA)"
               />
               {errors.ticker && <p className="text-red-300 text-sm">{errors.ticker}</p>}
@@ -327,9 +391,8 @@ export default function CreateAgentPage() {
                 autoComplete="off"
                 maxLength={255}
                 onChange={(e) => handleFieldChange("description", e.target.value)}
-                className={`w-full border rounded-md p-2 min-h-32 ${
-                  errors.description ? "border-red-400" : ""
-                }`}
+                className={`w-full border rounded-md p-2 min-h-32 ${errors.description ? "border-red-400" : ""
+                  }`}
                 placeholder="Tell the world about your AI Agent..."
               />
               {errors.description && <p className="text-red-300 text-sm">{errors.description}</p>}
@@ -342,9 +405,8 @@ export default function CreateAgentPage() {
               </label>
               <div
                 {...getRootProps()}
-                className={`border border-dashed rounded-xl p-4 text-center min-h-32 ${
-                  isDragActive ? "bg-neutral-900" : "bg-neutral-800"
-                } ${errors.imageFile ? "border-red-400" : "border-gray-300"}`}
+                className={`border border-dashed rounded-xl p-4 text-center min-h-32 ${isDragActive ? "bg-neutral-900" : "bg-neutral-800"
+                  } ${errors.imageFile ? "border-red-400" : "border-gray-300"}`}
               >
                 <input id="drop-image" {...getInputProps()} />
                 {imageFile ? (
@@ -383,7 +445,7 @@ export default function CreateAgentPage() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || uploading || isPending} className="w-full lg:w-auto">
               {loading ? "Submitting..." : "Create Agent"}
             </Button>
           </CardFooter>
@@ -394,3 +456,4 @@ export default function CreateAgentPage() {
     </div>
   )
 }
+

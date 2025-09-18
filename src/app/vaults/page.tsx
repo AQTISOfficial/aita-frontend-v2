@@ -6,7 +6,7 @@ export default function VaultList() {
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
       {vaults.map((vault) => (
         <HyperliquidVaults
-          key={vault.address}
+          key={vault.id}
           vaultAddress={vault.address}
         />
       ))}

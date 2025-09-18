@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
@@ -49,15 +48,16 @@ type Agent = {
 export default function Home() {
   // --- State ---
   const [limit] = useState(10);
-  const [agents, setAgents] = useState<Agent[]>([]);        // server page
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Sorting (UI state blijft hetzelfde)
+  // Sorting (UI state remains the same)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  // Sheet
+  // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [open, setOpen] = useState(false)
 
@@ -77,7 +77,7 @@ export default function Home() {
   const pageControllerRef = useRef<AbortController | null>(null);
   const hydrateControllerRef = useRef<AbortController | null>(null);
 
-  // Fetch 1 pagina (server mode)
+  // Fetch 1 page (server mode)
   useEffect(() => {
     if (mode !== "server") return;
 
@@ -87,6 +87,7 @@ export default function Home() {
 
     const fetchAgentsList = async () => {
       try {
+        setLoading(true);
         setError(null);
         const offset = (currentPage - 1) * limit;
 
@@ -111,6 +112,8 @@ export default function Home() {
         if ((err as Error).name !== "AbortError") {
           setError("Failed to fetch agents. Please try again later.");
         }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -134,6 +137,7 @@ export default function Home() {
     hydrateControllerRef.current = controller;
 
     try {
+      setLoading(true); 
       let total = totalAgents;
       let firstPage = agents;
       if (!total || currentPage !== 1 || agents.length === 0) {
@@ -183,6 +187,7 @@ export default function Home() {
         setError("Failed to load full dataset for sorting.");
       }
     } finally {
+      setLoading(false);
       setHydratingAll(false);
     }
   }
@@ -200,7 +205,7 @@ export default function Home() {
     setSortDir(nextDir);
   }
 
-  // Gesorteerde bron afhankelijk van mode
+  // Sorted source depending on mode
   const source: Agent[] = useMemo(() => {
     if (mode === "client" && allAgents) {
       const key = sortKey;
@@ -320,17 +325,16 @@ export default function Home() {
             )}
           </div>
 
-          {/* Dynamische Sheet */}
+          {/* Dynamic Sheet */}
           <AgentSheet
             open={open}
             onOpenChange={setOpen}
             agent={selectedAgent}
-            vaultIds={vaultIds}
           />
         </>
       ) : (
         <div className="px-4 lg:px-6 text-neutral-400">
-          {hydratingAll ? "Loading…" : "No agents found."}
+          {loading ? "Loading…" : "No agents found."}
         </div>
       )
       }

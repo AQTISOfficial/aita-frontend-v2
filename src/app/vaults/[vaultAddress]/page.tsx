@@ -16,8 +16,10 @@ import { publicEnv } from "@/lib/env.public"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { VaultActions } from "@/components/vaults/vault-actions";
+import Link from "next/link"
 
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL
+const HYPERLIQUID_URL = publicEnv.NEXT_PUBLIC_HYPERLIQUID_URL || ""
 
 // Utility: fetch vault data from Hyperliquid API
 async function getVaultData(vaultAddress: string) {
@@ -28,7 +30,7 @@ async function getVaultData(vaultAddress: string) {
       type: "vaultDetails",
       vaultAddress,
     }),
-    next: { revalidate: 60 }, // ISR: revalidate every 60s
+    next: { revalidate: 60 },
   })
 
   if (!res.ok) throw new Error("Failed to fetch vault data")
@@ -59,8 +61,16 @@ export default async function Page({
       <div className="col-span-2 xl:col-span-4 mb-2 flex justify-between">
         <span className="text-2xl text-teal-400">{vaultName}</span>
         <div className="flex space-x-2">
-          <Button variant={"outline"} className="btn">Deposit</Button>
-          <Button variant={"outline"} className="btn">Withdraw</Button>
+          {/* <Button variant={"outline"}>Deposit</Button> */}
+          <Button variant={"outline"}>
+            <Link
+              href={`${HYPERLIQUID_URL}${vaultAddress}`}
+              target="_blank"
+              className=" text-teal-300 flex hover:underline underline-offset-4 justify-center"
+            >
+              View on Hyperliquid
+            </Link>
+          </Button>
         </div>
         {/* <VaultActions vaultAddress={vaultAddress as `0x${string}`} /> */}
       </div>
