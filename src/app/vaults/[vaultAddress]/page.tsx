@@ -52,6 +52,8 @@ export default async function Page({
   const vaultData = await getVaultData(vaultAddress)
   const vaultName = vaultData?.name || "Vault"
 
+  console.log("Vault Data:", vaultData)
+  
   if (!vaultData) {
     return <div className="text-red-500">Failed to fetch vault data</div>
   }
