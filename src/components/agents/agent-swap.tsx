@@ -297,7 +297,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
             if (!address) throw new Error("Connect Wallet");
             if (!usdcAddress) throw new Error("USDC address not found.");
             if (parsed.buyIn <= BigInt(0)) throw new Error("Enter an amount greater than 0.");
-            if (parsed.buyIn > usdcBal?.value!) throw new Error("Insufficient USDC balance.");
+            if (parsed.buyIn > (usdcBal?.value ?? BigInt(0))) throw new Error("Insufficient USDC balance.");
 
             if (needUsdcApproval) {
                 setBtnBuyName("Approving USDC...");
