@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
+import clsx from "clsx"
 
 import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
-
+import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 
@@ -137,7 +138,7 @@ export default function Home() {
     hydrateControllerRef.current = controller;
 
     try {
-      setLoading(true); 
+      setLoading(true);
       let total = totalAgents;
       let firstPage = agents;
       if (!total || currentPage !== 1 || agents.length === 0) {
@@ -257,12 +258,14 @@ export default function Home() {
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
           <div className="overflow-x-auto px-4 lg:px-6">
-            <table className="min-w-full border-collapse text-sm">
+            <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
                   <th className="p-2 w-12 border-b rounded-tl-md">#</th>
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
+                  <th className="p-2 w-40 border-b">Strategy</th>
+                  <th className="p-2 w-32 border-b">Direction</th>
                   <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("accumulatedReturns")}>
                     Cum. return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
@@ -301,6 +304,16 @@ export default function Home() {
                       </td>
                       <td className="p-2 font-medium">{agent.ticker}</td>
                       <td className="p-2 font-medium truncate">{agent.name} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</td>
+                      <td className={`p-2 truncate ${clsx(
+                        valueColorClasses["type"]?.[agent.strategy.type] || "text-neutral-300"
+                      )}`}
+                      >
+                        {valueLabels["type"][agent.strategy.type]}</td>
+                      <td className={`p-2 ${clsx(
+                        valueColorClasses["direction"]?.[agent.strategy.direction] || "text-neutral-300"
+                      )}`}
+                      >
+                        {valueLabels["direction"][agent.strategy.direction]}</td>
                       <td className="p-2 text-teal-500/80">{fmt(Number(r?.accumulatedReturns), true)}</td>
                       <td className="p-2 text-amber-500/80">{fmt(Number(r?.CAGR), true)}</td>
                       <td className="p-2 text-neutral-500">{fmt(Number(r?.maxDrawdown))}</td>

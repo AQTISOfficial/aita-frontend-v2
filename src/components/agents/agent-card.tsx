@@ -125,7 +125,7 @@ export function AgentCard({ agent }: AgentCardProps) {
             <span>Owner Address:</span>
             <span className="text-end">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
             <span>Created:</span>
-            <span className="text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("nl-NL")}</span>
+            <span className="text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
           </div>
         </div>
       </CardContent>
