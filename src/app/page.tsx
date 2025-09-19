@@ -17,6 +17,7 @@ import { AgentSheet } from "@/components/agents/agent-sheet";
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "type" | "direction";
 type SortDir = "asc" | "desc";
+type SortDate = "asc" | "desc";
 type Mode = "server" | "client";
 
 type Agent = {
@@ -59,6 +60,7 @@ export default function Home() {
   // Sorting (UI state remains the same)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sortDate, setSortDate] = useState<SortDate>("desc");
 
   // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
@@ -100,6 +102,7 @@ export default function Home() {
           body: JSON.stringify({
             limit,
             offset,
+            sort: sortDate,
             address,
             strategy: true,
           }),
@@ -122,11 +125,11 @@ export default function Home() {
 
     fetchAgentsList();
     return () => controller.abort();
-  }, [limit, address, currentPage, mode]);
+  }, [limit, address, currentPage, mode, sortDate]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortKey, sortDir, filter]);
+  }, [sortKey, sortDir, sortDate, filter]);
 
   async function hydrateAllPages() {
     if (allAgents && allAgents.length === totalAgents && totalAgents > 0) {
@@ -147,7 +150,7 @@ export default function Home() {
         const res = await fetch("/api/agents/list", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ limit, offset: 0, address, strategy: true }),
+          body: JSON.stringify({ limit, offset: 0, sort: sortDate, address, strategy: true }),
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -172,7 +175,7 @@ export default function Home() {
             const res = await fetch("/api/agents/list", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ limit, offset, address, strategy: true }),
+              body: JSON.stringify({ limit, offset, sort: sortDate, address, strategy: true }),
               signal: controller.signal,
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -262,11 +265,7 @@ export default function Home() {
   const fmt = (v?: number, sign = false) =>
     typeof v === "number" ? `${sign && v >= 0 ? "+" : ""}${v}%` : "—";
 
-  const filteredAgents = useMemo(() => {
-
-    if (filter === "all") return visibleAgents;
-    return visibleAgents.filter(agent => agent.strategy.type === filter);
-  }, [visibleAgents, filter]);
+  
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
@@ -281,9 +280,23 @@ export default function Home() {
 
       {error && <div className="px-4 lg:px-6 text-red-400">{error}</div>}
 
-      {Array.isArray(filteredAgents) && filteredAgents.length > 0 ? (
+      {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
-          <div>
+          <div className="flex items-center justify-end px-4 lg:px-6 space-x-2">
+            <Select
+            defaultValue={"desc"}
+              onValueChange={(v) => {
+                setCurrentPage(1)
+                setSortDate(v as SortDate)
+              }}>
+              <SelectTrigger className="w-32 ml-4 focus:outline-none focus:ring-1">
+                <SelectValue placeholder="Sort by Date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Newest</SelectItem>
+                <SelectItem value="asc">Oldest</SelectItem>
+              </SelectContent>
+            </Select>
             {/* 
               TODO: Add filtering back
              */}
@@ -329,7 +342,7 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {filteredAgents.map((agent) => {
+                {visibleAgents.map((agent) => {
                   const r = agent.strategy?.backtested;
                   const isVault = vaultIds.has(agent.id);
                   return (
