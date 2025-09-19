@@ -32,7 +32,7 @@ import { useRouter } from "next/navigation"
 import { IconRobotFace } from "@tabler/icons-react"
 
 import { PaginationFunction } from "@/components/ui/pagination-function"
-import { Card, CardTitle, CardHeader, CardDescription, CardAction , CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardTitle, CardHeader, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card"
 
 type SortKey = "asc" | "desc"
 
@@ -69,13 +69,13 @@ export default function Home() {
   const [limit, setLimit] = useState(15)
   const [sort, setSort] = useState<SortKey>("desc")
   const [search, setSearch] = useState("")
-  const [agents, setAgents] = useState([])
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [userAgents, setUserAgents] = useState(false)
   const [strategy, setStrategy] = useState(false)
   const [totalAgents, setTotalAgents] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
- // Sheet (agent details)
+  // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [open, setOpen] = useState(false)
 
@@ -240,8 +240,8 @@ export default function Home() {
       <div className="grid grid-cols-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 md:gap-6">
         {Array.isArray(agents) &&
           //agents.map((agent, index) => <AgentCard key={index} agent={agent} />)}
-          agents.map((agent: any) => (
-            <Card key={agent.id}>
+          agents.map((agent, index) => (
+            <Card key={index}>
               <div className="w-full relative -top-6">
                 <Image
                   aria-hidden
