@@ -1,6 +1,6 @@
 "use client"
 
-import { BotIcon, Landmark, Store } from "lucide-react"
+import { BotIcon, Landmark, Store, Settings, ChevronUp } from "lucide-react"
 
 import {
     Sidebar,
@@ -19,6 +19,7 @@ import {
 
 import { Icons } from "./icon"
 import { useEffect } from "react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 
 
 // Menu items.
@@ -121,7 +122,15 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <a href="/account">
+                                <Settings /> Account Settings
+                            </a>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
