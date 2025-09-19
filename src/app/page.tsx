@@ -7,6 +7,7 @@ import clsx from "clsx"
 
 import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, ShieldCheck } from "lucide-react";
@@ -14,8 +15,9 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
 
-type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown";
+type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "type" | "direction";
 type SortDir = "asc" | "desc";
+type SortDate = "asc" | "desc";
 type Mode = "server" | "client";
 
 type Agent = {
@@ -53,10 +55,12 @@ export default function Home() {
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<string>("all");
 
   // Sorting (UI state remains the same)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sortDate, setSortDate] = useState<SortDate>("desc");
 
   // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
@@ -98,6 +102,7 @@ export default function Home() {
           body: JSON.stringify({
             limit,
             offset,
+            sort: sortDate,
             address,
             strategy: true,
           }),
@@ -120,11 +125,11 @@ export default function Home() {
 
     fetchAgentsList();
     return () => controller.abort();
-  }, [limit, address, currentPage, mode]);
+  }, [limit, address, currentPage, mode, sortDate]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortKey, sortDir]);
+  }, [sortKey, sortDir, sortDate, filter]);
 
   async function hydrateAllPages() {
     if (allAgents && allAgents.length === totalAgents && totalAgents > 0) {
@@ -145,7 +150,7 @@ export default function Home() {
         const res = await fetch("/api/agents/list", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ limit, offset: 0, address, strategy: true }),
+          body: JSON.stringify({ limit, offset: 0, sort: sortDate, address, strategy: true }),
           signal: controller.signal,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -170,7 +175,7 @@ export default function Home() {
             const res = await fetch("/api/agents/list", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ limit, offset, address, strategy: true }),
+              body: JSON.stringify({ limit, offset, sort: sortDate, address, strategy: true }),
               signal: controller.signal,
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -212,9 +217,27 @@ export default function Home() {
       const key = sortKey;
       const dir = sortDir;
       return [...allAgents].sort((a, b) => {
-        const aVal = a.strategy?.backtested?.[key] ?? 0;
-        const bVal = b.strategy?.backtested?.[key] ?? 0;
-        return dir === "asc" ? aVal - bVal : bVal - aVal;
+        let aVal: number | string = 0;
+        let bVal: number | string = 0;
+
+        if (key === "accumulatedReturns" || key === "CAGR" || key === "maxDrawdown") {
+          aVal = a.strategy?.backtested?.[key] ?? 0;
+          bVal = b.strategy?.backtested?.[key] ?? 0;
+        } else if (key === "type") {
+          aVal = a.strategy?.type ?? "";
+          bVal = b.strategy?.type ?? "";
+        } else if (key === "direction") {
+          aVal = a.strategy?.direction ?? "";
+          bVal = b.strategy?.direction ?? "";
+        }
+
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return dir === "asc" ? aVal - bVal : bVal - aVal;
+        } else {
+          return dir === "asc"
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
+        }
       });
     }
     return agents;
@@ -242,6 +265,8 @@ export default function Home() {
   const fmt = (v?: number, sign = false) =>
     typeof v === "number" ? `${sign && v >= 0 ? "+" : ""}${v}%` : "—";
 
+  
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -257,6 +282,40 @@ export default function Home() {
 
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
+          <div className="flex items-center justify-end px-4 lg:px-6 space-x-2">
+            <Select
+            defaultValue={"desc"}
+              onValueChange={(v) => {
+                setCurrentPage(1)
+                setSortDate(v as SortDate)
+              }}>
+              <SelectTrigger className="w-32 ml-4 focus:outline-none focus:ring-1">
+                <SelectValue placeholder="Sort by Date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Newest</SelectItem>
+                <SelectItem value="asc">Oldest</SelectItem>
+              </SelectContent>
+            </Select>
+            {/* 
+              TODO: Add filtering back
+             */}
+            {/*<Select
+              defaultValue="all"
+              onValueChange={(e) => {
+                setFilter(e);
+              }}>
+              <SelectTrigger className="w-48 ml-4">
+                <SelectValue placeholder="Filter by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="breakout">Breakout</SelectItem>
+                <SelectItem value="momentum">Momentum</SelectItem>
+                <SelectItem value="trend">Trend Following</SelectItem>
+              </SelectContent>
+            </Select> */}
+          </div>
           <div className="overflow-x-auto px-4 lg:px-6">
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
@@ -264,15 +323,19 @@ export default function Home() {
                   <th className="p-2 w-12 border-b rounded-tl-md">#</th>
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
-                  <th className="p-2 w-40 border-b">Strategy</th>
-                  <th className="p-2 w-32 border-b">Direction</th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("accumulatedReturns")}>
+                  <th className="p-2 w-40 border-b" onClick={() => handleSort("type")}>
+                    Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
+                    </th>
+                  <th className="p-2 w-32 border-b" onClick={() => handleSort("direction")}>
+                    Direction {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
+                  </th>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("accumulatedReturns")}>
                     Cum. return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("CAGR")}>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("CAGR")}>
                     CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
-                  <th className="p-2 w-32 border-b cursor-pointer" onClick={() => handleSort("maxDrawdown")}>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("maxDrawdown")}>
                     Max. DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-8 border-b rounded-tr-md"></th>

@@ -80,50 +80,44 @@ export function Header() {
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-3">
       {/* Agents card */}
-      <Card className="@container/card">
+      <Card className="@container/card relative">
         <CardHeader>
-          <CardDescription className="flex items-center mb-2">
+          <CardDescription className="flex items-start mb-2">
             <BotIcon className="mr-2 inline-block size-5" />Total Backtested Agents
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {totalAgents}
           </CardTitle>
           <CardAction>
-            <Button
-              variant="default"
-              type="button"
-              onClick={() => router.push("/agents/create")}
-            >
-              Create Agent
-            </Button>
+            
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start text-sm">
+        <CardFooter className="flex items-start justify-between text-sm absolute bottom-4 right-2">
           <Button
             variant="outline"
-            className="text-foreground text-left flex items-center"
+            className="text-foreground flex items-center w-32"
             type="button"
             onClick={() => router.push("/agents")}
           >
-            View All Agents
+            View Agents
           </Button>
         </CardFooter>
       </Card>
 
       {/* Vaults card */}
-      <Card className="@container/card">
+      <Card className="@container/card relative">
         <CardHeader>
-          <CardDescription className="flex items-center mb-2">
+          <CardDescription className="flex items-start mb-2">
             <Landmark className="mr-2 inline-block size-5" />Total Vaults
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {totalVaults}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex-col items-start text-sm">
+        <CardFooter className="flex-col items-start text-sm absolute bottom-4 right-2">
           <Button
             variant="outline"
-            className="text-foreground text-left flex items-center"
+            className="text-foreground flex items-center w-32"
             type="button"
             onClick={() => router.push("/vaults")}
           >
@@ -135,7 +129,7 @@ export function Header() {
       {/* TVL card */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription className="flex items-center mb-2">
+          <CardDescription className="flex items-start mb-2">
             <LockIcon className="mr-2 inline-block size-5" />Total Value Locked
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

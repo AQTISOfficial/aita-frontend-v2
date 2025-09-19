@@ -51,7 +51,7 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
     const vault = vaults.find((v) => v.id === agent.id);
 
     return (
-        <div className="grid gap-3 text-sm text-neutral-400 my-4 border p-4 rounded-md">
+        <div className="grid gap-3 text-sm text-neutral-400 my-2 border p-4 rounded-md">
             {agent.strategy?.backtested && (
                 <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">

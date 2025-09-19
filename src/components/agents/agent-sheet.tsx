@@ -126,24 +126,42 @@ export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
                             )}
                         </div>
                     </div>
-                    <Tabs defaultValue="strategy" className="w-full ">
+                    <Tabs defaultValue={agent?.strategy ? "strategy" : "swap"} className="w-full ">
                         <TabsList className="w-full h-10">
-                            <TabsTrigger value="strategy" className="data-[state=active]:border-0">
-                                Strategy
-                            </TabsTrigger>
+                            {agent?.strategy && (
+                                <>
+                                    <TabsTrigger value="strategy" className="data-[state=active]:border-0">
+                                        Strategy
+                                    </TabsTrigger>
+                                    <TabsTrigger value="signals" className="data-[state=active]:border-0">
+                                        Signals
+                                    </TabsTrigger>
+
+                                </>
+                            )}
+
                             <TabsTrigger value="swap" className="data-[state=active]:border-0">
                                 Trade
                             </TabsTrigger>
                         </TabsList>
+                        <TabsContent value="strategy" className="w-full pt-4">
+                            {/* Strategy Details */}
+                            <h2 className="text-lg pl-2">Strategy Details</h2>
+                            {agent?.strategy ? <AgentStrategy agent={agent} /> : <span className="p-2 text-sm text-neutral-400">No strategy details available.</span>}
+                        </TabsContent>
+                        <TabsContent value="signals" className="w-full pt-4">
+                            {/* Signals Details */}
+                            <h2 className="text-lg pl-2">Signals</h2>
+                            <div className="pl-2 text-neutral-400 my-4 text-sm">
+                                Unlock exclusive access to the latest signals from <span className="tracking-wide font-bold text-white">{agent.ticker}</span> by holding at least <span className="text-teal-400 font-bold">10,000,000</span> tokens.
+                            </div>
+                            <div className="pl-2 text-neutral-400 my-4 text-sm">Make sure to enter your Telegram Username under <span className="text-teal-500">Account Settings</span> first.</div>
+                            <div className="pl-2 text-neutral-400 my-4 text-sm">Go to <Link href={'https://t.me/AITASignalBot'} target="_blank" className="text-teal-500">AITA SignalBot</Link>, enter <span className="text-teal-500 text-sm mb-1 px-2 py-1 border border-neutral-700 rounded">/sub {agent.ticker}</span> and get the latest signals!</div>
+                        </TabsContent>
                         <TabsContent value="swap" className="w-full pt-4">
                             {/* Swap Agent Token */}
                             <h2 className="text-lg pl-2">Trade {agent.ticker}</h2>
                             <AgentSwap tokenAddress={agent.contractAddress as `0x${string}`} />
-                        </TabsContent>
-                        <TabsContent value="strategy" className="w-full pt-4">
-                            {/* Strategy Details */}
-                            <h2 className="text-lg pl-2">Strategy Details</h2>
-                            <AgentStrategy agent={agent} />
                         </TabsContent>
                     </Tabs>
                 </div>

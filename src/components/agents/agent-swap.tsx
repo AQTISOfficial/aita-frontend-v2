@@ -386,7 +386,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
     return parsed.reserveUsdc !== BigInt(0) ? (
         <>
             {/* Buy/Sell Card */}
-            <div className="space-y-4 my-2 border p-4 rounded-md">
+            <div className="space-y-4 border p-4 rounded-md">
                 <Tabs defaultValue="buy" className="w-full">
                     <TabsList className="w-1/2 rounded-md">
                         <TabsTrigger value="buy" className="data-[state=active]:!text-teal-500">
