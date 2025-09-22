@@ -5,6 +5,7 @@ import { ExternalLinkIcon } from "lucide-react"
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { publicEnv } from "@/lib/env.public"
 import { vaults } from "@/lib/vaults";
+import { useAccount } from "wagmi"
 
 import Link from "next/link"
 import clsx from "clsx"
@@ -47,11 +48,14 @@ type Vault = {
 
 const HYPERLIQUID_URL = publicEnv.NEXT_PUBLIC_HYPERLIQUID_URL || "";
 export default function AgentStrategy({ agent }: { agent: Agent }) {
+    const { address, isConnected } = useAccount();
+    if (!agent) return null;
+
 
     const vault = vaults.find((v) => v.id === agent.id);
 
     return (
-        <div className="grid gap-3 text-sm text-neutral-400 my-2 border p-4 rounded-md">
+        <div className="grid gap-3 text-sm text-neutral-400 my-2">
             {agent.strategy?.backtested && (
                 <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
@@ -75,6 +79,8 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
                 </div>
             )}
 
+
+
             <div className="grid grid-cols-2 gap-2">
                 <span className="text-neutral-400">Strategy:</span>
                 <span
@@ -93,95 +99,97 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
                 >
                     {valueLabels["direction"][agent.strategy.direction]}
                 </span>
-                <span className="text-neutral-400">Assets:</span>
-                <span className="capitalize text-white">
-                    {agent.strategy.assets.replaceAll("_", " ")}
-                </span>
+                
             </div>
 
-            <div className="flex flex-wrap gap-2 mt-2">
-                <Badge
-                    variant={"outline"}
-                    className={
-                        valueColorClasses["timeframe"]?.[agent.strategy.timeframe] ||
-                        "text-white"
-                    }
-                >
-                    {valueLabels["timeframe"][agent.strategy.timeframe]}
-                </Badge>
-                <Badge
-                    variant={"outline"}
-                    className={clsx(
-                        valueColorClasses["signal_detection_entry"]?.[
-                        agent.strategy.signal_detection_entry
-                        ] || "text-white",
-                        "strategy-item"
-                    )}
-                >
-                    {valueLabels["signal_detection_entry"][
-                        agent.strategy.signal_detection_entry
-                    ]}
-                </Badge>
-                <Badge
-                    variant={"outline"}
-                    className={clsx(
-                        valueColorClasses["signal_detection_exit"]?.[
-                        agent.strategy.signal_detection_exit
-                        ] || "text-white",
-                        "strategy-item"
-                    )}
-                >
-                    {valueLabels["signal_detection_exit"][
-                        agent.strategy.signal_detection_exit
-                    ]}
-                </Badge>
-                <Badge
-                    variant={"outline"}
-                    className={clsx(
-                        valueColorClasses["risk_management"]?.[
-                        agent.strategy.risk_management
-                        ] || "text-white",
-                        "strategy-item"
-                    )}
-                >
-                    {valueLabels["risk_management"][agent.strategy.risk_management]}
-                </Badge>
-                <Badge
-                    variant={"outline"}
-                    className={clsx(
-                        valueColorClasses["ranking_method"]?.[
-                        agent.strategy.ranking_method
-                        ] || "text-white",
-                        "strategy-item"
-                    )}
-                >
-                    {valueLabels["ranking_method"][agent.strategy.ranking_method]}
-                </Badge>
-                {agent.strategy?.exchange && (
-                    <Badge
-                        variant={"outline"}
-                        className="strategy-item text-neutral-400 capitalize"
-                    >
-                        {agent.strategy.exchange}
-                    </Badge>
-                )}
-            </div>
+            {isConnected && address && address.toLowerCase() === agent.ownerAddress.toLowerCase() && (
+                <>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge
+                            variant={"outline"}
+                            className={
+                                valueColorClasses["timeframe"]?.[agent.strategy.timeframe] ||
+                                "text-white"
+                            }
+                        >
+                            {valueLabels["timeframe"][agent.strategy.timeframe]}
+                        </Badge>
+                        <Badge
+                            variant={"outline"}
+                            className={clsx(
+                                valueColorClasses["signal_detection_entry"]?.[
+                                agent.strategy.signal_detection_entry
+                                ] || "text-white",
+                                "strategy-item"
+                            )}
+                        >
+                            {valueLabels["signal_detection_entry"][
+                                agent.strategy.signal_detection_entry
+                            ]}
+                        </Badge>
+                        <Badge
+                            variant={"outline"}
+                            className={clsx(
+                                valueColorClasses["signal_detection_exit"]?.[
+                                agent.strategy.signal_detection_exit
+                                ] || "text-white",
+                                "strategy-item"
+                            )}
+                        >
+                            {valueLabels["signal_detection_exit"][
+                                agent.strategy.signal_detection_exit
+                            ]}
+                        </Badge>
+                        <Badge
+                            variant={"outline"}
+                            className={clsx(
+                                valueColorClasses["risk_management"]?.[
+                                agent.strategy.risk_management
+                                ] || "text-white",
+                                "strategy-item"
+                            )}
+                        >
+                            {valueLabels["risk_management"][agent.strategy.risk_management]}
+                        </Badge>
+                        <Badge
+                            variant={"outline"}
+                            className={clsx(
+                                valueColorClasses["ranking_method"]?.[
+                                agent.strategy.ranking_method
+                                ] || "text-white",
+                                "strategy-item"
+                            )}
+                        >
+                            {valueLabels["ranking_method"][agent.strategy.ranking_method]}
+                        </Badge>
+                        {agent.strategy?.exchange && (
+                            <Badge
+                                variant={"outline"}
+                                className="strategy-item text-neutral-400 capitalize"
+                            >
+                                {agent.strategy.exchange}
+                            </Badge>
+                        )}
 
-            {agent.strategy.comet && (
-                <div className="flex pt-4">
-                    <Link
-                        href={agent.strategy.comet}
-                        target="_blank"
-                        className=" text-cyan-300 flex hover:underline underline-offset-4 text-xs"
-                    >
-                        View Backtesting Results
-                        <ExternalLinkIcon className="size-4 ml-2" />
-                    </Link>
-                </div>
+                    </div>
+
+                    {agent.strategy.comet && (
+                        <div className="flex pt-4">
+                            <Link
+                                href={agent.strategy.comet}
+                                target="_blank"
+                                className=" text-cyan-300 flex hover:underline underline-offset-4 text-xs"
+                            >
+                                View Backtesting Results
+                                <ExternalLinkIcon className="size-4 ml-2" />
+                            </Link>
+                        </div>
+
+                    )}
+                </>
             )}
+
             {vault && (
-
-
                 <Button
                     variant="outline"
                     className="w-full mt-4"
