@@ -146,12 +146,12 @@ export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
                         </TabsList>
                         <TabsContent value="strategy" className="w-full pt-4">
                             {/* Strategy Details */}
-                            <h2 className="text-lg pl-2">Strategy Details</h2>
+                            {/* <h2 className="text-lg pl-2">Strategy Details</h2> */}
                             {agent?.strategy ? <AgentStrategy agent={agent} /> : <span className="p-2 text-sm text-neutral-400">No strategy details available.</span>}
                         </TabsContent>
                         <TabsContent value="signals" className="w-full pt-4">
                             {/* Signals Details */}
-                            <h2 className="text-lg pl-2">Signals</h2>
+                            {/* <h2 className="text-lg pl-2">Signals</h2> */}
                             <div className="pl-2 text-neutral-400 my-4 text-sm">
                                 Unlock exclusive access to the latest signals from <span className="tracking-wide font-bold text-white">{agent.ticker}</span> by holding at least <span className="text-teal-400 font-bold">10,000,000</span> tokens.
                             </div>
@@ -160,7 +160,7 @@ export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
                         </TabsContent>
                         <TabsContent value="swap" className="w-full pt-4">
                             {/* Swap Agent Token */}
-                            <h2 className="text-lg pl-2">Trade {agent.ticker}</h2>
+                            {/* <h2 className="text-lg pl-2">Trade {agent.ticker}</h2> */}
                             <AgentSwap tokenAddress={agent.contractAddress as `0x${string}`} />
                         </TabsContent>
                     </Tabs>

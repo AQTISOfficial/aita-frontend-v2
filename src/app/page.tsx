@@ -214,34 +214,33 @@ export default function Home() {
   // Sorted source depending on mode
   const source: Agent[] = useMemo(() => {
     if (mode === "client" && allAgents) {
-      const key = sortKey;
-      const dir = sortDir;
       return [...allAgents].sort((a, b) => {
         let aVal: number | string = 0;
         let bVal: number | string = 0;
 
-        if (key === "accumulatedReturns" || key === "CAGR" || key === "maxDrawdown") {
-          aVal = a.strategy?.backtested?.[key] ?? 0;
-          bVal = b.strategy?.backtested?.[key] ?? 0;
-        } else if (key === "type") {
+        if (sortKey === "accumulatedReturns" || sortKey === "CAGR" || sortKey === "maxDrawdown") {
+          aVal = Number(a.strategy?.backtested?.[sortKey] ?? 0);
+          bVal = Number(b.strategy?.backtested?.[sortKey] ?? 0);
+
+          return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+        }
+
+        if (sortKey === "type") {
           aVal = a.strategy?.type ?? "";
           bVal = b.strategy?.type ?? "";
-        } else if (key === "direction") {
+        } else if (sortKey === "direction") {
           aVal = a.strategy?.direction ?? "";
           bVal = b.strategy?.direction ?? "";
         }
 
-        if (typeof aVal === "number" && typeof bVal === "number") {
-          return dir === "asc" ? aVal - bVal : bVal - aVal;
-        } else {
-          return dir === "asc"
-            ? String(aVal).localeCompare(String(bVal))
-            : String(bVal).localeCompare(String(aVal));
-        }
+        return sortDir === "asc"
+          ? String(aVal).localeCompare(String(bVal))
+          : String(bVal).localeCompare(String(aVal));
       });
     }
     return agents;
   }, [mode, allAgents, agents, sortKey, sortDir]);
+
 
   const visibleAgents = useMemo(() => {
     if (mode === "client" && source) {
@@ -265,7 +264,7 @@ export default function Home() {
   const fmt = (v?: number, sign = false) =>
     typeof v === "number" ? `${sign && v >= 0 ? "+" : ""}${v}%` : "—";
 
-  
+
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
@@ -284,7 +283,7 @@ export default function Home() {
         <>
           <div className="flex items-center justify-end px-4 lg:px-6 space-x-2">
             <Select
-            defaultValue={"desc"}
+              defaultValue={"desc"}
               onValueChange={(v) => {
                 setCurrentPage(1)
                 setSortDate(v as SortDate)
@@ -325,7 +324,7 @@ export default function Home() {
                   <th className="p-2 border-b">Name</th>
                   <th className="p-2 w-40 border-b" onClick={() => handleSort("type")}>
                     Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
-                    </th>
+                  </th>
                   <th className="p-2 w-32 border-b" onClick={() => handleSort("direction")}>
                     Direction {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
