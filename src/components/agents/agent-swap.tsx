@@ -386,7 +386,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
     return parsed.reserveUsdc !== BigInt(0) ? (
         <>
             {/* Buy/Sell Card */}
-            <div className="space-y-4 border p-4 rounded-md">
+            <div className="">
                 <Tabs defaultValue="buy" className="w-full">
                     <TabsList className="w-1/2 rounded-md">
                         <TabsTrigger value="buy" className="data-[state=active]:!text-teal-500">
@@ -499,7 +499,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
             </div>
 
             {/* Bonding Curve Info */}
-            <div className="space-y-4 my-2 border p-4 rounded-md">
+            <div className="">
                 <div className="grid grid-cols-2 gap-2 text-xs text-neutral-400">
                     <span>Current Price:</span>
                     <span className="text-end">
@@ -524,7 +524,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
         </>
     ) : (
         // When curve exhausted → Uniswap available
-        <div className="space-y-4 my-2 border p-4 rounded-md">
+        <div className="">
             <Image
                 src="/images/agents/bonded.png"
                 alt="No Reserve"
