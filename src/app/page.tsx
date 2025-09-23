@@ -64,7 +64,6 @@ export default function Home() {
 
   // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [king, setKing] = useState<boolean>(false)
   const [open, setOpen] = useState(false)
 
   const vaultIds = new Set(vaults.map(v => v.id));
@@ -131,6 +130,17 @@ export default function Home() {
   useEffect(() => {
     setCurrentPage(1);
   }, [sortKey, sortDir, sortDate, filter]);
+
+  useEffect(() => {
+    if (
+      totalAgents > 0 &&
+      !hydratingAll &&
+      (!allAgents || allAgents.length !== totalAgents)
+    ) {
+      hydrateAllPages();
+    }
+  }, [totalAgents, allAgents, hydratingAll, sortDate, address]);
+
 
   async function hydrateAllPages() {
     if (allAgents && allAgents.length === totalAgents && totalAgents > 0) {
@@ -253,24 +263,25 @@ export default function Home() {
 
   // --- KING determination ---
   const kingId = useMemo(() => {
-    const pool = allAgents && allAgents.length > 0 ? allAgents : agents;
-    if (!pool.length) return null;
+    if (!allAgents || allAgents.length !== totalAgents || totalAgents === 0) {
+      return null;
+    }
 
     let maxReturn = -Infinity;
     let king: Agent | null = null;
 
-    for (const agent of pool) {
+    for (const agent of allAgents) {
       const raw = agent.strategy?.backtested?.accumulatedReturns;
-      const ret = typeof raw === "string" ? parseFloat(raw) : Number(raw ?? -Infinity);
+      const ret = Number(raw);
+      if (!Number.isFinite(ret)) continue;
 
       if (ret > maxReturn) {
         maxReturn = ret;
         king = agent;
       }
     }
-
     return king?.id ?? null;
-  }, [allAgents, agents]);
+  }, [allAgents, totalAgents]);
 
   const effectiveTotal = mode === "client" ? allAgents?.length ?? totalAgents : totalAgents;
   const totalPages = Math.ceil((effectiveTotal || 0) / limit);
@@ -285,8 +296,6 @@ export default function Home() {
 
   const fmt = (v?: number, sign = false) =>
     typeof v === "number" ? `${sign && v >= 0 ? "+" : ""}${v}%` : "—";
-
-
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
@@ -303,40 +312,6 @@ export default function Home() {
 
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
-          <div className="flex items-center justify-end px-4 lg:px-6 space-x-2">
-            <Select
-              defaultValue={"desc"}
-              onValueChange={(v) => {
-                setCurrentPage(1)
-                setSortDate(v as SortDate)
-              }}>
-              <SelectTrigger className="w-32 ml-4 focus:outline-none focus:ring-1">
-                <SelectValue placeholder="Sort by Date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="desc">Newest</SelectItem>
-                <SelectItem value="asc">Oldest</SelectItem>
-              </SelectContent>
-            </Select>
-            {/* 
-              TODO: Add filtering back
-             */}
-            {/*<Select
-              defaultValue="all"
-              onValueChange={(e) => {
-                setFilter(e);
-              }}>
-              <SelectTrigger className="w-48 ml-4">
-                <SelectValue placeholder="Filter by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="breakout">Breakout</SelectItem>
-                <SelectItem value="momentum">Momentum</SelectItem>
-                <SelectItem value="trend">Trend Following</SelectItem>
-              </SelectContent>
-            </Select> */}
-          </div>
           <div className="overflow-x-auto px-4 lg:px-6">
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
@@ -374,7 +349,6 @@ export default function Home() {
                       className="hover:bg-neutral-900/80 transition-colors duration-200 cursor-pointer border-b"
                       onClick={() => {
                         setSelectedAgent(agent)
-                        setKing(kingId === agent.id)
                         setOpen(true)
                       }}
                     >
@@ -395,7 +369,7 @@ export default function Home() {
                       </td>
                       <td className="p-2 font-medium truncate">{agent.name} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</td>
                       <td className="p-2">
-                        {agent.id === kingId && (
+                        {kingId && agent.id === kingId && (
                           <Crown className="size-5 text-amber-400" />
                         )}
                       </td>
