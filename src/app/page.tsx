@@ -10,7 +10,7 @@ import { PaginationFunction } from "@/components/ui/pagination-function";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight, ShieldCheck, Crown } from "lucide-react";
 
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
@@ -64,6 +64,7 @@ export default function Home() {
 
   // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [king, setKing] = useState<boolean>(false)
   const [open, setOpen] = useState(false)
 
   const vaultIds = new Set(vaults.map(v => v.id));
@@ -250,6 +251,19 @@ export default function Home() {
     return source;
   }, [mode, source, currentPage, limit]);
 
+  const kingId = useMemo(() => {
+    if (!allAgents && agents.length === 0) return null;
+    const pool = mode === "client" ? allAgents ?? [] : agents;
+    if (!pool.length) return null;
+
+    // Zoek agent met hoogste accumulatedReturns
+    return pool.reduce((max, agent) => {
+      const curr = agent.strategy?.backtested?.accumulatedReturns ?? -Infinity;
+      const best = max.strategy?.backtested?.accumulatedReturns ?? -Infinity;
+      return curr > best ? agent : max;
+    }).id;
+  }, [mode, allAgents, agents]);
+
   const effectiveTotal = mode === "client" ? allAgents?.length ?? totalAgents : totalAgents;
   const totalPages = Math.ceil((effectiveTotal || 0) / limit);
 
@@ -319,9 +333,11 @@ export default function Home() {
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
-                  <th className="p-2 w-12 border-b rounded-tl-md">#</th>
+                  <th className="p-2 w-12 border-b rounded-tl-md"></th>
+                  
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
+                  <th className="p-2 w-12 border-b"></th>
                   <th className="p-2 w-40 border-b" onClick={() => handleSort("type")}>
                     Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
@@ -350,9 +366,11 @@ export default function Home() {
                       className="hover:bg-neutral-900/80 transition-colors duration-200 cursor-pointer border-b"
                       onClick={() => {
                         setSelectedAgent(agent)
+                        setKing(kingId === agent.id)
                         setOpen(true)
                       }}
                     >
+                      
                       <td className="p-0.5 md:px-2 md:py-1">
                         <Image
                           aria-hidden
@@ -364,8 +382,15 @@ export default function Home() {
                           className="object-cover aspect-square rounded border border-neutral-700"
                         />
                       </td>
-                      <td className="p-2 font-medium">{agent.ticker}</td>
+                      <td className="p-2 font-medium flex items-center">
+                        {agent.ticker}
+                      </td>
                       <td className="p-2 font-medium truncate">{agent.name} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</td>
+                      <td className="p-2">
+                        {agent.id === kingId && (
+                          <Crown className="size-5 text-amber-400" />
+                        )}
+                      </td>
                       <td className={`p-2 truncate ${clsx(
                         valueColorClasses["type"]?.[agent.strategy.type] || "text-neutral-300"
                       )}`}
@@ -405,6 +430,7 @@ export default function Home() {
             open={open}
             onOpenChange={setOpen}
             agent={selectedAgent}
+            isKing={king}
           />
         </>
       ) : (
