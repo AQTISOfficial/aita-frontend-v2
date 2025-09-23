@@ -15,7 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLinkIcon, ShieldCheck } from "lucide-react";
+import { ExternalLinkIcon, ShieldCheck, Crown } from "lucide-react";
 import { valueLabels, valueColorClasses } from "@/lib/constants";
 import AgentSwap from "@/components/agents/agent-swap";
 import AgentStrategy from "@/components/agents/agent-strategy";
@@ -53,6 +53,7 @@ interface AgentSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     agent: Agent | null;
+    isKing?: boolean | false;
 }
 
 type agentSwapProps = {
@@ -68,7 +69,7 @@ type Vault = {
 };
 
 
-export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
+export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProps) {
     if (!agent) return null;
 
     const vault = vaults.find((v) => v.id === agent.id);
@@ -77,7 +78,8 @@ export function AgentSheet({ open, onOpenChange, agent }: AgentSheetProps) {
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="max-h-screen overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle>
+                    <SheetTitle className="flex items-center text-xl capitalize">
+                        {isKing && (<Crown className="size-5 text-amber-400 inline-block mr-2" />)}
                         {agent.name}{" "}
                         {vault && (
                             <Badge variant="default" className="mx-2">
