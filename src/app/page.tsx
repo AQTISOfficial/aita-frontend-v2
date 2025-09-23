@@ -251,17 +251,23 @@ export default function Home() {
     return source;
   }, [mode, source, currentPage, limit]);
 
+  // --- KING determination ---
   const kingId = useMemo(() => {
-    if (!allAgents && agents.length === 0) return null;
     const pool = mode === "client" ? allAgents ?? [] : agents;
     if (!pool.length) return null;
 
-    // Zoek agent met hoogste accumulatedReturns
-    return pool.reduce((max, agent) => {
-      const curr = agent.strategy?.backtested?.accumulatedReturns ?? -Infinity;
-      const best = max.strategy?.backtested?.accumulatedReturns ?? -Infinity;
-      return curr > best ? agent : max;
-    }).id;
+    let king: Agent | null = null;
+    let maxReturn = -Infinity;
+
+    for (const agent of pool) {
+      const ret = agent.strategy?.backtested?.accumulatedReturns ?? -Infinity;
+      if (ret > maxReturn) {
+        maxReturn = ret;
+        king = agent;
+      }
+    }
+
+    return king?.id ?? null;
   }, [mode, allAgents, agents]);
 
   const effectiveTotal = mode === "client" ? allAgents?.length ?? totalAgents : totalAgents;
