@@ -253,14 +253,16 @@ export default function Home() {
 
   // --- KING determination ---
   const kingId = useMemo(() => {
-    const pool = mode === "client" ? allAgents ?? [] : agents;
+    const pool = allAgents && allAgents.length > 0 ? allAgents : agents;
     if (!pool.length) return null;
 
-    let king: Agent | null = null;
     let maxReturn = -Infinity;
+    let king: Agent | null = null;
 
     for (const agent of pool) {
-      const ret = agent.strategy?.backtested?.accumulatedReturns ?? -Infinity;
+      const raw = agent.strategy?.backtested?.accumulatedReturns;
+      const ret = typeof raw === "string" ? parseFloat(raw) : Number(raw ?? -Infinity);
+
       if (ret > maxReturn) {
         maxReturn = ret;
         king = agent;
@@ -268,7 +270,7 @@ export default function Home() {
     }
 
     return king?.id ?? null;
-  }, [mode, allAgents, agents]);
+  }, [allAgents, agents]);
 
   const effectiveTotal = mode === "client" ? allAgents?.length ?? totalAgents : totalAgents;
   const totalPages = Math.ceil((effectiveTotal || 0) / limit);
@@ -340,7 +342,7 @@ export default function Home() {
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
                   <th className="p-2 w-12 border-b rounded-tl-md"></th>
-                  
+
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
                   <th className="p-2 w-12 border-b"></th>
@@ -376,7 +378,7 @@ export default function Home() {
                         setOpen(true)
                       }}
                     >
-                      
+
                       <td className="p-0.5 md:px-2 md:py-1">
                         <Image
                           aria-hidden
