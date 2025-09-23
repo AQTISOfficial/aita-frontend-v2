@@ -20,6 +20,7 @@ import { factoryAbi } from "@/lib/abis/factoryAbi";
 
 import { ExternalLinkIcon } from "lucide-react";
 import { set } from "zod";
+import { Separator } from "../ui/separator";
 
 /* --------------------
    Constants
@@ -305,7 +306,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 queryClient.invalidateQueries();
             }
             setBtnBuyName("Buying...");
-            
+
             // If buy would overshoot final reserve, adjust to max possible
             let totalIn = parsed.buyIn;
             let totalOut = parsed.buyMin;
@@ -381,150 +382,148 @@ export default function AgentSwap({ tokenAddress }: Props) {
        Render
     -------------------- */
 
-    if(bondingCurveLoading) return <>Loading...</>;
+    if (bondingCurveLoading) return <>Loading...</>;
 
     return parsed.reserveUsdc !== BigInt(0) ? (
         <>
             {/* Buy/Sell Card */}
-            <div className="">
-                <Tabs defaultValue="buy" className="w-full">
-                    <TabsList className="w-1/2 rounded-md">
-                        <TabsTrigger value="buy" className="data-[state=active]:!text-teal-500">
-                            Buy
-                        </TabsTrigger>
-                        <TabsTrigger value="sell" className="data-[state=active]:!text-red-400">
-                            Sell
-                        </TabsTrigger>
-                    </TabsList>
+            <Tabs defaultValue="buy" className="w-full">
+                <TabsList className="w-1/2 rounded-md">
+                    <TabsTrigger value="buy" className="data-[state=active]:!text-teal-500">
+                        Buy
+                    </TabsTrigger>
+                    <TabsTrigger value="sell" className="data-[state=active]:!text-red-400">
+                        Sell
+                    </TabsTrigger>
+                </TabsList>
 
-                    {/* Buy Tab */}
-                    <TabsContent value="buy" className="space-y-3">
-                        <div className="grid gap-2">
-                            <Label className="text-xs text-neutral-400">
-                                You pay ({usdcSymbol ?? "USDC"})
-                            </Label>
-                            <Input
-                                inputMode="decimal"
-                                placeholder="0.0"
-                                value={buyAmount}
-                                onChange={(e) => setBuyAmount(sanitizeDecimalInput(e.target.value))}
-                                className="h-10"
-                            />
-                        </div>
+                {/* Buy Tab */}
+                <TabsContent value="buy" className="space-y-3">
+                    <div className="grid gap-2">
+                        <Label className="text-xs text-neutral-400">
+                            You pay ({usdcSymbol ?? "USDC"})
+                        </Label>
+                        <Input
+                            inputMode="decimal"
+                            placeholder="0.0"
+                            value={buyAmount}
+                            onChange={(e) => setBuyAmount(sanitizeDecimalInput(e.target.value))}
+                            className="h-10"
+                        />
+                    </div>
 
-                        <div className="grid gap-2">
-                            <Label className="text-xs text-neutral-400">
-                                You receive ({tokenSymbol ?? "AGENT"})
-                            </Label>
-                            <Input
-                                inputMode="decimal"
-                                placeholder="0"
-                                value={buyMinOut}
-                                readOnly
-                                className="h-10"
-                            />
-                        </div>
+                    <div className="grid gap-2">
+                        <Label className="text-xs text-neutral-400">
+                            You receive ({tokenSymbol ?? "AGENT"})
+                        </Label>
+                        <Input
+                            inputMode="decimal"
+                            placeholder="0"
+                            value={buyMinOut}
+                            readOnly
+                            className="h-10"
+                        />
+                    </div>
 
-                        <Button
-                            className="w-full h-10"
-                            variant="outline"
-                            disabled={isPending || parsed.buyIn <= BigInt(0) || !isConnected || btnBuyDisabled}
-                            onClick={onBuy}
-                        >
-                            {btnBuyName}
-                        </Button>
-
-                        <div className="flex items-center justify-end">
-                            <Badge variant="secondary">
-                                Balance {usdcSymbol ?? "USDC"}: {Number(usdcBalanceFmt).toLocaleString()}
-                            </Badge>
-                        </div>
-                    </TabsContent>
-
-                    {/* Sell Tab */}
-                    <TabsContent value="sell" className="space-y-3">
-                        <div className="grid gap-2">
-                            <Label className="text-xs text-neutral-400">
-                                You pay ({tokenSymbol ?? "AGENT"})
-                            </Label>
-                            <Input
-                                inputMode="decimal"
-                                placeholder="0.0"
-                                value={sellAmount}
-                                onChange={(e) => setSellAmount(sanitizeDecimalInput(e.target.value))}
-                                className="h-10"
-                            />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label className="text-xs text-neutral-400">
-                                You receive ({usdcSymbol ?? "USDC"})
-                            </Label>
-                            <Input
-                                inputMode="decimal"
-                                placeholder="0"
-                                value={sellMinOut}
-                                readOnly
-                                className="h-10"
-                            />
-                        </div>
-
-                        <Button
-                            className="w-full h-10"
-                            variant="outline"
-                            disabled={isPending || parsed.sellIn <= BigInt(0) || !isConnected || btnSellDisabled}
-                            onClick={onSell}
-                        >
-                            {btnSellName}
-                        </Button>
-
-                        <div className="flex items-center justify-end">
-                            <Badge variant="secondary">
-                                Balance {tokenSymbol ?? "AGENT"}: {Number(tokenBalanceFmt).toLocaleString()}
-                            </Badge>
-                        </div>
-                    </TabsContent>
-                </Tabs>
-                {msg && <div className="text-xs text-cyan-400">{msg}</div>}
-                <Button asChild variant="outline" className="w-full mt-4">
-                    <Link
-                        href={`https://arbiscan.io/address/${tokenAddress}`}
-                        target="_blank"
-                        className="text-cyan-300 flex hover:underline underline-offset-4 text-xs justify-center"
+                    <Button
+                        className="w-full h-10"
+                        variant="outline"
+                        disabled={isPending || parsed.buyIn <= BigInt(0) || !isConnected || btnBuyDisabled}
+                        onClick={onBuy}
                     >
-                        View on Arbiscan
-                        <ExternalLinkIcon className="size-4 ml-2" />
-                    </Link>
-                </Button>
-            </div>
+                        {btnBuyName}
+                    </Button>
+
+                    <div className="flex items-center justify-end">
+                        <Badge variant="secondary">
+                            Balance {usdcSymbol ?? "USDC"}: {Number(usdcBalanceFmt).toLocaleString()}
+                        </Badge>
+                    </div>
+                </TabsContent>
+
+                {/* Sell Tab */}
+                <TabsContent value="sell" className="space-y-3">
+                    <div className="grid gap-2">
+                        <Label className="text-xs text-neutral-400">
+                            You pay ({tokenSymbol ?? "AGENT"})
+                        </Label>
+                        <Input
+                            inputMode="decimal"
+                            placeholder="0.0"
+                            value={sellAmount}
+                            onChange={(e) => setSellAmount(sanitizeDecimalInput(e.target.value))}
+                            className="h-10"
+                        />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label className="text-xs text-neutral-400">
+                            You receive ({usdcSymbol ?? "USDC"})
+                        </Label>
+                        <Input
+                            inputMode="decimal"
+                            placeholder="0"
+                            value={sellMinOut}
+                            readOnly
+                            className="h-10"
+                        />
+                    </div>
+
+                    <Button
+                        className="w-full h-10"
+                        variant="outline"
+                        disabled={isPending || parsed.sellIn <= BigInt(0) || !isConnected || btnSellDisabled}
+                        onClick={onSell}
+                    >
+                        {btnSellName}
+                    </Button>
+
+                    <div className="flex items-center justify-end">
+                        <Badge variant="secondary">
+                            Balance {tokenSymbol ?? "AGENT"}: {Number(tokenBalanceFmt).toLocaleString()}
+                        </Badge>
+                    </div>
+                </TabsContent>
+            </Tabs>
+            {msg && <div className="text-xs text-cyan-400">{msg}</div>}
+
 
             {/* Bonding Curve Info */}
-            <div className="">
-                <div className="grid grid-cols-2 gap-2 text-xs text-neutral-400">
-                    <span>Current Price:</span>
-                    <span className="text-end">
-                        {parsed.currentPrice.toFixed(6)} {usdcSymbol ?? "USDC"} / {tokenSymbol ?? "AGENT"}
-                    </span>
-                    <span>Current Market Cap:</span>
-                    <span className="text-end">
-                        ${parsed.currentMarketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })} USD
-                    </span>
-                    <span>Current Bonding Curve:</span>
-                    <span className="text-end">{parsed.currentBondingPercentage.toFixed(2)}%</span>
-                    <div className="col-span-2 w-full bg-neutral-800 rounded-full h-2 mt-1">
-                        <div
-                            className="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full"
-                            style={{ width: parsed.currentWidth }}
-                        ></div>
-                    </div>
-                    <span>$0</span>
-                    <span className="text-end">$25k</span>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-2 gap-2 text-xs text-neutral-400">
+                <span>Current Price:</span>
+                <span className="text-end">
+                    {parsed.currentPrice.toFixed(6)} {usdcSymbol ?? "USDC"} / {tokenSymbol ?? "AGENT"}
+                </span>
+                <span>Current Market Cap:</span>
+                <span className="text-end">
+                    ${parsed.currentMarketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })} USD
+                </span>
+                <span>Current Bonding Curve:</span>
+                <span className="text-end">{parsed.currentBondingPercentage.toFixed(2)}%</span>
+                <div className="col-span-2 w-full bg-neutral-800 rounded-full h-2 mt-1">
+                    <div
+                        className="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full"
+                        style={{ width: parsed.currentWidth }}
+                    ></div>
                 </div>
+                <span>$0</span>
+                <span className="text-end">$25k</span>
             </div>
+            <Button asChild variant="outline" className="w-full mt-4">
+                <Link
+                    href={`https://arbiscan.io/address/${tokenAddress}`}
+                    target="_blank"
+                    className="text-cyan-300 flex hover:underline underline-offset-4 text-xs justify-center"
+                >
+                    View on Arbiscan
+                    <ExternalLinkIcon className="size-4 ml-2" />
+                </Link>
+            </Button>
         </>
     ) : (
         // When curve exhausted → Uniswap available
-        <div className="">
+        <>
             <Image
                 src="/images/agents/bonded.png"
                 alt="No Reserve"
@@ -546,6 +545,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
                     <ExternalLinkIcon className="size-4 ml-2" />
                 </Link>
             </Button>
-        </div>
+        </>
     );
 }
