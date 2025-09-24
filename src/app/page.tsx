@@ -317,7 +317,6 @@ export default function Home() {
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
                   <th className="p-2 w-12 border-b rounded-tl-md"></th>
-
                   <th className="p-2 w-20 border-b">Ticker</th>
                   <th className="p-2 border-b">Name</th>
                   <th className="p-2 w-12 border-b"></th>
@@ -353,13 +352,13 @@ export default function Home() {
                       }}
                     >
 
-                      <td className="p-0.5 md:px-2 md:py-1">
+                      <td className="p-0 md:p-1">
                         <Image
                           aria-hidden
                           src={agent.image}
                           alt={agent.name}
-                          width={30}
-                          height={30}
+                          width={32}
+                          height={32}
                           quality={75}
                           className="object-cover aspect-square rounded border border-neutral-700"
                         />
