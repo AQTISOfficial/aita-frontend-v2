@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { AgentSheet } from "@/components/agents/agent-sheet"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { ArrowLeftIcon, ArrowRightIcon, CircleCheckBigIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, CircleCheckBigIcon, Star, StarOff } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -74,6 +74,12 @@ export default function Home() {
   const [strategy, setStrategy] = useState(false)
   const [totalAgents, setTotalAgents] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  // Watchlist (persisted in localStorage)
+  const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
+  const [watchlistOnly, setWatchlistOnly] = useState(false)
+  // Full agent objects when in watchlist-only mode (client-side pagination)
+  const [watchlistAgents, setWatchlistAgents] = useState<Agent[]>([])
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
 
   // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
@@ -122,7 +128,97 @@ export default function Home() {
     setCurrentPage(currentPage)
   }, [limit, sort, search, currentPage, strategy, address, userAgents])
 
-  const totalPages = Math.ceil(totalAgents / limit)
+  // Load watchlist from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("agentWatchlist") : null
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          setWatchlist(new Set(parsed.filter(id => typeof id === "string")))
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load watchlist", e)
+    }
+  }, [])
+
+  // Toggle watchlist status for an agent id
+  const toggleWatchlist = (id: string) => {
+    setWatchlist(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      try {
+        localStorage.setItem("agentWatchlist", JSON.stringify(Array.from(next)))
+      } catch (e) {
+        console.warn("Failed to persist watchlist", e)
+      }
+      // If we are in watchlist-only mode and the last item was removed, exit the mode
+      if (watchlistOnly && next.size === 0) {
+        setWatchlistOnly(false)
+        setCurrentPage(1)
+      }
+      return next
+    })
+  }
+
+  // Fetch full agent data for watchlist when entering watchlist mode or watchlist changes
+  useEffect(() => {
+    const loadWatchlistAgents = async () => {
+      if (!watchlistOnly) return;
+      const ids = Array.from(watchlist)
+      if (ids.length === 0) {
+        setWatchlistAgents([])
+        return
+      }
+      setWatchlistLoading(true)
+      try {
+        // Batch fetch sequentially (could be optimized with backend batch endpoint)
+        const results: Agent[] = []
+        for (const id of ids) {
+          try {
+            const res = await fetch("/api/agents/details", { method: "POST", body: JSON.stringify({ id }) })
+            if (res.ok) {
+              const data = await res.json()
+              // crude shape guard
+              if (data && typeof data === "object" && (data as any).id) {
+                results.push(data as Agent)
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to load watchlist agent", id, e)
+          }
+        }
+        // Keep ordering consistent with stored ids
+        setWatchlistAgents(results.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)))
+      } finally {
+        setWatchlistLoading(false)
+      }
+    }
+    loadWatchlistAgents()
+  }, [watchlistOnly, watchlist])
+
+  // Safety: auto-exit watchlist-only mode if it becomes empty outside toggle path
+  useEffect(() => {
+    if (watchlistOnly && watchlist.size === 0) {
+      setWatchlistOnly(false)
+      setCurrentPage(1)
+    }
+  }, [watchlistOnly, watchlist])
+
+  // Determine datasource based on mode
+  const inWatchlistMode = watchlistOnly
+  const effectiveAgents = inWatchlistMode ? watchlistAgents : agents
+  const effectiveTotal = inWatchlistMode ? watchlistAgents.length : totalAgents
+  const totalPages = Math.max(1, Math.ceil(effectiveTotal / limit))
+  // Slice only in watchlist mode (server already slices normal mode)
+  const pagedAgents = inWatchlistMode
+    ? effectiveAgents.slice((currentPage - 1) * limit, (currentPage) * limit)
+    : effectiveAgents
 
   const handlePrevious = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1)
@@ -233,14 +329,31 @@ export default function Home() {
             }}
           />
           <Label htmlFor="strategy">Backtested</Label>
+            <div className="flex items-center space-x-2 ml-4">
+              <Switch
+                id="watchlist-only"
+                checked={watchlistOnly}
+                onCheckedChange={() => {
+                  setCurrentPage(1)
+                  setWatchlistOnly(!watchlistOnly)
+                }}
+              />
+              <Label htmlFor="watchlist-only" className={watchlist.size === 0 ? "opacity-60" : ""}>
+                <Star className="size-5" />Watchlist{watchlist.size === 0 ? " (empty)" : ` (${watchlist.size})`}
+              </Label>
+            </div>
         </div>
       </div>
 
       {/* Agents grid */}
       <div className="grid grid-cols-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 md:gap-6">
-        {Array.isArray(agents) &&
-          //agents.map((agent, index) => <AgentCard key={index} agent={agent} />)}
-          agents.map((agent, index) => (
+        {watchlistLoading && watchlistOnly && (
+          <div className="col-span-full text-center text-sm text-neutral-500">Loading watchlist...</div>
+        )}
+        {(!watchlistLoading || !watchlistOnly) && Array.isArray(pagedAgents) &&
+          pagedAgents.map((agent, index) => {
+            const isWatched = watchlist.has(agent.id)
+            return (
             <Card key={index}>
               <div className="w-full relative -top-6">
                 <Image
@@ -259,6 +372,11 @@ export default function Home() {
                 >
                   {agent.ticker}
                 </Badge>
+                {isWatched && (
+                  <div className="absolute left-2 top-2 text-amber-400" title="On Watchlist">
+                    <Star className="size-5 fill-amber-400" />
+                  </div>
+                )}
               </div>
               <CardHeader className="-my-8">
                 <CardTitle className="flex flex-col items-start text-white-400">
@@ -309,11 +427,24 @@ export default function Home() {
               </CardContent>
 
               <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm">
-                {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy ? (
-                  <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
-                    Add Strategy
+                <div className="flex gap-1">
+                  {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy ? (
+                    <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
+                      Add Strategy
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant={isWatched ? "secondary" : "outline"}
+                    type="button"
+                    className={`text-xs flex items-center gap-1 ${isWatched ? "text-amber-400" : ""}`}
+                    onClick={() => toggleWatchlist(agent.id)}
+                    aria-pressed={isWatched}
+                    aria-label={isWatched ? "Remove from watchlist" : "Add to watchlist"}
+                  >
+                    {isWatched ? <Star className="size-3 fill-amber-400" /> : <StarOff className="size-3" />}
+                    {isWatched ? "Watching" : "Watch"}
                   </Button>
-                ) : <div>&nbsp;</div>}
+                </div>
                 <Button variant="outline" type="button" className="text-xs" onClick={() => {
                   setSelectedAgent(agent)
                   setOpen(true)
@@ -322,12 +453,17 @@ export default function Home() {
                 </Button>
               </CardFooter>
             </Card>
-          ))}
+            )})}
+          {watchlistOnly && !watchlistLoading && pagedAgents.length === 0 && (
+            <div className="col-span-full text-center text-sm text-neutral-500">
+              {watchlist.size === 0 ? "Your watchlist is empty." : "No watchlisted agents on this page."}
+            </div>
+          )}
       </div>
 
       {/* Pagination */}
-      <div className="md:w-5/6 flex justify-end items-center py-2 px-4">
-        {totalAgents > 0 && (
+      <div className="flex justify-end items-center py-2 px-4">
+        {effectiveTotal > 0 && (
           <PaginationFunction
             currentPage={currentPage}
             totalPages={totalPages}

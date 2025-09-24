@@ -17,7 +17,7 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
   };
 
   return (
-    <Card className="flex flex-col space-y-3">
+    <Card className="flex flex-col space-y-3 p-4">
       {/* Momentum */}
       <div
         onClick={() => handleValueChange("momentum")}
@@ -34,7 +34,7 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
           </span>
         </div>
         <div className="absolute top-0 right-0 h-full w-1/2">
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('/candles_momentum.png')] bg-cover bg-right bg-no-repeat" />
+          <div className="absolute top-0 right-0 w-full h-full bg-[url('/images/strategy/candles_momentum.png')] bg-cover bg-right bg-no-repeat" />
           <div className="absolute top-0 left-0 w-3/4 h-full bg-gradient-to-l from-transparent to-neutral-900" />
         </div>
       </div>
@@ -55,7 +55,7 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
           </span>
         </div>
         <div className="absolute top-0 right-0 h-full w-1/2">
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('/candles_breakout.png')] bg-cover bg-right bg-no-repeat" />
+          <div className="absolute top-0 right-0 w-full h-full bg-[url('/images/strategy/candles_breakout.png')] bg-cover bg-right bg-no-repeat" />
           <div className="absolute top-0 left-0 w-3/4 h-full bg-gradient-to-l from-transparent to-neutral-900" />
         </div>
       </div>
@@ -76,7 +76,7 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
           </span>
         </div>
         <div className="absolute top-0 right-0 h-full w-1/2">
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('/candles_trendfollowing.png')] bg-cover bg-right bg-no-repeat" />
+          <div className="absolute top-0 right-0 w-full h-full bg-[url('/images/strategy/candles_trendfollowing.png')] bg-cover bg-right bg-no-repeat" />
           <div className="absolute top-0 left-0 w-3/4 h-full bg-gradient-to-l from-transparent to-neutral-900" />
         </div>
       </div>
