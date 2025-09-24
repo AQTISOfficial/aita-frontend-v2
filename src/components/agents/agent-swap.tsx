@@ -1,10 +1,18 @@
 "use client";
 
+/* --------------------
+   Imports
+-------------------- */
 import React, { useMemo, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAccount, useBalance, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useBalance, useReadContract, useWriteContract, useWatchContractEvent } from "wagmi";
+import { readContract, simulateContract } from "wagmi/actions";
+
 import type { Address } from "viem";
 import { formatUnits, parseUnits, maxUint256 } from "viem";
+import { BaseError, ContractFunctionRevertedError } from "viem";
+import { ExternalLinkIcon } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,15 +21,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
-import { publicEnv } from "@/lib/env.public";
+import { Separator } from "../ui/separator";
 
+import { wagmiConfig } from "@/lib/wagmiConfig";
+import { publicEnv } from "@/lib/env.public";
 import { erc20Abi } from "@/lib/abis/erc20Abi";
 import { factoryAbi } from "@/lib/abis/factoryAbi";
-
-import { ExternalLinkIcon } from "lucide-react";
-import { set } from "zod";
-import { Separator } from "../ui/separator";
-import { tokenaryWallet } from "@rainbow-me/rainbowkit/wallets";
 
 /* --------------------
    Constants
@@ -29,9 +34,10 @@ import { tokenaryWallet } from "@rainbow-me/rainbowkit/wallets";
 const ERC20_ABI = erc20Abi;
 const AgentFactoryABI = factoryAbi;
 
-const FINAL_USDC_RESERVE = BigInt(11_180_339_887); // Max reserve target (explain in docs!)
+const FINAL_USDC_RESERVE = BigInt(11_180_339_887); // Max reserve target
 const FEE_DIVISOR = BigInt(1_000_000); // Fee precision divisor
 const DEFAULT_CURVE_FEE = BigInt(20_000); // 2% fee
+const SLIPPAGE_PPM = BigInt(10_000); // 1.00% slippage
 
 const factoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
 const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
@@ -39,26 +45,39 @@ const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`
 /* --------------------
    Helpers
 -------------------- */
-
-// Constant product style curve with fee support
-function calcAmountOut(
+function calcAmountOutPpm(
     amountIn: bigint,
     reserveIn: bigint,
     reserveOut: bigint,
-    feeBps: bigint = BigInt(200) // default 2%
+    feePpm: bigint = DEFAULT_CURVE_FEE
 ): bigint {
     if (amountIn <= BigInt(0) || reserveIn <= BigInt(0) || reserveOut <= BigInt(0)) return BigInt(0);
-    const numerator = amountIn * reserveOut;
-    const denominator = reserveIn + amountIn;
-    const rawOut = numerator / denominator;
-    return (rawOut * (BigInt(10000) - feeBps)) / BigInt(10000);
+    const amountInAfterFee = (amountIn * (FEE_DIVISOR - feePpm)) / FEE_DIVISOR;
+    return (amountInAfterFee * reserveOut) / (reserveIn + amountInAfterFee);
 }
 
-// Normalize decimal input (comma → dot, remove invalid chars)
+function applySlippagePpm(out: bigint, slippagePpm: bigint): bigint {
+    if (out === BigInt(0)) return BigInt(0);
+    return out - (out * slippagePpm) / FEE_DIVISOR;
+}
+
 function sanitizeDecimalInput(value: string): string {
     return value.replace(",", ".").replace(/[^0-9.]/g, "");
 }
 
+function humanizeError(err: unknown): string {
+  if (err instanceof BaseError) {
+    const revert = err.walk((e) => e instanceof ContractFunctionRevertedError);
+    if (revert instanceof ContractFunctionRevertedError && revert.data?.errorName === "Slippage") {
+      return "Slippage too high";
+    }
+  }
+  return "Something went wrong";
+}
+
+/* --------------------
+    Component
+-------------------- */
 type Props = {
     tokenAddress: Address;
 };
@@ -117,17 +136,29 @@ export default function AgentSwap({ tokenAddress }: Props) {
         isLoading: boolean;
     };
 
-    const { data: agentInformation, status: agentInformationStatus, isLoading: agentInformationLoading } = useReadContract({
+    const { data: agentInformation } = useReadContract({
         address: factoryAddress,
         abi: AgentFactoryABI,
         functionName: "agentInfo",
         args: [tokenAddress],
         query: { enabled: Boolean(tokenAddress) },
-    }) as {
-        data: AgentInfo | undefined;
-        status: "pending" | "success" | "error";
-        isLoading: boolean;
-    };
+    }) as { data: AgentInfo | undefined };
+
+    useWatchContractEvent({
+        address: factoryAddress,
+        abi: AgentFactoryABI,
+        eventName: "AgentTokenPurchased",
+        args: { agentToken: tokenAddress },
+        onLogs: () => queryClient.invalidateQueries(),
+    });
+
+    useWatchContractEvent({
+        address: factoryAddress,
+        abi: AgentFactoryABI,
+        eventName: "AgentTokenSold",
+        args: { agentToken: tokenAddress },
+        onLogs: () => queryClient.invalidateQueries(),
+    });
 
     /* --------------------
        Balances & Allowances
@@ -158,9 +189,9 @@ export default function AgentSwap({ tokenAddress }: Props) {
     const [buyMinOut, setBuyMinOut] = useState<string>("0");
     const [sellAmount, setSellAmount] = useState<string>("");
     const [sellMinOut, setSellMinOut] = useState<string>("0");
-    const [btnBuyName, setBtnBuyName] = useState<string>("Buy Agent");
+    const [btnBuyName, setBtnBuyName] = useState<string>("Swap");
     const [btnBuyDisabled, setBtnBuyDisabled] = useState<boolean>(false);
-    const [btnSellName, setBtnSellName] = useState<string>("Sell Agent");
+    const [btnSellName, setBtnSellName] = useState<string>("Swap");
     const [btnSellDisabled, setBtnSellDisabled] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
 
@@ -175,18 +206,18 @@ export default function AgentSwap({ tokenAddress }: Props) {
         const reserveAgentFmt = formatUnits(reserveAgent, tokenDecimals ?? 18);
 
         const currentPrice = Number(reserveUsdcFmt) / Number(reserveAgentFmt);
-        const currentMarketCap = currentPrice * 1_000_000_000; // hardcoded supply assumption
-        const currentBondingPercentage = Math.min((currentMarketCap / 25_000) * 100, 100);
+        const currentMarketCap = currentPrice * 1_000_000_000; // max supply
+        const currentBondingPercentage = Math.min((currentMarketCap / 25_000) * 100, 100); // 25k market cap = 100% bonded
         const currentWidth = `${currentBondingPercentage}%`;
 
         const uniswapLiquidityPositionId = agentInformation?.liquidityPositionId ?? BigInt(0);
 
         const buyIn = buyAmount && usdcDecimals !== undefined ? parseUnits(buyAmount, usdcDecimals) : BigInt(0);
-        const buyMin = buyIn > BigInt(0) ? calcAmountOut(buyIn, reserveUsdc, reserveAgent) : BigInt(0);
+        const buyMin = buyIn > BigInt(0) ? calcAmountOutPpm(buyIn, reserveUsdc, reserveAgent, DEFAULT_CURVE_FEE) : BigInt(0);
 
         const sellIn =
             sellAmount && tokenDecimals !== undefined ? parseUnits(sellAmount, tokenDecimals) : BigInt(0);
-        const sellMin = sellIn > BigInt(0) ? calcAmountOut(sellIn, reserveAgent, reserveUsdc) : BigInt(0);
+        const sellMin = sellIn > BigInt(0) ? calcAmountOutPpm(sellIn, reserveAgent, reserveUsdc, DEFAULT_CURVE_FEE) : BigInt(0);
 
         return {
             buyIn,
@@ -254,7 +285,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
         if (needUsdcApproval) {
             setBtnBuyName("Approve USDC");
         } else {
-            setBtnBuyName("Buy Agent");
+            setBtnBuyName("Swap");
         }
     }, [needUsdcApproval]);
 
@@ -262,17 +293,16 @@ export default function AgentSwap({ tokenAddress }: Props) {
         if (needTokenApproval) {
             setBtnSellName("Approve " + tokenSymbol);
         } else {
-            setBtnSellName("Sell Agent");
+            setBtnSellName("Swap");
         }
     }, [needTokenApproval]);
 
 
     useEffect(() => {
-        // Disable buy if user not connected or has no USDC balance
         if (usdcBal && parsed.buyIn > usdcBal.value) {
             setBtnBuyName("Insufficient USDC");
         } else {
-            setBtnBuyName(needUsdcApproval ? "Approve USDC" : "Buy Agent");
+            setBtnBuyName(needUsdcApproval ? "Approve USDC" : "Swap");
         }
 
         if (!isConnected || !usdcBal || usdcBal.value === BigInt(0) || parsed.buyIn > usdcBal.value) {
@@ -281,11 +311,10 @@ export default function AgentSwap({ tokenAddress }: Props) {
             setBtnBuyDisabled(false);
         }
 
-        // Disable sell if user not connected or has no token balance
         if (tokenBal && parsed.sellIn > tokenBal.value) {
             setBtnSellName("Insufficient " + tokenSymbol);
         } else {
-            setBtnSellName(needTokenApproval ? "Approve " + tokenSymbol : "Sell Agent");
+            setBtnSellName(needTokenApproval ? "Approve " + tokenSymbol : "Swap");
         }
 
         if (!isConnected || !tokenBal || tokenBal.value === BigInt(0) || parsed.sellIn > tokenBal.value) {
@@ -310,46 +339,67 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 await approve(factoryAddress, usdcAddress);
                 queryClient.invalidateQueries();
             }
-            setBtnBuyName("Buying...");
 
-            // If buy would overshoot final reserve, adjust to max possible
+            const [resU0, resA0] = await readContract(wagmiConfig, {
+                address: factoryAddress,
+                abi: AgentFactoryABI,
+                functionName: "bondingCurveInfo",
+                args: [tokenAddress],
+            }) as [bigint, bigint];
+
             let totalIn = parsed.buyIn;
-            let totalOut = parsed.buyMin;
-
-            // Prevent overshooting final reserve
-            const amountInAfterFees = FINAL_USDC_RESERVE - parsed.reserveUsdc;
-            const usdcNeededBeforeFees =
-                (amountInAfterFees * FEE_DIVISOR) / (FEE_DIVISOR - DEFAULT_CURVE_FEE);
-
+            const roomAfterFees = resU0 < FINAL_USDC_RESERVE ? FINAL_USDC_RESERVE - resU0 : BigInt(0);
+            const usdcNeededBeforeFees = roomAfterFees > BigInt(0)
+                ? (roomAfterFees * FEE_DIVISOR) / (FEE_DIVISOR - DEFAULT_CURVE_FEE)
+                : BigInt(0);
+            if (usdcNeededBeforeFees === BigInt(0)) {
+                setMsg("Bonding curve reached final reserve. Trade on Uniswap.");
+                return;
+            }
             if (totalIn > usdcNeededBeforeFees) {
                 totalIn = usdcNeededBeforeFees;
-                totalOut = BigInt(0);
                 setBuyAmount(formatUnits(totalIn, usdcDecimals ?? 6));
-                setMsg("Adjusted buy amount to max available before hitting bonding curve.");
+                setMsg("Buy amount adjusted to avoid final reserve.");
             }
 
-            await writeContractAsync({
+            const estOut = calcAmountOutPpm(totalIn, resU0, resA0, DEFAULT_CURVE_FEE);
+            const minOut = applySlippagePpm(estOut, SLIPPAGE_PPM);
+            if (minOut === BigInt(0)) throw new Error("MinOut is zero");
+
+            // Preflight simulatie
+            const { request } = await simulateContract(wagmiConfig, {
                 address: factoryAddress,
                 abi: AgentFactoryABI,
                 functionName: "buyAgentToken",
-                args: [tokenAddress, totalIn, totalOut],
+                args: [tokenAddress, totalIn, minOut],
+            });
+
+            setBtnBuyName("Swapping...");
+            const txHash = await writeContractAsync(request);
+
+            toast.success("Swap successful!", {
+                description: `You bought ${Math.floor(Number(formatUnits(minOut, tokenDecimals ?? 18))).toLocaleString()} ${tokenSymbol} for ${Math.floor(Number(formatUnits(totalIn, usdcDecimals ?? 6))).toLocaleString()} ${usdcSymbol}`,
             });
 
             queryClient.invalidateQueries();
+
         } catch (err) {
-            console.error("Buy failed:", err);
+            console.error("Swap failed:", err);
+            toast.error("Swap failed", {
+                description: humanizeError(err),
+            });
         } finally {
-            setBtnBuyName("Buy Agent");
+            setBtnBuyName("Swap");
             setBuyAmount("");
             setMsg("");
         }
-
     }
 
     async function onSell() {
         try {
             if (!address) throw new Error("Connect Wallet");
             if (parsed.sellIn <= BigInt(0)) throw new Error("Enter an amount greater than 0.");
+            if (parsed.sellIn > (tokenBal?.value ?? BigInt(0))) throw new Error("Insufficient token balance.");
 
             if (needTokenApproval) {
                 setBtnSellName("Approving " + tokenSymbol + "...");
@@ -357,19 +407,38 @@ export default function AgentSwap({ tokenAddress }: Props) {
                 queryClient.invalidateQueries();
             }
 
-            setBtnSellName("Selling...");
-            await writeContractAsync({
+            const [resU0, resA0] = await readContract(wagmiConfig, {
+                address: factoryAddress,
+                abi: AgentFactoryABI,
+                functionName: "bondingCurveInfo",
+                args: [tokenAddress],
+            }) as [bigint, bigint];
+
+            const estOut = calcAmountOutPpm(parsed.sellIn, resA0, resU0, DEFAULT_CURVE_FEE);
+            const minOut = applySlippagePpm(estOut, SLIPPAGE_PPM);
+            if (minOut === BigInt(0)) throw new Error("MinOut is zero");
+
+            const { request } = await simulateContract(wagmiConfig, {
                 address: factoryAddress,
                 abi: AgentFactoryABI,
                 functionName: "sellAgentToken",
-                args: [tokenAddress, parsed.sellIn, parsed.sellMin],
+                args: [tokenAddress, parsed.sellIn, minOut],
+            });
+
+            setBtnSellName("Swapping...");
+            const txHash = await writeContractAsync(request);
+            toast.success("Swap successful!", {
+                description: `You sold ${Math.floor(Number(formatUnits(parsed.sellIn, tokenDecimals ?? 18))).toLocaleString()} ${tokenSymbol} for ${Math.floor(Number(formatUnits(minOut, usdcDecimals ?? 6))).toLocaleString()} ${usdcSymbol}`,
             });
 
             queryClient.invalidateQueries();
         } catch (err) {
-            console.error("Sell failed:", err);
+            console.error("Swap failed:", err);
+            toast.error("Swap failed", {
+                description: humanizeError(err),
+            });
         } finally {
-            setBtnSellName("Sell Agent");
+            setBtnSellName("Swap");
             setSellAmount("");
         }
     }
@@ -382,12 +451,12 @@ export default function AgentSwap({ tokenAddress }: Props) {
     const tokenBalanceFmt =
         tokenBal && tokenDecimals !== undefined ? formatUnits(tokenBal.value, tokenDecimals) : "0";
 
-
     /* --------------------
        Render
     -------------------- */
-    if(bondingCurveLoading) return <>Loading...</>;
-    return (parsed && parsed.reserveUsdc !== BigInt(0)) ? (
+    if (bondingCurveLoading) return <>Loading...</>;
+
+    return parsed.reserveUsdc !== BigInt(0) ? (
         <>
             {/* Buy/Sell Card */}
             <Tabs defaultValue="buy" className="w-full">
