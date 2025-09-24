@@ -1,6 +1,5 @@
 "use client";
 
-// @ts-ignore
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   darkTheme,

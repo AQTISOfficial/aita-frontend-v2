@@ -16,14 +16,15 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
+import { toast } from "sonner"
 import Image from "next/image"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
 
-import forbiddenWords from "@/lib/forbidden_words.json"
-import { publicEnv } from "@/lib/env.public"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
+import forbiddenWords from "@/lib/forbidden_words.json"
+import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
+import { publicEnv } from "@/lib/env.public"
 import { erc20Abi } from "@/lib/abis/erc20Abi";
 import { factoryAbi } from "@/lib/abis/factoryAbi"
 import { sponsorAbi } from "@/lib/abis/sponsorAbi"
@@ -300,6 +301,7 @@ export default function CreateAgentPage() {
       router.push(`/agents/create/success/${finalAgentId}`);
     } catch (err) {
       console.error("Error during form submission:", err);
+      toast.error("An error occurred while submitting the form. Please try again.");
       setError("An error occurred while submitting the form. Please try again.");
     } finally {
       setLoading(false);

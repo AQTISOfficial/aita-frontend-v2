@@ -21,7 +21,6 @@ import { Toaster
  } from "@/components/ui/sonner";
 import Providers from "./providers";
 
-// @ts-ignore
 import "./globals.css";
 
 // Font: Montserrat, multiple weights, exported as CSS variable
