@@ -102,9 +102,9 @@ export default function Page({ params }: PageProps) {
 
             </div>
             <div className="flex justify-between mb-0 mt-4">
-              <Button onClick={() => router.push(`/agents/details/${id}`)}>
+              {/* <Button onClick={() => router.push(`/agents/details/${id}`)}>
                 View Agent
-              </Button>
+              </Button> */}
 
               <Button variant="outline" onClick={() => router.push(`/agents`)}>
                 Back to Agents List
