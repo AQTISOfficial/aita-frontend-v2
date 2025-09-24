@@ -21,6 +21,7 @@ import { factoryAbi } from "@/lib/abis/factoryAbi";
 import { ExternalLinkIcon } from "lucide-react";
 import { set } from "zod";
 import { Separator } from "../ui/separator";
+import { tokenaryWallet } from "@rainbow-me/rainbowkit/wallets";
 
 /* --------------------
    Constants
@@ -116,13 +117,17 @@ export default function AgentSwap({ tokenAddress }: Props) {
         isLoading: boolean;
     };
 
-    const { data: agentInformation } = useReadContract({
+    const { data: agentInformation, status: agentInformationStatus, isLoading: agentInformationLoading } = useReadContract({
         address: factoryAddress,
         abi: AgentFactoryABI,
         functionName: "agentInfo",
         args: [tokenAddress],
         query: { enabled: Boolean(tokenAddress) },
-    }) as { data: AgentInfo | undefined };
+    }) as {
+        data: AgentInfo | undefined;
+        status: "pending" | "success" | "error";
+        isLoading: boolean;
+    };
 
     /* --------------------
        Balances & Allowances
@@ -381,10 +386,10 @@ export default function AgentSwap({ tokenAddress }: Props) {
     /* --------------------
        Render
     -------------------- */
-
-    if (bondingCurveLoading) return <>Loading...</>;
-
-    return parsed.reserveUsdc !== BigInt(0) ? (
+    console.log(parsed, tokenAddress);
+    
+    if(bondingCurveLoading) return <>Loading...</>;
+    return (parsed && parsed.reserveUsdc !== BigInt(0)) ? (
         <>
             {/* Buy/Sell Card */}
             <Tabs defaultValue="buy" className="w-full">

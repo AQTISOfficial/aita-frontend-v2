@@ -21,7 +21,7 @@ const StrategyDirection: React.FC<StrategyDirectionProps> = ({ formData, handleC
       {/* Bullish */}
       <div
         onClick={() => handleValueChange("longonly")}
-        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
+        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl border transition-colors
           ${selectedValue === "longonly"
             ? "font-bold text-lime-300 bg-neutral-800 border border-lime-400"
             : "text-lime-500 hover:bg-neutral-800 border border-transparent"}`}
@@ -32,7 +32,7 @@ const StrategyDirection: React.FC<StrategyDirectionProps> = ({ formData, handleC
       {/* Both */}
       <div
         onClick={() => handleValueChange("both")}
-        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
+        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl border transition-colors
           ${selectedValue === "both"
             ? "font-bold text-neutral-100 bg-neutral-800 border border-neutral-400"
             : "text-neutral-300 hover:bg-neutral-800 border border-transparent"}`}
@@ -43,7 +43,7 @@ const StrategyDirection: React.FC<StrategyDirectionProps> = ({ formData, handleC
       {/* Bearish */}
       <div
         onClick={() => handleValueChange("shortonly")}
-        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
+        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl border transition-colors
           ${selectedValue === "shortonly"
             ? "font-bold text-red-400 bg-neutral-800 border border-red-400"
             : "text-red-500 hover:bg-neutral-800 border border-transparent"}`}
