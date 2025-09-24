@@ -386,8 +386,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
     /* --------------------
        Render
     -------------------- */
-    console.log(parsed, tokenAddress);
-    
     if(bondingCurveLoading) return <>Loading...</>;
     return (parsed && parsed.reserveUsdc !== BigInt(0)) ? (
         <>
