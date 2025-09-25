@@ -1,22 +1,20 @@
 "use client"
 
-// Page: Agents Overview
-// ---------------------
-// Purpose: Render a paginated, searchable, and filterable list of agents.
-// Notes:
-// - Client Component: uses wagmi hooks for wallet state and client-side data fetching.
-// - Supports pagination, sorting, search, and filters (user agents, backtested).
-// - Fetches agent data from API (`/api/agents/list`) and displays using `AgentCard`.
-// - Redirects to `/agents/create` when user clicks "Create Agent".
-
+/* --------------------
+  Imports
+-------------------- */
 import React, { useEffect, useState } from "react"
+import { useQuery } from '@tanstack/react-query'
+import { useAccount } from "wagmi"
+import { useRouter } from "next/navigation"
+import { IconRobotFace } from "@tabler/icons-react"
+import { CircleCheckBigIcon, Star, StarOff } from "lucide-react"
 
-import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { AgentSheet } from "@/components/agents/agent-sheet"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { ArrowLeftIcon, ArrowRightIcon, CircleCheckBigIcon, Star, StarOff } from "lucide-react"
+
 import {
   Select,
   SelectContent,
@@ -26,14 +24,12 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-
-import { useAccount } from "wagmi"
-import { useRouter } from "next/navigation"
-import { IconRobotFace } from "@tabler/icons-react"
-
 import { PaginationFunction } from "@/components/ui/pagination-function"
 import { Card, CardTitle, CardHeader, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card"
 
+/* --------------------
+  Types
+-------------------- */
 type SortKey = "asc" | "desc"
 
 type Agent = {
@@ -45,6 +41,7 @@ type Agent = {
   contractAddress: string;
   image: string;
   created: number;
+  backtestingPaid: boolean;
   strategy: {
     backtested: {
       accumulatedReturns: number;
@@ -65,7 +62,6 @@ type Agent = {
 };
 
 export default function Home() {
-  // --- State ---
   const [limit, setLimit] = useState(15)
   const [sort, setSort] = useState<SortKey>("desc")
   const [search, setSearch] = useState("")
@@ -74,18 +70,15 @@ export default function Home() {
   const [strategy, setStrategy] = useState(false)
   const [totalAgents, setTotalAgents] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  // Watchlist (persisted in localStorage)
+
   const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
   const [watchlistOnly, setWatchlistOnly] = useState(false)
-  // Full agent objects when in watchlist-only mode (client-side pagination)
   const [watchlistAgents, setWatchlistAgents] = useState<Agent[]>([])
   const [watchlistLoading, setWatchlistLoading] = useState(false)
 
-  // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [open, setOpen] = useState(false)
 
-  // --- Pagination ---
   const [currentPage, setCurrentPage] = useState(1)
 
   // Wagmi hook for wallet state
@@ -94,15 +87,24 @@ export default function Home() {
   // Router to navigate to Create Agent
   const router = useRouter()
 
-  // Fetch agents list whenever filters/pagination change
-  useEffect(() => {
-    const fetchAgentsList = async () => {
-      try {
-        const offset = (currentPage - 1) * limit
+  /* --------------------
+    Effects
+  -------------------- */
+  // --- Agents list query (react-query) ---
+  const offset = (currentPage - 1) * limit
+  const agentsQueryKey = [
+    'agents',
+    'list',
+    { limit, offset, sort, search, strategy, userAgents, addr: userAgents ? address?.toLowerCase() : null }
+  ] as const
 
-        const res = await fetch("/api/agents/list", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+  const { data: agentsData, isFetching, refetch } = useQuery({
+    queryKey: agentsQueryKey,
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/agents/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             limit,
             offset,
@@ -111,22 +113,30 @@ export default function Home() {
             address,
             strategy,
             userAgents,
-          }),
+          })
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const data = await res.json()
-        const list = data?.data || []
-
-        setAgents(list)
-        setTotalAgents(data?.meta?.totalCount || 0)
-      } catch {
-        setError("Failed to fetch agents. Please try again later.")
+        const json = await res.json()
+        return {
+          list: Array.isArray(json?.data) ? json.data : [],
+          total: json?.meta?.totalCount || 0
+        }
+      } catch (e) {
+        throw e
       }
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  })
 
-    fetchAgentsList()
-    setCurrentPage(currentPage)
-  }, [limit, sort, search, currentPage, strategy, address, userAgents])
+  useEffect(() => {
+    if (agentsData) {
+      setAgents(agentsData.list)
+      setTotalAgents(agentsData.total)
+    }
+  }, [agentsData])
 
   // Load watchlist from localStorage on mount
   useEffect(() => {
@@ -142,29 +152,6 @@ export default function Home() {
       console.warn("Failed to load watchlist", e)
     }
   }, [])
-
-  // Toggle watchlist status for an agent id
-  const toggleWatchlist = (id: string) => {
-    setWatchlist(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      try {
-        localStorage.setItem("agentWatchlist", JSON.stringify(Array.from(next)))
-      } catch (e) {
-        console.warn("Failed to persist watchlist", e)
-      }
-      // If we are in watchlist-only mode and the last item was removed, exit the mode
-      if (watchlistOnly && next.size === 0) {
-        setWatchlistOnly(false)
-        setCurrentPage(1)
-      }
-      return next
-    })
-  }
 
   // Fetch full agent data for watchlist when entering watchlist mode or watchlist changes
   useEffect(() => {
@@ -217,7 +204,34 @@ export default function Home() {
     }
   }, [watchlistOnly, watchlist])
 
-  // Determine datasource based on mode
+  /* --------------------
+    Handlers
+  -------------------- */
+  const toggleWatchlist = (id: string) => {
+    setWatchlist(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      try {
+        localStorage.setItem("agentWatchlist", JSON.stringify(Array.from(next)))
+      } catch (e) {
+        console.warn("Failed to persist watchlist", e)
+      }
+      // If we are in watchlist-only mode and the last item was removed, exit the mode
+      if (watchlistOnly && next.size === 0) {
+        setWatchlistOnly(false)
+        setCurrentPage(1)
+      }
+      return next
+    })
+  }
+
+  /* --------------------
+    Constants
+  -------------------- */
   const inWatchlistMode = watchlistOnly
   const effectiveAgents = inWatchlistMode ? watchlistAgents : agents
   const effectiveTotal = inWatchlistMode ? watchlistAgents.length : totalAgents
@@ -395,9 +409,9 @@ export default function Home() {
                 </CardHeader>
 
                 <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
-                  {agent?.strategy?.backtested ? (
+                  {agent?.strategy ? (
                     <>
-                      {agent.strategy?.backtested && (
+                      {agent.strategy?.backtested ? (
                         <>
                           <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                             <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
@@ -411,6 +425,12 @@ export default function Home() {
                             </div>
                           </div>
                         </>
+                      ) : (
+                        <div>
+                          <span className="text-neutral-500">
+                            Backtest data not available yet. This may take a few minutes to process.
+                          </span>
+                        </div>
                       )}
                     </>
                   )
@@ -436,11 +456,16 @@ export default function Home() {
 
                 <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm">
                   <div className="flex gap-1">
-                    {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy ? (
+                    {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.backtestingPaid && !agent.strategy && (
                       <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
                         Add Strategy
                       </Button>
-                    ) : null}
+                    )}
+                    {isConnected && address?.toLowerCase() === agent.ownerAddress && agent.backtestingPaid && !agent.strategy && (
+                      <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
+                        Finalize Strategy
+                      </Button>
+                    )}
                     <Button
                       variant={isWatched ? "secondary" : "outline"}
                       type="button"

@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { List, ListItem } from "@/components/ui/list";
-import { useEstimateGas } from "wagmi";
 import clsx from "clsx";
 
 import { keyLabels, valueLabels, valueColorClasses } from "@/lib/constants";
 
-const backtestCost = process.env.NEXT_PUBLIC_AGENTSTRATEGY_COST;
 
 type AgentDetails = {
   id: string;
@@ -57,7 +55,7 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
   return (
     <>
       {/* Agent Card */}
-      <Card className="p-2 mb-2">
+      {/* <Card className="p-4 mb-4">
         <CardContent>
             {details?.image && (
               <Image
@@ -70,19 +68,19 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
                 loading="lazy"
               />
             )}
-            <div className="flex-grow px-4">
-              <div className="text-white mb-2 text-xl">{details?.name}</div>
+            <div className="flex-grow">
+              <div className="text-white text-xl">{details?.name}</div>
               <div className="mb-2">{details?.ticker}</div>
               <div className="text-sm">{details?.description}</div>
             </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* General Info */}
-      <Card className="p-2 mb-2">
+      <Card className="p-4 mb-2">
         <CardContent>
           <CardTitle>General Information</CardTitle>
-            <List className="text-base">
+            <List className="text-sm my-4">
               <ListItem className="mb-4">
                 <span>Agent Name</span>
                 <span className="text-white font-bold">{details?.name}</span>
@@ -92,15 +90,15 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
                 <span className="text-white font-bold">{details?.ticker}</span>
               </ListItem>
               {details?.image && (
-                <ListItem className="mb-4">
+                <ListItem className="">
                   <span>Image</span>
                   <Image
                     aria-hidden
                     src={details.image}
                     alt={details.name}
-                    width={20}
-                    height={20}
-                    className="rounded-full aspect-square"
+                    width={40}
+                    height={40}
+                    className="rounded-md aspect-square"
                     loading="lazy"
                   />
                 </ListItem>
@@ -111,10 +109,10 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
       </Card>
 
       {/* Strategy Review */}
-      <Card className="p-2 mb-2">
+      <Card className="p-4 mb-2">
         <CardContent>
           <CardTitle>Trading Strategy</CardTitle>
-            <List className="text-base">
+            <List className="text-sm my-4 text-neutral-400">
               {Object.entries(formData).map(([key, value]) => {
                 if (!value || key === "liquidity_filter") return null;
 

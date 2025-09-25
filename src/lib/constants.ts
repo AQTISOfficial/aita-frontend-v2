@@ -15,7 +15,7 @@ type ValueColorClasses = {
 };
 
 export const keyLabels: KeyLabels = {
-  type: "Trading Strategy",
+  type: "Strategy",
   direction: "Market Bias",
   assets: "Token",
   timeframe: "Timeframe",
@@ -23,7 +23,8 @@ export const keyLabels: KeyLabels = {
   signal_detection_exit: "Strategy Exit Style",
   liquidity_filter: "Liquidity Filter",
   risk_management: "Risk Management",
-  ranking_method: "Signal Ranking Method"
+  ranking_method: "Signal Ranking Method",
+  exchange: "Exchange"
 };
 
 export const valueLabels: ValueLabels = {
