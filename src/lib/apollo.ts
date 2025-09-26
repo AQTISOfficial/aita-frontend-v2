@@ -1,4 +1,3 @@
-// /lib/apollo.ts
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { publicEnv } from "./env.public";
 

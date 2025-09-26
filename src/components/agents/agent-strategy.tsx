@@ -37,15 +37,6 @@ type Agent = {
     };
 };
 
-type Vault = {
-    id: string;
-    name: string;
-    address: string;
-    user: string;
-    twitter: string;
-};
-
-
 const HYPERLIQUID_URL = publicEnv.NEXT_PUBLIC_HYPERLIQUID_URL || "";
 export default function AgentStrategy({ agent }: { agent: Agent }) {
     const { address, isConnected } = useAccount();

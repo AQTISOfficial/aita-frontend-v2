@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import clsx from "clsx";
 import {
     Sheet,
     SheetContent,
@@ -15,8 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLinkIcon, ShieldCheck, Crown } from "lucide-react";
-import { valueLabels, valueColorClasses } from "@/lib/constants";
+import { ShieldCheck, Crown } from "lucide-react";
 import AgentSwap from "@/components/agents/agent-swap";
 import AgentStrategy from "@/components/agents/agent-strategy";
 import { vaults } from "@/lib/vaults";
@@ -55,19 +53,6 @@ interface AgentSheetProps {
     agent: Agent | null;
     isKing?: boolean | false;
 }
-
-type agentSwapProps = {
-    tokenAddress: string;
-};
-
-type Vault = {
-    id: string;
-    name: string;
-    address: string;
-    user: string;
-    twitter: string;
-};
-
 
 export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProps) {
     if (!agent) return null;
@@ -148,12 +133,10 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
                         </TabsList>
                         <TabsContent value="strategy" className="w-full pt-4">
                             {/* Strategy Details */}
-                            {/* <h2 className="text-lg pl-2">Strategy Details</h2> */}
                             {agent?.strategy ? <AgentStrategy agent={agent} /> : <span className="p-2 text-sm text-neutral-400">No strategy details available.</span>}
                         </TabsContent>
                         <TabsContent value="signals" className="w-full pt-4">
                             {/* Signals Details */}
-                            {/* <h2 className="text-lg pl-2">Signals</h2> */}
                             <div className="pl-2 text-neutral-400 my-4 text-sm">
                                 Unlock exclusive access to the latest signals from <span className="tracking-wide font-bold text-white">{agent.ticker}</span> by holding at least <span className="text-teal-400 font-bold">10,000,000</span> tokens.
                             </div>
@@ -162,7 +145,6 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
                         </TabsContent>
                         <TabsContent value="swap" className="w-full pt-4">
                             {/* Swap Agent Token */}
-                            {/* <h2 className="text-lg pl-2">Trade {agent.ticker}</h2> */}
                             <AgentSwap tokenAddress={agent.contractAddress as `0x${string}`} />
                         </TabsContent>
                     </Tabs>

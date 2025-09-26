@@ -7,7 +7,6 @@ import clsx from "clsx"
 
 import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, ShieldCheck, Crown } from "lucide-react";
@@ -49,40 +48,33 @@ type Agent = {
 };
 
 export default function Home() {
-  // --- State ---
   const [limit] = useState(10);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [totalAgents, setTotalAgents] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<string>("all");
+  const [filter] = useState<string>("all");
 
-  // Sorting (UI state remains the same)
   const [sortKey, setSortKey] = useState<SortKey>("accumulatedReturns");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [sortDate, setSortDate] = useState<SortDate>("desc");
+  const [sortDate] = useState<SortDate>("desc");
 
-  // Sheet (agent details)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [open, setOpen] = useState(false)
 
   const vaultIds = new Set(vaults.map(v => v.id));
 
-  // Client-side full dataset
   const [mode, setMode] = useState<Mode>("server");
   const [allAgents, setAllAgents] = useState<Agent[] | null>(null);
   const [hydratingAll, setHydratingAll] = useState(false);
 
   const { address } = useAccount();
 
-  // --- Pagination ---
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Abort controllers to cancel in-flight fetches
   const pageControllerRef = useRef<AbortController | null>(null);
   const hydrateControllerRef = useRef<AbortController | null>(null);
 
-  // Fetch 1 page (server mode)
   useEffect(() => {
     if (mode !== "server") return;
 
@@ -168,7 +160,7 @@ export default function Home() {
         const data = await res.json();
         firstPage = data?.data || [];
         total = data?.meta?.totalCount || firstPage.length;
-        setTotalAgents(total); // sync state
+        setTotalAgents(total);
       }
 
       const pages = Math.ceil(total / limit);
@@ -222,7 +214,6 @@ export default function Home() {
     setSortDir(nextDir);
   }
 
-  // Sorted source depending on mode
   const source: Agent[] = useMemo(() => {
     if (mode === "client" && allAgents) {
       return [...allAgents].sort((a, b) => {
@@ -261,7 +252,6 @@ export default function Home() {
     return source;
   }, [mode, source, currentPage, limit]);
 
-  // --- KING determination ---
   const kingId = useMemo(() => {
     if (!allAgents || allAgents.length !== totalAgents || totalAgents === 0) {
       return null;

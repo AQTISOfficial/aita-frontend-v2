@@ -1,6 +1,6 @@
 "use client"
 
-import { BotIcon, Landmark, Store, Settings, ChevronUp, Wallet } from "lucide-react"
+import { BotIcon, Landmark, Store, Settings, Wallet } from "lucide-react"
 
 import {
     Sidebar,
@@ -19,8 +19,7 @@ import {
 
 import { Icons } from "./icon"
 import { useEffect } from "react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
-
+import Link from "next/link"
 
 // Menu items.
 const items = [
@@ -39,26 +38,11 @@ const items = [
         url: "/vaults",
         icon: Landmark,
     },
-    // {
-    //     title: "Signals",
-    //     url: "/signals",
-    //     icon: ChartBar,
-    // },
-    // {
-    //     title: "Staking",
-    //     url: "/staking",
-    //     icon: HandCoins,
-    // },
     {
         title: "Portfolio",
         url: "/portfolio",
         icon: Wallet,
     },
-    // {
-    //     title: "Chat",
-    //     url: "/chat",
-    //     icon: IconSpeakerphone,
-    // },
 ]
 
 
@@ -79,7 +63,7 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
             }
         }
 
-        handleChange() // meteen uitvoeren bij mount
+        handleChange()
         mq.addEventListener("change", handleChange)
         return () => mq.removeEventListener("change", handleChange)
     }, [setOpen])
@@ -94,10 +78,10 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                             asChild
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
-                            <a href="/">
+                            <Link href="/">
                                 <Icons.logo className="!size-5" />
                                 <span className="text-base font-semibold">AITA Protocol</span>
-                            </a>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -110,10 +94,10 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <a href={item.url}>
+                                        <Link href={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
-                                        </a>
+                                        </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
@@ -125,9 +109,9 @@ export function LayoutSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
-                            <a href="/account">
+                            <Link href="/account">
                                 <Settings /> Account Settings
-                            </a>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

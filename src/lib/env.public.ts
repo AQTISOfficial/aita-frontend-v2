@@ -1,4 +1,3 @@
-// lib/env.public.ts
 import { z } from 'zod'
 
 const noTrailingSlash = z.string().url().transform(s => s.replace(/\/+$/, ''))

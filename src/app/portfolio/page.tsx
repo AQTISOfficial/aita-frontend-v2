@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export default function PortfolioPage() {
   return (
-    <Suspense fallback={null}>{/* loading.tsx will render */}
+    <Suspense fallback={null}>
       <PortfolioClient />
     </Suspense>
   )
