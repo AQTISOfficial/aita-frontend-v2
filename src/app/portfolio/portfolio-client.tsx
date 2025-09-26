@@ -10,6 +10,7 @@ import fetchAgentPrice from '@/lib/api/fetchAgentPrice'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import Image from 'next/image'
 
 type BalanceItem = {
   id: string; ticker: string; name: string; positionId: string; marketCap: number; price: number; balance: number; value: number;
@@ -36,12 +37,14 @@ async function transform(balances: UserBalance[]): Promise<BalanceItem[]> {
       const balanceFmt = Number(formatUnits(safeBigInt(b.balance), 18))
       const reserveUsdcFmt = Number(formatUnits(safeBigInt(b.token.reserveUsdc), 6))
       const reserveAgentFmt = Number(formatUnits(safeBigInt(b.token.reserveAgent), 18))
-      const marketCapFmt = Number(formatUnits(safeBigInt(b.token.marketCap), 6))
+      let marketCapFmt = Number(formatUnits(safeBigInt(b.token.marketCap), 6))
       let price = 0, value = 0
       if (reserveAgentFmt > 0) { price = reserveUsdcFmt / reserveAgentFmt; value = price * balanceFmt }
       if (Number(b.token.positionId) > 0) {
           // Uniswap V3 LP token
           price = await fetchAgentPrice({ contract: b.token.id }) as unknown as number
+          value = price * balanceFmt
+          marketCapFmt = price * Number(formatUnits(safeBigInt(b.token.totalSupply), 18))
       }
       return { id: b.id, ticker: b.token.symbol, name: b.token.name, positionId: b.token.positionId, marketCap: marketCapFmt, price, balance: balanceFmt, value }
     })
@@ -58,7 +61,8 @@ function TableView({ balances }: { balances: BalanceItem[] }) {
           <th className='text-right p-2'>Market Cap</th>
           <th className='text-right p-2'>Price</th>
           <th className='text-right p-2'>Balance</th>
-          <th className='text-right p-2 rounded-tr-lg'>Value</th>
+          <th className='text-right p-2'>Value</th>
+          <th className='text-right p-2 rounded-tr-lg'></th>
         </tr>
       </thead>
       <tbody>
@@ -66,11 +70,18 @@ function TableView({ balances }: { balances: BalanceItem[] }) {
           <tr key={b.id} className='border-t border-neutral-800 hover:bg-neutral-900/40'>
             <td className='font-mono p-2'>{b.ticker}</td>
             <td className='text-neutral-400 p-2'>{b.name}</td>
-            <td className='text-right tabular-nums p-2'>${b.marketCap.toLocaleString()}</td>
-            <td className='text-right tabular-nums p-2'>${b.price.toFixed(6)}</td>
-            <td className='text-right tabular-nums p-2'>{b.balance.toLocaleString()}</td>
+            <td className='text-right tabular-nums p-2'>${b.marketCap.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+            <td className='text-right tabular-nums p-2'>${b.price.toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 })}</td>
+            <td className='text-right tabular-nums p-2'>{b.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
             <td className='text-right p-2'>
-              <Badge variant={b.value > 0 ? 'default' : 'secondary'}>${b.value.toLocaleString()}</Badge>
+              <Badge variant={b.value > 0 ? 'default' : 'secondary'}>${b.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Badge>
+            </td>
+            <td className='text-right p-2'>
+              {Number(b.positionId) > 0 && (
+                <span className='bg-white p-1 rounded-full inline-block'>
+                  <Image src="/images/agents/uniswap.svg" alt="Uniswap" width={16} height={16} />
+                </span>
+              )}
             </td>
           </tr>
         ))}
@@ -86,13 +97,15 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
         <Card key={item.id} className='rounded-2xl border border-neutral-800 bg-gradient-to-b from-neutral-950 to-neutral-900 p-4 space-y-2'>
           <div className='flex justify-between items-center'>
             <span className='font-mono font-medium'>{item.ticker}</span>
-            <Badge variant={item.value > 0 ? 'default' : 'secondary'} className='text-xs'>
-              {Number(item.positionId) > 0 ? 'Uniswap' : ''}
-            </Badge>
+            {Number(item.positionId) > 0 && (
+              <span className='bg-white p-1 rounded-full'>
+                <Image src="/images/agents/uniswap.svg" alt="Uniswap" width={16} height={16} />
+              </span>
+            )}
           </div>
           <div className='text-xs text-neutral-400'>{item.name}</div>
           <div className='grid grid-cols-2 gap-1 text-xs'>
-            <span>Market Cap:</span><span>${item.marketCap.toLocaleString()}</span>
+            <span>Market Cap:</span><span>${item.marketCap.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             <span>Price:</span><span>${item.price.toLocaleString(undefined, { minimumFractionDigits: 7, maximumFractionDigits: 7 })}</span>
             <span>Balance:</span><span>{item.balance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             <span>Value:</span>
