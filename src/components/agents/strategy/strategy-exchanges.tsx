@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { FormChangeHandler } from "@/lib/types"
 
 type StrategyExchangesProps = {

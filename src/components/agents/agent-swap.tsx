@@ -1,8 +1,5 @@
 "use client";
 
-/* --------------------
-   Imports
--------------------- */
 import React, { useMemo, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useBalance, useReadContract, useWriteContract, useWatchContractEvent } from "wagmi";
@@ -28,9 +25,6 @@ import { publicEnv } from "@/lib/env.public";
 import { erc20Abi } from "@/lib/abis/erc20Abi";
 import { factoryAbi } from "@/lib/abis/factoryAbi";
 
-/* --------------------
-   Constants
--------------------- */
 const ERC20_ABI = erc20Abi;
 const AgentFactoryABI = factoryAbi;
 
@@ -42,9 +36,6 @@ const SLIPPAGE_PPM = BigInt(10_000); // 1.00% slippage
 const factoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
 const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
 
-/* --------------------
-   Helpers
--------------------- */
 function calcAmountOutPpm(
     amountIn: bigint,
     reserveIn: bigint,
@@ -75,9 +66,6 @@ function humanizeError(err: unknown): string {
   return "Something went wrong";
 }
 
-/* --------------------
-    Component
--------------------- */
 type Props = {
     tokenAddress: Address;
 };
@@ -93,9 +81,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
     const { writeContractAsync, isPending } = useWriteContract();
     const queryClient = useQueryClient();
 
-    /* --------------------
-       Contract Reads
-    -------------------- */
     const { data: usdcDecimals } = useReadContract({
         address: usdcAddress,
         abi: ERC20_ABI,
@@ -122,7 +107,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
 
     const {
         data: bondingCurveInfo,
-        status: bondingCurveStatus,
         isLoading: bondingCurveLoading
     } = useReadContract({
         address: factoryAddress,
@@ -132,7 +116,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
         query: { enabled: Boolean(tokenAddress) },
     }) as {
         data: [bigint, bigint] | undefined;
-        status: "pending" | "success" | "error";
         isLoading: boolean;
     };
 
@@ -160,9 +143,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
         onLogs: () => queryClient.invalidateQueries(),
     });
 
-    /* --------------------
-       Balances & Allowances
-    -------------------- */
     const { data: usdcBal } = useBalance({ address, token: usdcAddress });
     const { data: tokenBal } = useBalance({ address, token: tokenAddress });
 
@@ -182,9 +162,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
         query: { enabled: Boolean(address) },
     }) as { data: bigint | undefined };
 
-    /* --------------------
-       UI State
-    -------------------- */
     const [buyAmount, setBuyAmount] = useState<string>("");
     const [buyMinOut, setBuyMinOut] = useState<string>("0");
     const [sellAmount, setSellAmount] = useState<string>("");
@@ -195,9 +172,6 @@ export default function AgentSwap({ tokenAddress }: Props) {
     const [btnSellDisabled, setBtnSellDisabled] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
 
-    /* --------------------
-       Derived Values
-    -------------------- */
     const parsed = useMemo(() => {
         const reserveUsdc = bondingCurveInfo?.[0] ?? BigInt(0);
         const reserveAgent = bondingCurveInfo?.[1] ?? BigInt(0);
@@ -255,9 +229,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
         }
     }, [parsed.sellMin, usdcDecimals]);
 
-    /* --------------------
-       Approvals & Checks
-    -------------------- */
+   
     const needUsdcApproval = useMemo(() => {
         if (!usdcAllowance) return parsed.buyIn > BigInt(0);
         return usdcAllowance < parsed.buyIn;
@@ -295,7 +267,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
         } else {
             setBtnSellName("Swap");
         }
-    }, [needTokenApproval]);
+    }, [needTokenApproval, tokenSymbol]);
 
 
     useEffect(() => {
@@ -322,11 +294,8 @@ export default function AgentSwap({ tokenAddress }: Props) {
         } else {
             setBtnSellDisabled(false);
         }
-    }, [isConnected, usdcBal, tokenBal, parsed.buyIn, parsed.sellIn]);
+    }, [isConnected, usdcBal, tokenBal, parsed.buyIn, parsed.sellIn, tokenSymbol, needUsdcApproval, needTokenApproval]);
 
-    /* --------------------
-       Buy / Sell Handlers
-    -------------------- */
     async function onBuy() {
         try {
             if (!address) throw new Error("Connect Wallet");
@@ -375,7 +344,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
             });
 
             setBtnBuyName("Swapping...");
-            const txHash = await writeContractAsync(request);
+            await writeContractAsync(request);
 
             toast.success("Swap successful!", {
                 description: `You bought ${Math.floor(Number(formatUnits(minOut, tokenDecimals ?? 18))).toLocaleString()} ${tokenSymbol} for ${Math.floor(Number(formatUnits(totalIn, usdcDecimals ?? 6))).toLocaleString()} ${usdcSymbol}`,
@@ -426,7 +395,7 @@ export default function AgentSwap({ tokenAddress }: Props) {
             });
 
             setBtnSellName("Swapping...");
-            const txHash = await writeContractAsync(request);
+            await writeContractAsync(request);
             toast.success("Swap successful!", {
                 description: `You sold ${Math.floor(Number(formatUnits(parsed.sellIn, tokenDecimals ?? 18))).toLocaleString()} ${tokenSymbol} for ${Math.floor(Number(formatUnits(minOut, usdcDecimals ?? 6))).toLocaleString()} ${usdcSymbol}`,
             });
@@ -443,17 +412,11 @@ export default function AgentSwap({ tokenAddress }: Props) {
         }
     }
 
-    /* --------------------
-       Format Balances
-    -------------------- */
     const usdcBalanceFmt =
         usdcBal && usdcDecimals !== undefined ? formatUnits(usdcBal.value, usdcDecimals) : "0";
     const tokenBalanceFmt =
         tokenBal && tokenDecimals !== undefined ? formatUnits(tokenBal.value, tokenDecimals) : "0";
 
-    /* --------------------
-       Render
-    -------------------- */
     if (bondingCurveLoading) return <>Loading...</>;
 
     return parsed.reserveUsdc !== BigInt(0) ? (

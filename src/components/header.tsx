@@ -1,22 +1,10 @@
 "use client";
 
-// Component: Header
-// -----------------
-// Purpose: Dashboard-style header that displays quick stats for Agents, Vaults, and TVL.
-// Notes:
-// - Client Component: uses useEffect to fetch agent/vault stats dynamically.
-// - Fetches total agent count from `/api/agents/list`.
-// - Uses static vaults list from `@/lib/vaults` to show total vaults (TVL placeholder).
-// - Renders 3 <Card> blocks with actions to navigate to detailed pages.
-// - Provides quick links: create/view agents, view vaults.
-
-import React, { use, useEffect, useState } from "react"
-import { IconTrendingUp, IconArrowRight } from "@tabler/icons-react"
-import { BotIcon, Vault, LockIcon, Landmark } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { BotIcon, LockIcon } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 import { Counter } from "./ui/counter";
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardAction,
@@ -27,16 +15,12 @@ import {
 } from "@/components/ui/card"
 import { Button } from "./ui/button"
 
-import { vaults } from "@/lib/vaults"
-
 import { useQuery } from "@tanstack/react-query";
 import { fetchFactoryInformation } from "@/lib/queries/fetchFactory";
 import { formatUnits } from "viem";
 
 export function Header() {
-  // --- State ---
   const [totalAgents, setTotalAgents] = useState(0)
-  const [totalVaults, setTotalVaults] = useState(0)
   const [totalValueLocked, setTotalValueLocked] = useState(0)
   const [totalVolume, setTotalVolume] = useState(0)
 
@@ -50,18 +34,12 @@ export function Header() {
 
   const router = useRouter()
 
-  const params = {
-    limit: 1000,
-    offset: 0,
-    sort: "asc",
-    strategy: true
-  }
 
-  // --- Fetch TVL from subgraph ---
-  const { data: factoryData, isLoading, error } = useQuery({
+
+  const { data: factoryData } = useQuery({
     queryKey: ["factory-info"],
     queryFn: fetchFactoryInformation,
-    refetchInterval: 10_000, // elke 10 sec
+    refetchInterval: 10_000,
   });
 
   useEffect(() => {
@@ -79,9 +57,15 @@ export function Header() {
 
   }, [factoryData]);
 
-  // --- Fetch total agents ---
   useEffect(() => {
     const fetchlist = async () => {
+      const params = {
+        limit: 1000,
+        offset: 0,
+        sort: "asc",
+        strategy: true
+      }
+
       const res = await fetch(`/api/agents/list`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,15 +78,6 @@ export function Header() {
     fetchlist()
   }, [])
 
-  // --- Load vaults (static import) ---
-  useEffect(() => {
-    const fetchVaults = async () => {
-      setTotalVaults(vaults ? vaults.length : 0)
-    }
-    fetchVaults()
-  }, [vaults])
-
-  // --- Render ---
   return (
     <div
       className="grid grid-cols-1 gap-4 px-4
@@ -172,28 +147,6 @@ export function Header() {
           </div>
         </CardFooter>
       </Card>
-
-      {/* Vaults card */}
-      {/* <Card className="@container/card relative">
-        <CardHeader>
-          <CardDescription className="flex items-start mb-2">
-            <Landmark className="mr-2 inline-block size-5" />Total Vaults
-          </CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-2xl">
-            {totalVaults}
-          </CardTitle>
-        </CardHeader>
-        <CardFooter className="flex-col items-start absolute bottom-4 right-0">
-          <Button
-            variant="outline"
-            className="text-foreground flex items-center w-24 text-xs"
-            type="button"
-            onClick={() => router.push("/vaults")}
-          >
-            View Vaults
-          </Button>
-        </CardFooter>
-      </Card> */}
 
       {/* TVL Vaults card */}
       <Card className="@container/card">

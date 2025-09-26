@@ -1,10 +1,6 @@
 "use client"
 
-/* --------------------
-  Imports
--------------------- */
 import { useAccount, useSignMessage, useWriteContract } from "wagmi"
-
 import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
@@ -19,18 +15,11 @@ import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
 import { publicEnv } from "@/lib/env.public"
 import { sponsorAbi } from "@/lib/abis/sponsorAbi"
 
-/* --------------------
-  Constants + Types
--------------------- */
 const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
 const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
 const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
-
 const AgentSponsorABI = sponsorAbi;
 
-/* --------------------
-  Component
--------------------- */
 interface Agent {
   id: string
   name: string
@@ -39,7 +28,6 @@ interface Agent {
   image: string
 }
 
-// Error mapping type
 type FormErrors = Partial<Record<keyof Agent | "imageFile", string>>
 
 export default function CreateAgentPage() {
@@ -54,17 +42,12 @@ export default function CreateAgentPage() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [agentId, setAgentId] = useState<string | null>(null)
 
-  // Router redirect
   const router = useRouter()
 
-  // Wallet + signing hooks
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { writeContractAsync, isPending } = useWriteContract();
 
-  /* --------------------
-    Helpers
-  -------------------- */
   const clearFieldError = (field: keyof Agent | "imageFile") => {
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors }
@@ -73,7 +56,6 @@ export default function CreateAgentPage() {
     })
   }
 
-  // --- Validation ---
   const containsForbiddenWord = (text: string) => {
     const normalized = text
       .toLowerCase()
@@ -85,7 +67,6 @@ export default function CreateAgentPage() {
   const validateForm = () => {
     const validationErrors: FormErrors = {}
 
-    // Name
     if (!name.trim()) {
       validationErrors.name = "Agent name is required."
     } else if (name.length > 25) {
@@ -94,14 +75,12 @@ export default function CreateAgentPage() {
       validationErrors.name = "Agent name contains inappropriate content."
     }
 
-    // Ticker
     if (!ticker.trim() || !/^\$?[A-Z]{1,6}$/i.test(ticker)) {
       validationErrors.ticker = "Ticker must be 1-6 uppercase letters"
     } else if (containsForbiddenWord(ticker)) {
       validationErrors.ticker = "Ticker contains inappropriate content."
     }
 
-    // Description
     if (!description.trim()) {
       validationErrors.description = "Description is required."
     } else if (description.length > 255) {
@@ -110,7 +89,6 @@ export default function CreateAgentPage() {
       validationErrors.description = "Description contains inappropriate content."
     }
 
-    // Image
     if (!imageFile) {
       validationErrors.imageFile = "An image is required."
     }
@@ -120,9 +98,6 @@ export default function CreateAgentPage() {
     return isValid
   }
 
-  /* --------------------
-    File upload
-  -------------------- */
   const uploadImage = async (file: File, arrayBuffer: ArrayBuffer) => {
     setUploading(true)
     try {
@@ -154,7 +129,6 @@ export default function CreateAgentPage() {
     }
   }
 
-  // --- Dropzone setup ---
   const onDrop = useCallback((acceptedFiles: File[], _fileRejections: FileRejection[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const file = acceptedFiles[0]
@@ -188,15 +162,10 @@ export default function CreateAgentPage() {
     accept: { "image/*": [] },
   })
 
-  
-  /* --------------------
-    Form submission
-  -------------------- */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
-    // voorkom dubbel submits en submit tijdens upload of pending tx
     if (loading || uploading || isPending) return;
     setLoading(true);
 
@@ -206,11 +175,9 @@ export default function CreateAgentPage() {
         return;
       }
 
-      // lokale validatie eerst
       const isValid = validateForm();
       if (!isValid) return;
 
-      // vereis dat de upload echt rond is en we een imageId hebben
       if (!presignedUrlImageId) {
         setErrors((prev) => ({
           ...prev,
@@ -219,10 +186,8 @@ export default function CreateAgentPage() {
         return;
       }
 
-      // normaliseer input voor de API en on-chain
       const { name: nameForCheck, ticker: tickerForCheck } = normalizeForCheck(name, ticker);
 
-      // uniqueness check op submit
       const exists = await checkAgent(nameForCheck, tickerForCheck);
       if (exists) {
         setErrors((prev) => ({
@@ -233,7 +198,6 @@ export default function CreateAgentPage() {
         return;
       }
 
-      // wallet signature cachen
       const localStorageKey = `signature-${address.toLowerCase()}`;
       let signature = localStorage.getItem(localStorageKey);
       if (!signature) {
@@ -243,7 +207,6 @@ export default function CreateAgentPage() {
         localStorage.setItem(localStorageKey, signature);
       }
 
-      // backend DB create
       let finalAgentId = agentId;
       if (!finalAgentId) {
         const params = {
@@ -263,7 +226,6 @@ export default function CreateAgentPage() {
         });
 
         if (!createAgentResp.ok) {
-          // Check for 409 Conflict
           if (createAgentResp.status === 409) {
             setErrors((prev) => ({
               ...prev,
@@ -280,7 +242,6 @@ export default function CreateAgentPage() {
         setAgentId(finalAgentId);
       }
 
-      // On-chain create via sponsor
       await writeContractAsync({
         address: agentSponsorAddress,
         abi: AgentSponsorABI,
@@ -298,7 +259,6 @@ export default function CreateAgentPage() {
     }
   };
 
-  // Update state + clear errors on change
   const handleFieldChange = (field: keyof Agent, value: string) => {
     clearFieldError(field)
     switch (field) {
@@ -314,9 +274,6 @@ export default function CreateAgentPage() {
     }
   }
 
-  /* --------------------
-    Render
-  -------------------- */
   if (!isConnected) {
     return (
       <div>

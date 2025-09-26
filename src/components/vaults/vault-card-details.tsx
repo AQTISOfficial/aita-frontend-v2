@@ -1,32 +1,19 @@
 'use client';
 
-// Component: HyperliquidVaults
-// ----------------------------
-// Purpose: Display summary (and optionally details) for a single Hyperliquid vault.
-// Notes:
-// - Client Component: fetches vault data from Hyperliquid API on mount (useEffect).
-// - Computes aggregated stats from followers (total TVL, PnL, APR).
-// - Renders summary in a styled <Card> with conditional colors/icons.
-// - If `details` = false → shows "View Details" button that navigates to vault page.
-
 import { publicEnv } from "@/lib/env.public";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import {
   Card,
   CardContent,
-  CardAction,
   CardDescription,
   CardTitle,
   CardHeader,
   CardFooter,
 } from "@/components/ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { ChartNoAxesCombined, ChartNoAxesCombinedIcon, Info } from "lucide-react";
+import { ChartNoAxesCombinedIcon, Info } from "lucide-react";
 
 interface Follower {
   user: string;
@@ -65,8 +52,6 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
 
   // **local state for toggle**
   const [tab, setTab] = useState<"about" | "performance">("about");
-
-  const router = useRouter();
 
   useEffect(() => {
     const fetchVaultData = async () => {

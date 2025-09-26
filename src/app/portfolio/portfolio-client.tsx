@@ -121,7 +121,7 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
 
 export default function PortfolioClient() {
   const [view, setView] = useState<'table' | 'cards'>('cards')
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
   const { data: rawBalances = [], isLoading, error } = useBalances()
   const [balances, setBalances] = useState<BalanceItem[]>([])
 

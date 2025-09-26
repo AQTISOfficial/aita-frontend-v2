@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
       cache: "no-store",
     });
 
-    // probeer JSON, fallback naar tekst
     let data: unknown;
     try {
       data = await res.json();

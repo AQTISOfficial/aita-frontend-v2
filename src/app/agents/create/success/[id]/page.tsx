@@ -1,14 +1,5 @@
 "use client"
 
-// Page: Agent Successfully Created
-// --------------------------------
-// Purpose: Confirmation screen shown after creating a new agent,
-// bound to the created agent's `id` route param.
-// Notes:
-// - Client Component due to wagmi usage.
-// - Params come in as a Promise in Next.js 15 and are unwrapped with React's `use()`.
-// - If no wallet is connected, user is prompted to connect before proceeding.
-
 import { use, useEffect, useState } from "react"
 import { useAccount } from "wagmi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,24 +17,21 @@ type AgentDetails = {
   ticker: string
   description: string
   image: string
-  // Add other relevant fields as needed
 }
 
 export default function Page({ params }: PageProps) {
-  const { id } = use(params)           // unwrap dynamic route param
-  const { isConnected, isConnecting } = useAccount() // wallet connection state
+  const { id } = use(params)
+  const { isConnected, isConnecting } = useAccount()
   const [agentDetails, setAgentDetails] = useState<AgentDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     if (!isConnected) {
-      // Optionally, you could redirect to a connect wallet page here
-      console.log("Please connect your wallet to proceed.")
+      return
     }
 
     const fetchAgentDetails = async () => {
-      // Fetch and display agent details if needed
       const res = await fetch(`/api/agents/details`, {
         method: "POST",
         body: JSON.stringify({ id }),
@@ -102,10 +90,6 @@ export default function Page({ params }: PageProps) {
 
             </div>
             <div className="flex justify-between mb-0 mt-4">
-              {/* <Button onClick={() => router.push(`/agents/details/${id}`)}>
-                View Agent
-              </Button> */}
-
               <Button variant="outline" onClick={() => router.push(`/agents`)}>
                 Back to Agents List
               </Button>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { vaults } from "@/lib/vaults"; // pas pad aan naar waar jouw vaults.ts staat
+import { vaults } from "@/lib/vaults";
 import { publicEnv } from "@/lib/env.public";
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL;
 
@@ -14,7 +14,6 @@ type VaultDetailsResponse = {
   name: string;
   vaultAddress: string;
   portfolio: VaultPortfolioEntry[];
-  // overige velden zijn we hier niet nodig
 };
 
 async function getVaultTVL(vaultAddress: string): Promise<number> {
@@ -34,14 +33,12 @@ async function getVaultTVL(vaultAddress: string): Promise<number> {
 
   const data = (await res.json()) as VaultDetailsResponse;
 
-  // Zoek de "allTime" portfolio entry
   const allTime = data.portfolio.find(([period]) => period === "allTime");
   if (!allTime) return 0;
 
   const history = allTime[1].accountValueHistory;
   if (!history?.length) return 0;
 
-  // laatste waarde pakken
   const latest = history[history.length - 1][1];
   return parseFloat(latest);
 }
