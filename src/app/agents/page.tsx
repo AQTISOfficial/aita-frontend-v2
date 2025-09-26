@@ -5,8 +5,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useAccount } from "wagmi"
 import { useRouter } from "next/navigation"
 import { IconRobotFace } from "@tabler/icons-react"
-import { CircleCheckBigIcon, Star, StarOff } from "lucide-react"
+import { CircleCheckBigIcon, ShieldCheck, Star, StarOff } from "lucide-react"
 
+import { vaults } from "@/lib/vaults";
 import { Button } from "@/components/ui/button"
 import { AgentSheet } from "@/components/agents/agent-sheet"
 import { Badge } from "@/components/ui/badge"
@@ -78,6 +79,8 @@ export default function Home() {
   const { address, isConnected } = useAccount()
 
   const router = useRouter()
+
+  const vaultIds = new Set(vaults.map(v => v.id));
 
   const offset = (currentPage - 1) * limit
   const agentsQueryKey = [
@@ -348,6 +351,7 @@ export default function Home() {
         {(!watchlistLoading || !watchlistOnly) && Array.isArray(pagedAgents) &&
           pagedAgents.map((agent, index) => {
             const isWatched = watchlist.has(agent.id)
+            const isVault = vaultIds.has(agent.id);
             return (
               <Card key={index}>
                 <div className="w-full relative -top-6">
@@ -375,7 +379,7 @@ export default function Home() {
                 </div>
                 <CardHeader className="-my-8">
                   <CardTitle className="flex flex-col items-start text-white-400">
-                    <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />}</span>
+                    <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
                   </CardTitle>
                   <CardAction />
                   <CardDescription className="py-2 min-h-40 md:min-h-36">{agent.description}</CardDescription>

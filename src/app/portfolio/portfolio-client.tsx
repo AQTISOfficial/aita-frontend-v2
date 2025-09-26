@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAccount } from 'wagmi'
 import { formatUnits } from 'viem'
 import { useQuery } from '@tanstack/react-query'
@@ -122,24 +122,54 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
 export default function PortfolioClient() {
   const [view, setView] = useState<'table' | 'cards'>('cards')
   const { isConnected } = useAccount()
-  const { data: rawBalances = [], isLoading, error } = useBalances()
+  
+  const { data: rawBalances, isLoading, isFetching, error } = useBalances()
   const [balances, setBalances] = useState<BalanceItem[]>([])
+  const transformingRef = useRef(false)
 
   useEffect(() => {
-    transform(rawBalances).then(setBalances).catch(() => setBalances([]))
-  }, [rawBalances])
-
+    if (!isConnected) {
+      if (balances.length) setBalances([])
+      return
+    }
+    if (!rawBalances) return 
+    
+    if (transformingRef.current) return
+    let cancelled = false
+    transformingRef.current = true
+    ;(async () => {
+      try {
+        const next = await transform(rawBalances)
+        if (!cancelled) setBalances(next)
+      } catch {
+        if (!cancelled) setBalances([])
+      } finally {
+        transformingRef.current = false
+      }
+    })()
+    return () => { cancelled = true }
+  }, [rawBalances, isConnected])
 
   const totalValue = balances.reduce((sum, b) => sum + b.value, 0)
 
-  if (!isConnected) return <div className='p-4 text-neutral-400'>Connect your wallet to view your portfolio.</div>
-  if (error) return <div className='p-4 text-red-500'>Error loading balances</div>
-  if (isLoading) return <div className='p-4 text-neutral-500'>Fetching balances...</div>
-  if (balances.length === 0) return <div className='p-6 border border-dashed border-neutral-700 rounded-xl text-center text-neutral-400'>No token balances found.</div>
+  if (!isConnected) {
+    return <div className='p-4 text-neutral-400'>Connect your wallet to view your portfolio.</div>
+  }
+  if (error) {
+    return <div className='p-4 text-red-500'>Error loading balances</div>
+  }
+  if (isLoading || isFetching) {
+    return <div className='p-4 text-neutral-500'>Fetching balances...</div>
+  }
+  if (rawBalances && rawBalances.length === 0) {
+    return <div className='p-6 border border-dashed border-neutral-700 rounded-xl text-center text-neutral-400'>No token balances found.</div>
+  }
+  if (rawBalances && rawBalances.length > 0 && balances.length === 0) {
+    return <div className='p-4 text-neutral-500'>Processing balances...</div>
+  }
 
   return (
     <div className='space-y-6 p-4'>
-      {/* Header with toggle + total value */}
       <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
         <h2 className='text-lg font-semibold flex items-center gap-2'>
           Portfolio Value:
@@ -151,13 +181,12 @@ export default function PortfolioClient() {
           <Button variant={view === 'table' ? 'default' : 'outline'} size='sm' onClick={() => setView('table')}>
             <Table2 className='w-4 h-4 mr-1'/> Table
           </Button>
-          <Button variant={view === 'cards' ? 'default' : 'outline'} size='sm' onClick={() => setView('cards')}>
+            <Button variant={view === 'cards' ? 'default' : 'outline'} size='sm' onClick={() => setView('cards')}>
             <LayoutGrid className='w-4 h-4 mr-1'/> Cards
           </Button>
         </div>
       </div>
-
-      {view === 'table' ? <TableView balances={balances}/> : <CardView balances={balances}/>}    
+      {view === 'table' ? <TableView balances={balances}/> : <CardView balances={balances}/>} 
     </div>
   )
 }
