@@ -289,13 +289,13 @@ export default function Home() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <Header />
-      </div>
-
       <div className="px-4 lg:px-6 mb-2">
         <h1 className="text-2xl font-bold">Welcome to AITA</h1>
         <p className="text-neutral-400">Explore the agents with backtesting results</p>
+      </div>
+
+      <div className="flex flex-col gap-4 md:gap-6 mb-2">
+        <Header />
       </div>
 
       {error && <div className="px-4 lg:px-6 text-red-400">{error}</div>}
