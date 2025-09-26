@@ -32,7 +32,7 @@ interface VaultData {
   name: string;
   description: string;
   vaultAddress: string;
-  apr: number; // decimal (e.g. 0.1234 => 12.34%)
+  apr: number;
   leader: string;
   followers: Follower[];
 }
@@ -46,7 +46,6 @@ interface HyperliquidVaultsProps {
 const hyperliquidApiUrl = publicEnv.NEXT_PUBLIC_HYPERLIQUID_API_URL;
 
 export function HyperliquidVaults({ vaultAddress, className, details }: HyperliquidVaultsProps) {
-  // Fetch vault details via React Query (Suspense handled by parent)
   const { data: vault } = useQuery<VaultData>({
     queryKey: ["vault", "details", vaultAddress],
     queryFn: async () => {
@@ -100,7 +99,7 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
   }, [vault]);
 
   const router = useRouter();
-  if (!vault) return null; // Suspense ensures we have data; guard for types
+  if (!vault) return null;
 
   return (
     <div className={className}>
@@ -158,7 +157,6 @@ export function HyperliquidVaults({ vaultAddress, className, details }: Hyperliq
   );
 }
 
-// Per-card skeleton (can be used as Suspense fallback)
 export function VaultCardSkeleton({ className }: { className?: string }) {
   return (
     <div className={className}>
