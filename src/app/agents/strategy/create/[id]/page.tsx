@@ -11,13 +11,22 @@
 //   of the strategy content.
 
 import { use, useEffect, useState } from "react"
-import { useAccount, useSignMessage } from "wagmi"
+import { useAccount, useSignMessage, useReadContract, useWriteContract, useConfig } from "wagmi"
+import { waitForTransactionReceipt } from "wagmi/actions"
+import { UserRejectedRequestError } from "viem"
+import { useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FormChangeHandler } from "@/lib/types"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import StrategyFaq from "@/components/agents/strategy/strategy-faq"
+import { toast } from "sonner"
+import { publicEnv } from "@/lib/env.public"
+import { erc20Abi } from "@/lib/abis/erc20Abi";
+import { factoryAbi } from "@/lib/abis/factoryAbi"
+import { sponsorAbi } from "@/lib/abis/sponsorAbi"
 
 /**
    * The backtest details object contains the following properties:
@@ -48,6 +57,20 @@ import StrategyRiskManagement from "@/components/agents/strategy/strategy-risk-m
 import StrategyRankingMethod from "@/components/agents/strategy/strategy-ranking-method"
 import StrategyExchanges from "@/components/agents/strategy/strategy-exchanges"
 import StrategyReview from "@/components/agents/strategy/strategy-review"
+import { set } from "zod"
+
+/* --------------------
+  Constants + Types
+-------------------- */
+const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
+const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
+const agentFactoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
+const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
+const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
+
+const ERC20_ABI = erc20Abi;
+const AgentFactoryABI = factoryAbi;
+const AgentSponsorABI = sponsorAbi;
 
 type FormData = {
   type: string;
@@ -67,30 +90,31 @@ type Errors = Partial<Record<FormField, string>>;
 
 type AgentDetails = {
   id: string;
-    ticker: string;
-    name: string;
-    created: number;
-    description: string;
-    ownerAddress: string;
-    contractAddress: string;
-    image: string;
-    strategy: {
-        backtested?: {
-            accumulatedReturns: number;
-            CAGR: number;
-            maxDrawdown: number;
-        };
-        timeframe: string;
-        risk_management: string;
-        ranking_method: string;
-        direction: string;
-        signal_detection_entry: string;
-        signal_detection_exit: string;
-        exchange: string;
-        comet: string;
-        assets: string;
-        type: string;
+  ticker: string;
+  name: string;
+  created: number;
+  description: string;
+  ownerAddress: string;
+  contractAddress: string;
+  image: string;
+  backtestingPaid: boolean;
+  strategy: {
+    backtested?: {
+      accumulatedReturns: number;
+      CAGR: number;
+      maxDrawdown: number;
     };
+    timeframe: string;
+    risk_management: string;
+    ranking_method: string;
+    direction: string;
+    signal_detection_entry: string;
+    signal_detection_exit: string;
+    exchange: string;
+    comet: string;
+    assets: string;
+    type: string;
+  };
 };
 
 const steps = [
@@ -124,10 +148,17 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)           // unwrap dynamic route param
   const { address, isConnected } = useAccount() // wallet connection state
   const { signMessageAsync } = useSignMessage()
+  const { writeContractAsync, isPending } = useWriteContract();
+  const config = useConfig();
+  const queryClient = useQueryClient();
+
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [step, setStep] = useState(0)  // current step in the multi-step form
   const [agentDetails, setAgentDetails] = useState<AgentDetails | null>(null)
-  
+  const [submitting, setSubmitting] = useState(false)
+  const [finalizing, setFinalizing] = useState(false)
+  const [txHash, setTxHash] = useState<`0x${string}` | null>(null)
+
   const router = useRouter()
 
   const [formData, setFormData] = useState<FormData>({
@@ -145,15 +176,15 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   // Handle form data change
   const handleChange: FormChangeHandler = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-  setErrors((prevErrors) => ({
-    ...prevErrors,
-    [name]: value ? "" : "This field is required",
-  }));
-};
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: value ? "" : "This field is required",
+    }));
+  };
 
 
   // Navigate to next step
@@ -180,9 +211,84 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = async () => {
-    console.log("Submitting formData:", formData);
-    router.push("/agents"); // terug naar agents overview
-  };
+    if (!isConnected || !address) {
+      setErrors({ submit: "Please connect your wallet to submit." })
+      return
+    }
+    if (!agentDetails?.contractAddress) {
+      toast.error("Agent details not loaded yet.")
+      return
+    }
+
+    setSubmitting(true)
+    try {
+
+      const params = {
+        "tokenId": id,
+        "strategy": {
+          "type": formData.type,
+          "signal_detection_entry": formData.signal_detection_entry,
+          "signal_detection_exit": formData.signal_detection_exit,
+          "direction": formData.direction,
+          "timeframe": formData.timeframe,
+          "risk_management": formData.risk_management,
+          "assets": formData.assets,
+          "ranking_method": formData.ranking_method,
+          "liquidity_filter": formData.liquidity_filter,
+          "exchange": formData.exchange
+        }
+      }
+
+      const localStorageKey = `signature-${address.toLowerCase()}`
+      let signature = localStorage.getItem(localStorageKey)
+      if (!signature) {
+        const messageToSign = `Welcome to AITA!\n\nVerify your address: ${address.toLowerCase()}`
+        signature = await signMessageAsync({ message: messageToSign })
+        if (!signature) throw new Error("Failed to sign message")
+        localStorage.setItem(localStorageKey, signature)
+      }
+
+
+      if (!agentDetails.backtestingPaid) {
+        const hash = await writeContractAsync({
+          address: agentSponsorAddress,
+          abi: AgentSponsorABI,
+          functionName: 'purchaseBacktestingForUser',
+          args: [agentDetails.contractAddress as `0x${string}`],
+        })
+        setTxHash(hash)
+
+        const receipt = await waitForTransactionReceipt(config, { hash })
+        if (receipt.status !== 'success') {
+          throw new Error("Transaction reverted")
+        }
+      }
+      const createBacktestResp = await fetch(`${apiUrl}/strategy/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `${address.toLowerCase()}-${signature}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+      })
+      if (!createBacktestResp.ok) {
+        throw new Error('Error creating backtest in DB')
+      }
+
+      toast.success('Strategy submitted successfully!')
+      setFinalizing(true)
+      // router.push('/agents')
+    } catch (err) {
+      if (err instanceof UserRejectedRequestError) {
+        toast.error('User rejected the transaction')
+      } else {
+        console.error('Submission error:', err)
+        toast.error('Error submitting strategy. Please retry.')
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   useEffect(() => {
     if (!isConnected) {
@@ -198,6 +304,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         body: JSON.stringify({ id }),
       })
       const data = await res.json()
+      console.log("Fetched agent details:", data)
       setAgentDetails(data)
     }
 
@@ -217,18 +324,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   }
 
   const stepComponents = [
-      <StrategyIntroduction key={0} />,
-      <StrategyType formData={formData} handleChange={handleChange} error={errors.type} key={1} />,
-      <StrategyDirection formData={formData} handleChange={handleChange} error={errors.direction} key={2} />,
-      <StrategyAssets formData={formData} handleChange={handleChange} error={errors.assets} key={3} />,
-      <StrategyTimeframe formData={formData} handleChange={handleChange} error={errors.timeframe} key={4} />,
-      <StrategySignalDetectionEntry formData={formData} handleChange={handleChange} error={errors.signal_detection_entry} key={5} />,
-      <StrategySignalDetectionExit formData={formData} handleChange={handleChange} error={errors.signal_detection_exit} key={6} />,
-      <StrategyRiskManagement formData={formData} handleChange={handleChange} error={errors.risk_management} key={7} />,
-      <StrategyRankingMethod formData={formData} handleChange={handleChange} error={errors.ranking_method} key={8} />,
-      <StrategyExchanges formData={formData} handleChange={handleChange} error={errors.exchange} key={9} />,
-      <StrategyReview formData={formData} details={agentDetails} key={10} />,
-    ];
+    <StrategyIntroduction key={0} />,
+    <StrategyType formData={formData} handleChange={handleChange} error={errors.type} key={1} />,
+    <StrategyDirection formData={formData} handleChange={handleChange} error={errors.direction} key={2} />,
+    <StrategyAssets formData={formData} handleChange={handleChange} error={errors.assets} key={3} />,
+    <StrategyTimeframe formData={formData} handleChange={handleChange} error={errors.timeframe} key={4} />,
+    <StrategySignalDetectionEntry formData={formData} handleChange={handleChange} error={errors.signal_detection_entry} key={5} />,
+    <StrategySignalDetectionExit formData={formData} handleChange={handleChange} error={errors.signal_detection_exit} key={6} />,
+    <StrategyRiskManagement formData={formData} handleChange={handleChange} error={errors.risk_management} key={7} />,
+    <StrategyRankingMethod formData={formData} handleChange={handleChange} error={errors.ranking_method} key={8} />,
+    <StrategyExchanges formData={formData} handleChange={handleChange} error={errors.exchange} key={9} />,
+    <StrategyReview formData={formData} details={agentDetails} key={10} />,
+  ];
 
   return (
     <div className="min-h-[100svh] flex flex-col items-center p-4">
@@ -259,27 +366,63 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       {/* Navigation Buttons */}
       <div className="mt-6 flex items-center justify-center gap-2">
-        {step > 0 && (
-          <Button
-            onClick={prevStep}
-            className="w-24 hover:bg-neutral-800"
-            variant="outline"
-          >
-            Previous
-          </Button>
+        {!finalizing ? (
+          <>
+            {step > 0 && (
+              <Button
+                onClick={prevStep}
+                className="w-24 hover:bg-neutral-800"
+                variant="outline"
+              >
+                Previous
+              </Button>
+            )}
+            {step < steps.length - 1 ? (
+              <Button onClick={nextStep} className="w-24 bg-white text-black">
+                {step === 0 ? "Start" : "Next"}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || isPending}
+                className="w-36 bg-white text-black disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {(() => {
+                  if (submitting) {
+                    if (!agentDetails?.backtestingPaid) {
+                      return txHash ? 'Finalizing...' : 'Confirm in wallet'
+                    }
+                    return 'Finalizing...'
+                  }
+                  return 'Submit Strategy'
+                })()}
+              </Button>
+            )}
+          </>) : (
+          <div className="flex flex-col items-center gap-4">
+            <span className="text-teal-400">Your strategy is being created. This may take a few moments.</span>
+            <Button className="w-36 bg-white text-black"
+              onClick={() => router.push('/agents')}
+            >
+              Go to Agents List
+            </Button>
+          </div>
         )}
-        {step < steps.length - 1 ? (
-          <Button onClick={nextStep} className="w-24 bg-white text-black">
-            {step === 0 ? "Start" : "Next"}
-          </Button>
-        ) : (
-          <Button
-            onClick={handleSubmit}
-            className="w-36 bg-white text-black"
-          >
-            Submit Strategy
-          </Button>
-        )}
+      </div>
+
+      {/* FAQ */}
+      <div className="w-full max-w-2xl">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -100 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="mt-6"
+        >
+          <StrategyFaq step={step} />
+        </motion.div>
+
       </div>
     </div>
   )

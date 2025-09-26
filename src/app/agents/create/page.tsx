@@ -1,45 +1,36 @@
 "use client"
 
-// Page: Create Agent
-// ------------------
-// Purpose: Full form flow for creating a new Agent.
-// Notes:
-// - Client Component: relies on wagmi hooks (wallet state, signing).
-// - Implements form validation (name, ticker, description, image).
-// - Handles S3 image upload via presigned URL from backend.
-// - Uses wallet signature for authentication when calling the API.
-// - On success, redirects to the agent success page.
-
-import { useAccount, useSignMessage, useReadContract, useWriteContract } from "wagmi"
-import { useQueryClient } from "@tanstack/react-query"
+/* --------------------
+  Imports
+-------------------- */
+import { useAccount, useSignMessage, useWriteContract } from "wagmi"
 
 import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
 import { useDropzone, FileRejection } from "react-dropzone"
+import { toast } from "sonner"
 import Image from "next/image"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
 
-import forbiddenWords from "@/lib/forbidden_words.json"
-import { publicEnv } from "@/lib/env.public"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import { erc20Abi } from "@/lib/abis/erc20Abi";
-import { factoryAbi } from "@/lib/abis/factoryAbi"
+import forbiddenWords from "@/lib/forbidden_words.json"
+import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
+import { publicEnv } from "@/lib/env.public"
 import { sponsorAbi } from "@/lib/abis/sponsorAbi"
 
-// API endpoints and asset base are injected via env vars.
+/* --------------------
+  Constants + Types
+-------------------- */
 const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
 const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
-const agentFactoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
 const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
-const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
 
-const ERC20_ABI = erc20Abi;
-const AgentFactoryABI = factoryAbi;
 const AgentSponsorABI = sponsorAbi;
 
-// Agent data shape
+/* --------------------
+  Component
+-------------------- */
 interface Agent {
   id: string
   name: string
@@ -52,17 +43,12 @@ interface Agent {
 type FormErrors = Partial<Record<keyof Agent | "imageFile", string>>
 
 export default function CreateAgentPage() {
-  // --- Form state ---
   const [name, setName] = useState<Agent["name"]>("")
   const [ticker, setTicker] = useState<Agent["ticker"]>("")
   const [description, setDescription] = useState<Agent["description"]>("")
-
-  // --- File upload state ---
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [presignedUrlImageId, setPresignedUrlImageId] = useState<string | null>(null)
-
-  // --- Request lifecycle ---
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -75,9 +61,10 @@ export default function CreateAgentPage() {
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { writeContractAsync, isPending } = useWriteContract();
-  const queryClient = useQueryClient();
 
-  // Utility: clear error for a given field
+  /* --------------------
+    Helpers
+  -------------------- */
   const clearFieldError = (field: keyof Agent | "imageFile") => {
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors }
@@ -133,7 +120,9 @@ export default function CreateAgentPage() {
     return isValid
   }
 
-  // --- Image upload flow ---
+  /* --------------------
+    File upload
+  -------------------- */
   const uploadImage = async (file: File, arrayBuffer: ArrayBuffer) => {
     setUploading(true)
     try {
@@ -200,7 +189,9 @@ export default function CreateAgentPage() {
   })
 
   
-  // --- Submit ---
+  /* --------------------
+    Form submission
+  -------------------- */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -300,12 +291,12 @@ export default function CreateAgentPage() {
       router.push(`/agents/create/success/${finalAgentId}`);
     } catch (err) {
       console.error("Error during form submission:", err);
+      toast.error("An error occurred while submitting the form. Please try again.");
       setError("An error occurred while submitting the form. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
 
   // Update state + clear errors on change
   const handleFieldChange = (field: keyof Agent, value: string) => {
@@ -323,7 +314,9 @@ export default function CreateAgentPage() {
     }
   }
 
-  // --- Guard ---
+  /* --------------------
+    Render
+  -------------------- */
   if (!isConnected) {
     return (
       <div>
@@ -333,7 +326,6 @@ export default function CreateAgentPage() {
     )
   }
 
-  // --- Render ---
   return (
     <div className="px-4">
       <div className="text-center text-sm text-neutral-300 mb-4">Create new Agent</div>

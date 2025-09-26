@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { FormChangeHandler } from "@/lib/types"
 
 type StrategyTimeframeProps = {
@@ -19,12 +18,12 @@ const StrategyTimeframe: React.FC<StrategyTimeframeProps> = ({ formData, handleC
   return (
     <>
       {/* Selected asset label */}
-      <Card className="flex items-center justify-center mb-2 font-bold capitalize p-2">
+      <div className="flex items-center justify-center mb-2 font-bold capitalize p-2">
         {formData.assets.replaceAll("_", " ")}
-      </Card>
+      </div>
 
       {/* Timeframe options */}
-      <Card className="flex flex-col items-center justify-center p-4">
+      <div className="flex flex-col items-center justify-center p-4">
         <div className="grid grid-cols-3 gap-0 text-neutral-400 text-center mt-2 rounded-xl bg-neutral-800 text-sm">
           {/* Disabled for now */}
           <div className="px-4 py-3 w-14 rounded-xl opacity-50 cursor-not-allowed">1H</div>
@@ -46,8 +45,8 @@ const StrategyTimeframe: React.FC<StrategyTimeframeProps> = ({ formData, handleC
           (1H and 4H will be available in the future)
         </div>
 
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-      </Card>
+        {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
+      </div>
     </>
   );
 };

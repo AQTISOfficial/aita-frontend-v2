@@ -27,11 +27,11 @@ const schema = z.object({
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: z.string().min(1).optional(),
   NEXT_PUBLIC_UNISWAP_FACTORY: z.string().min(1).optional(),
   NEXT_PUBLIC_HYPERLIQUID_URL: z.string().min(1).optional(),
-
-
+  NEXT_PUBLIC_AITA_MORALIS_KEY: z.string().min(1).optional(),
+  
   // Server vars (secret)
   AITA_ALCHEMY_API_KEY: z.string().min(1),
-  AITA_MORALIS_KEY: z.string().min(1)
+  
 })
 
 type Env = z.infer<typeof schema>
@@ -42,8 +42,7 @@ const parsed = schema.parse(process.env)
 
 // Only server vars
 export const serverEnv: Pick<Env, ServerEnvKeys> = {
-  AITA_ALCHEMY_API_KEY: parsed.AITA_ALCHEMY_API_KEY,
-  AITA_MORALIS_KEY: parsed.AITA_MORALIS_KEY
+  AITA_ALCHEMY_API_KEY: parsed.AITA_ALCHEMY_API_KEY
 }
 
 // Only public vars (passing on to client)
@@ -68,5 +67,6 @@ export const clientEnvFromServer: Pick<Env, ClientEnvKeys> = {
   NEXT_PUBLIC_UNIVERSAL_ROUTER: process.env.NEXT_PUBLIC_UNIVERSAL_ROUTER,
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: process.env.NEXT_PUBLIC_QUOTER_V2_ADDRESS,
   NEXT_PUBLIC_UNISWAP_FACTORY: process.env.NEXT_PUBLIC_UNISWAP_FACTORY,
-  NEXT_PUBLIC_HYPERLIQUID_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_URL
+  NEXT_PUBLIC_HYPERLIQUID_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_URL,
+  NEXT_PUBLIC_AITA_MORALIS_KEY: parsed.NEXT_PUBLIC_AITA_MORALIS_KEY
 }

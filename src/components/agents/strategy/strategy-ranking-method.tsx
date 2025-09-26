@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { FormChangeHandler } from "@/lib/types"
 
 type StrategyRankingMethodProps = {
@@ -21,14 +20,14 @@ const StrategyRankingMethod: React.FC<StrategyRankingMethodProps> = ({
   };
 
   return (
-    <Card className="flex flex-col items-center justify-center p-4">
-      <div className="grid grid-cols-3 gap-2 text-neutral-400 text-center mt-2 rounded-xl bg-neutral-800 text-sm w-full">
+    <div className="flex flex-col items-center justify-center p-4">
+      <div className="grid grid-cols-3 gap-2 text-neutral-400 text-center mt-2 rounded-xl text-sm w-full">
         {/* Volume */}
         <div
-          className={`px-4 py-3 cursor-pointer rounded-xl transition-colors ${
+          className={`px-4 py-3 cursor-pointer rounded-xl border border-neutral-800 transition-colors ${
             selectedValue === "volume"
-              ? "bg-gradient-to-b from-neutral-700 to-neutral-750 text-white font-bold"
-              : "hover:bg-neutral-700"
+              ? "bg-neutral-800 text-white font-bold"
+              : "hover:bg-neutral-900"
           }`}
           onClick={() => handleValueChange("volume")}
         >
@@ -37,10 +36,10 @@ const StrategyRankingMethod: React.FC<StrategyRankingMethodProps> = ({
 
         {/* Volatility */}
         <div
-          className={`px-4 py-3 cursor-pointer rounded-xl transition-colors ${
+          className={`px-4 py-3 cursor-pointer rounded-xl border border-neutral-800 transition-colors ${
             selectedValue === "volatility"
-              ? "bg-gradient-to-b from-neutral-700 to-neutral-750 text-white font-bold"
-              : "hover:bg-neutral-700"
+              ? "bg-neutral-800 text-white font-bold"
+              : "hover:bg-neutral-900"
           }`}
           onClick={() => handleValueChange("volatility")}
         >
@@ -49,10 +48,10 @@ const StrategyRankingMethod: React.FC<StrategyRankingMethodProps> = ({
 
         {/* Momentum */}
         <div
-          className={`px-4 py-3 cursor-pointer rounded-xl transition-colors ${
+          className={`px-4 py-3 cursor-pointer rounded-xl border border-neutral-800 transition-colors ${
             selectedValue === "momentum"
-              ? "bg-gradient-to-b from-neutral-700 to-neutral-750 text-white font-bold"
-              : "hover:bg-neutral-700"
+              ? "bg-neutral-800 text-white font-bold"
+              : "hover:bg-neutral-900"
           }`}
           onClick={() => handleValueChange("momentum")}
         >
@@ -60,8 +59,8 @@ const StrategyRankingMethod: React.FC<StrategyRankingMethodProps> = ({
         </div>
       </div>
 
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-    </Card>
+      {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
+    </div>
   );
 };
 

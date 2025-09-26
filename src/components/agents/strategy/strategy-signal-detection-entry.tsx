@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { FormChangeHandler } from "@/lib/types"
 
 type StrategySignalDetectionEntryProps = {
@@ -21,14 +20,14 @@ const StrategySignalDetectionEntry: React.FC<StrategySignalDetectionEntryProps> 
   };
 
   return (
-    <Card className="flex flex-row items-center justify-center space-x-2 p-4">
+    <div className="flex flex-row items-center justify-center space-x-2 p-4">
       {/* Slow */}
       <div
         onClick={() => handleValueChange("slow")}
-        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
+        className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors 
           ${selectedValue === "slow"
-            ? "text-lime-400 font-bold bg-neutral-800 border border-lime-400"
-            : "text-lime-500 hover:bg-neutral-800 border border-transparent"}`}
+            ? "text-teal-400 font-bold bg-neutral-800 border border-teal-400"
+            : "text-teal-500 hover:bg-neutral-800 border border-neutral-700"}`}
       >
         Slow
       </div>
@@ -39,7 +38,7 @@ const StrategySignalDetectionEntry: React.FC<StrategySignalDetectionEntryProps> 
         className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
           ${selectedValue === "medium"
             ? "font-bold text-neutral-100 bg-neutral-800 border border-neutral-400"
-            : "text-neutral-300 hover:bg-neutral-800 border border-transparent"}`}
+            : "text-neutral-300 hover:bg-neutral-800 border border-neutral-700"}`}
       >
         Medium
       </div>
@@ -50,15 +49,15 @@ const StrategySignalDetectionEntry: React.FC<StrategySignalDetectionEntryProps> 
         className={`flex w-32 h-12 cursor-pointer items-center justify-center rounded-xl transition-colors
           ${selectedValue === "fast"
             ? "text-red-400 font-bold bg-neutral-800 border border-red-400"
-            : "text-red-500 hover:bg-neutral-800 border border-transparent"}`}
+            : "text-red-500 hover:bg-neutral-800 border border-neutral-700"}`}
       >
         Fast
       </div>
 
-      {error && (
+      {/* {error && (
         <p className="text-red-500 text-sm mt-2 text-center w-full">{error}</p>
-      )}
-    </Card>
+      )} */}
+    </div>
   );
 };
 
