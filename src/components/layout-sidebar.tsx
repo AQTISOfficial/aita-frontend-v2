@@ -1,6 +1,6 @@
 "use client"
 
-import { BotIcon, Landmark, Store, Settings, ChevronUp } from "lucide-react"
+import { BotIcon, Landmark, Store, Settings, ChevronUp, Wallet } from "lucide-react"
 
 import {
     Sidebar,
@@ -49,11 +49,11 @@ const items = [
     //     url: "/staking",
     //     icon: HandCoins,
     // },
-    // {
-    //     title: "Portfolio",
-    //     url: "/portfolio",
-    //     icon: Wallet,
-    // },
+    {
+        title: "Portfolio",
+        url: "/portfolio",
+        icon: Wallet,
+    },
     // {
     //     title: "Chat",
     //     url: "/chat",

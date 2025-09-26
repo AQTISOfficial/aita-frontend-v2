@@ -1,15 +1,14 @@
-import { SectionCards } from "@/components/section-cards";
+import { Suspense } from 'react'
+import PortfolioClient from './portfolio-client'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default function PortfolioPage() {
   return (
-     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <SectionCards />
-        <div className="px-4 lg:px-6">
-          {/* <ChartAreaInteractive /> */}
-        </div>
-        {/* <DataTable data={data} /> */}
-      </div>
-    </div>
-  );
+    <Suspense fallback={null}>{/* loading.tsx will render */}
+      <PortfolioClient />
+    </Suspense>
+  )
 }
+
+

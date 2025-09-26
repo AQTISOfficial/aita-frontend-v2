@@ -28,6 +28,7 @@ interface AgentCardProps {
     contractAddress: string;
     image: string;
     created: number;
+    backtestingPaid: boolean;
     strategy: {
       backtested: {
         accumulatedReturns: number;
@@ -56,7 +57,7 @@ export function AgentCard({ agent }: AgentCardProps) {
   const { address, isConnected } = useAccount();
 
   
-
+  console.log("Rendering AgentCard for agent:", agent);
 
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
@@ -91,9 +92,9 @@ export function AgentCard({ agent }: AgentCardProps) {
       </CardHeader>
 
       <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
-        {agent?.strategy?.backtested ? (
+        {agent?.strategy ? (
           <>
-              {agent.strategy?.backtested && (
+              {agent.strategy?.backtested ? (
                 <>
                   <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
                     <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
@@ -107,6 +108,12 @@ export function AgentCard({ agent }: AgentCardProps) {
                     </div>
                   </div>
                 </>
+              ) : (
+                <div>
+                  <span className="text-neutral-500">
+                    Backtest data not available yet. This may take a few minutes to process.
+                  </span>
+                </div>
               )}
           </>
         )

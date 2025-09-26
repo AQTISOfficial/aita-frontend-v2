@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { assets as tokenData } from "@/lib/assets";
 import { FormChangeHandler } from "@/lib/types"
 
@@ -37,7 +36,7 @@ const StrategyAssets: React.FC<StrategyAssetsProps> = ({ formData, handleChange,
   }, {} as Record<string, string[]>);
 
   return (
-    <Card className="relative flex flex-col p-4">
+    <div className="relative flex flex-col p-4">
       {/* Search Input */}
       <input
         type="text"
@@ -46,7 +45,7 @@ const StrategyAssets: React.FC<StrategyAssetsProps> = ({ formData, handleChange,
         value={search}
         onChange={handleSearchChange}
         placeholder="Search tokens or categories..."
-        className="input-field antialiased text-sm pl-10 w-full focus:outline-none focus:ring-1 tracking-wide bg-no-repeat bg-[12px_center] bg-[url('/icons/search.svg')]"
+        className="input-field antialiased text-sm p-2 border border-neutral-700 rounded-md w-full focus:outline-none focus:ring-0 tracking-wide "
       />
 
       {/* Selected value */}
@@ -61,12 +60,12 @@ const StrategyAssets: React.FC<StrategyAssetsProps> = ({ formData, handleChange,
 
       {/* Dropdown List */}
       {(search || Object.keys(filteredTokens).length > 0) && (
-        <div className="p-4 mt-1 bg-neutral-950 text-white rounded-xl border border-neutral-700 shadow-lg max-h-96 overflow-y-auto z-10">
+        <div className="p-4 mt-1 bg-neutral-950 text-white rounded-xl border border-neutral-800 shadow-lg max-h-96 overflow-y-auto z-10">
           {Object.keys(filteredTokens).length > 0 ? (
             Object.entries(filteredTokens).map(([category, tokens]) => (
               <div key={category} className="p-0 mb-6">
                 <span
-                  className="p-2 text-base flex text-white items-center justify-center rounded-xl bg-gradient-to-b from-neutral-750 to-neutral-800 hover:bg-neutral-600 capitalize cursor-pointer"
+                  className="p-2 text-base flex text-white items-center justify-center rounded-md bg-neutral-900 border border-neutral-800 capitalize cursor-pointer"
                   onClick={() => handleValueChange(category)}
                 >
                   {category.replaceAll("_", " ")}
@@ -90,8 +89,8 @@ const StrategyAssets: React.FC<StrategyAssetsProps> = ({ formData, handleChange,
         </div>
       )}
 
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-    </Card>
+      {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
+    </div>
   );
 };
 

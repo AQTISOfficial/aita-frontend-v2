@@ -21,7 +21,7 @@ const StrategyExchanges: React.FC<StrategyExchangesProps> = ({
   };
 
   return (
-    <Card className="flex flex-row items-center justify-center space-x-2 p-4">
+    <div className="flex flex-row items-center justify-center space-x-2 p-4">
       {/* Binance */}
       <div
         onClick={() => handleValueChange("binance")}
@@ -55,10 +55,10 @@ const StrategyExchanges: React.FC<StrategyExchangesProps> = ({
         Hyperliquid
       </div>
 
-      {error && (
+      {/* {error && (
         <p className="text-red-500 text-sm mt-2 text-center w-full">{error}</p>
-      )}
-    </Card>
+      )} */}
+    </div>
   );
 };
 

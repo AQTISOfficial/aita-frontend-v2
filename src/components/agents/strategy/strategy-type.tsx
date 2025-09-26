@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { FormChangeHandler } from "@/lib/types"
 
 type StrategyTypeProps = {
@@ -17,7 +16,7 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
   };
 
   return (
-    <Card className="flex flex-col space-y-3 p-4">
+    <div className="flex flex-col space-y-3 p-4">
       {/* Momentum */}
       <div
         onClick={() => handleValueChange("momentum")}
@@ -81,8 +80,8 @@ const StrategyType: React.FC<StrategyTypeProps> = ({ formData, handleChange, err
         </div>
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </Card>
+      {/* {error && <p className="text-red-500 text-sm">{error}</p>} */}
+    </div>
   );
 };
 

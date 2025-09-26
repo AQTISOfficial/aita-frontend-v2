@@ -16,7 +16,9 @@ import { Montserrat } from "next/font/google";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { LayoutSidebar } from "@/components/layout-sidebar";
 import { SiteHeader } from "@/components/site-header";
+import { Toaster
 
+ } from "@/components/ui/sonner";
 import Providers from "./providers";
 
 import "./globals.css";
@@ -57,6 +59,12 @@ export default function RootLayout({
             </SidebarInset>
           </SidebarProvider>
         </Providers>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
       </body>
     </html>
   );
