@@ -75,7 +75,7 @@ export default function Home() {
       if (!signature) throw new Error("Missing signature");
 
       const authorizationSignature = `${address.toLowerCase()}-${signature}`;
-      const response = await fetch(`/api/get-profile`, {
+      const response = await fetch(`/api/account`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

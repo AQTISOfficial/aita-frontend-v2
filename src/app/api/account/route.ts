@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const API_URL = process.env.NEXT_PUBLIC_AITA_BASEURL as string;
+import { publicEnv } from "@/lib/env.public";
+const API_URL = publicEnv.NEXT_PUBLIC_API_URL;
 
 type ProfileBody = {
   telegramUsername?: string;
