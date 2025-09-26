@@ -21,6 +21,7 @@ export const USER_BALANCES_QUERY = gql`
         positionId
         reserveUsdc
         reserveAgent
+        totalSupply
       }
       userAddress
       balance
@@ -39,6 +40,7 @@ export type Token = {
   positionId: string;
   reserveUsdc: string;
   reserveAgent: string;
+  totalSupply: string;
 };
 
 export type UserBalance = {
