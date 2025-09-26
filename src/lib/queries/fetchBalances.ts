@@ -1,10 +1,6 @@
-// /lib/queries/fetchBalances.ts
 import { gql } from "@apollo/client";
 import { client } from "@/lib/apollo";
 
-/* --------------------
-   Query
--------------------- */
 export const USER_BALANCES_QUERY = gql`
   query GetUserBalances($userAddress: String!) {
     userBalances(
@@ -29,9 +25,6 @@ export const USER_BALANCES_QUERY = gql`
   }
 `;
 
-/* --------------------
-   Types
--------------------- */
 export type Token = {
   id: string;
   name: string;
@@ -50,9 +43,6 @@ export type UserBalance = {
   balance: string;
 };
 
-/* --------------------
-   Fetcher
--------------------- */
 export async function fetchBalances(address: string): Promise<UserBalance[]> {
   if (!address) return [];
 

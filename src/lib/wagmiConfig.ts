@@ -11,7 +11,6 @@ import {
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { publicEnv } from '@/lib/env.public';
 
-// Fix for Next.js hot reload (singleton)
 const globalForWagmi = globalThis as unknown as {
   wagmiConfig?: ReturnType<typeof getDefaultConfig>;
 };

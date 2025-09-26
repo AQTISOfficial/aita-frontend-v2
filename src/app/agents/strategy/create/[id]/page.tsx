@@ -1,32 +1,19 @@
 "use client"
 
-// Page: Create Strategy
-// ----------------------
-// Purpose: Render a create-strategy flow bound to a dynamic `id` param.
-// Notes:
-// - Must be a Client Component because we use wagmi hooks for wallet state.
-// - In Next.js 15, route params are provided as a Promise, so React's `use()`
-//   is used to unwrap them.
-// - Access is gated: if the user is not connected, we show a prompt instead
-//   of the strategy content.
-
 import { use, useEffect, useState } from "react"
-import { useAccount, useSignMessage, useReadContract, useWriteContract, useConfig } from "wagmi"
+import { useAccount, useSignMessage, useWriteContract, useConfig } from "wagmi"
 import { waitForTransactionReceipt } from "wagmi/actions"
 import { UserRejectedRequestError } from "viem"
-import { useQueryClient } from "@tanstack/react-query"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FormChangeHandler } from "@/lib/types"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import StrategyFaq from "@/components/agents/strategy/strategy-faq"
 import { toast } from "sonner"
+
+import { Button } from "@/components/ui/button"
+import StrategyFaq from "@/components/agents/strategy/strategy-faq"
+
 import { publicEnv } from "@/lib/env.public"
-import { erc20Abi } from "@/lib/abis/erc20Abi";
-import { factoryAbi } from "@/lib/abis/factoryAbi"
 import { sponsorAbi } from "@/lib/abis/sponsorAbi"
+import { FormChangeHandler } from "@/lib/types"
 
 /**
    * The backtest details object contains the following properties:
@@ -57,19 +44,9 @@ import StrategyRiskManagement from "@/components/agents/strategy/strategy-risk-m
 import StrategyRankingMethod from "@/components/agents/strategy/strategy-ranking-method"
 import StrategyExchanges from "@/components/agents/strategy/strategy-exchanges"
 import StrategyReview from "@/components/agents/strategy/strategy-review"
-import { set } from "zod"
 
-/* --------------------
-  Constants + Types
--------------------- */
 const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
-const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
-const agentFactoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
 const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
-const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
-
-const ERC20_ABI = erc20Abi;
-const AgentFactoryABI = factoryAbi;
 const AgentSponsorABI = sponsorAbi;
 
 type FormData = {
@@ -86,7 +63,6 @@ type FormData = {
 };
 
 type FormField = keyof FormData;
-type Errors = Partial<Record<FormField, string>>;
 
 type AgentDetails = {
   id: string;
@@ -145,15 +121,14 @@ const requiredFields: (FormField | "")[] = [
 ];
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)           // unwrap dynamic route param
-  const { address, isConnected } = useAccount() // wallet connection state
+  const { id } = use(params)
+  const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { writeContractAsync, isPending } = useWriteContract();
   const config = useConfig();
-  const queryClient = useQueryClient();
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [step, setStep] = useState(0)  // current step in the multi-step form
+  const [step, setStep] = useState(0)
   const [agentDetails, setAgentDetails] = useState<AgentDetails | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [finalizing, setFinalizing] = useState(false)
@@ -174,7 +149,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     exchange: ""
   });
 
-  // Handle form data change
   const handleChange: FormChangeHandler = (e) => {
     const { name, value } = e.target;
 
@@ -187,7 +161,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   };
 
 
-  // Navigate to next step
   const nextStep = () => {
     const fieldName = requiredFields[step]
 
@@ -207,7 +180,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     setStep((prev) => Math.min(prev + 1, steps.length - 1))
   }
 
-  // Navigate to previous step
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = async () => {
@@ -277,7 +249,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       toast.success('Strategy submitted successfully!')
       setFinalizing(true)
-      // router.push('/agents')
     } catch (err) {
       if (err instanceof UserRejectedRequestError) {
         toast.error('User rejected the transaction')
@@ -292,19 +263,15 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   useEffect(() => {
     if (!isConnected) {
-      // Optionally, you could redirect to a connect wallet page here
-      console.log("Please connect your wallet to proceed.")
       return
     }
 
     const fetchAgentDetails = async () => {
-      // Fetch and display agent details if needed
       const res = await fetch(`/api/agents/details`, {
         method: "POST",
         body: JSON.stringify({ id }),
       })
       const data = await res.json()
-      console.log("Fetched agent details:", data)
       setAgentDetails(data)
     }
 
@@ -312,7 +279,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       fetchAgentDetails()
     }
 
-  }, [isConnected])
+  }, [id, isConnected])
 
   if (!isConnected) {
     return (

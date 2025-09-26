@@ -1,4 +1,3 @@
-// /lib/queries/fetchFactory.ts
 import { gql } from "@apollo/client";
 import { client } from "@/lib/apollo";
 

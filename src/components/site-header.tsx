@@ -1,14 +1,5 @@
 "use client";
 
-// Component: SiteHeader
-// ---------------------
-// Purpose: Render the top application header with page title, sidebar trigger, and wallet connect button.
-// Notes:
-// - Client Component: depends on `usePathname` (App Router) and local mounted state.
-// - Builds breadcrumb-style headerTitle from current path segments.
-// - Shows <SidebarTrigger> on the left, title in the middle, and <CustomConnectButton> on the right.
-// - Hides content until mounted to avoid hydration mismatch (pathname is client-only).
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -17,7 +8,6 @@ import { ChevronRight } from "lucide-react";
 import { CustomConnectButton } from "./connect-button";
 
 function toLabel(seg: string) {
-  // mooier label: "ai_agents" -> "Ai Agents"
   return seg
     .split(/[-_]/g)
     .map((s) => (s ? s[0].toUpperCase() + s.slice(1) : s))

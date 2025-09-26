@@ -1,8 +1,5 @@
 "use client"
 
-/* --------------------
-  Imports
--------------------- */
 import React, { useEffect, useState } from "react"
 import { useQuery } from '@tanstack/react-query'
 import { useAccount } from "wagmi"
@@ -27,9 +24,6 @@ import { Label } from "@/components/ui/label"
 import { PaginationFunction } from "@/components/ui/pagination-function"
 import { Card, CardTitle, CardHeader, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card"
 
-/* --------------------
-  Types
--------------------- */
 type SortKey = "asc" | "desc"
 
 type Agent = {
@@ -69,7 +63,7 @@ export default function Home() {
   const [userAgents, setUserAgents] = useState(false)
   const [strategy, setStrategy] = useState(false)
   const [totalAgents, setTotalAgents] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [error] = useState<string | null>(null)
 
   const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
   const [watchlistOnly, setWatchlistOnly] = useState(false)
@@ -81,16 +75,10 @@ export default function Home() {
 
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Wagmi hook for wallet state
   const { address, isConnected } = useAccount()
 
-  // Router to navigate to Create Agent
   const router = useRouter()
 
-  /* --------------------
-    Effects
-  -------------------- */
-  // --- Agents list query (react-query) ---
   const offset = (currentPage - 1) * limit
   const agentsQueryKey = [
     'agents',
@@ -98,7 +86,7 @@ export default function Home() {
     { limit, offset, sort, search, strategy, userAgents, addr: userAgents ? address?.toLowerCase() : null }
   ] as const
 
-  const { data: agentsData, isFetching, refetch } = useQuery({
+  const { data: agentsData } = useQuery({
     queryKey: agentsQueryKey,
     queryFn: async () => {
       try {
@@ -138,7 +126,6 @@ export default function Home() {
     }
   }, [agentsData])
 
-  // Load watchlist from localStorage on mount
   useEffect(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("agentWatchlist") : null
@@ -153,7 +140,6 @@ export default function Home() {
     }
   }, [])
 
-  // Fetch full agent data for watchlist when entering watchlist mode or watchlist changes
   useEffect(() => {
     const loadWatchlistAgents = async () => {
       if (!watchlistOnly) return;
@@ -164,14 +150,12 @@ export default function Home() {
       }
       setWatchlistLoading(true)
       try {
-        // Batch fetch sequentially (could be optimized with backend batch endpoint)
         const results: Agent[] = []
         for (const id of ids) {
           try {
             const res = await fetch("/api/agents/details", { method: "POST", body: JSON.stringify({ id }) })
             if (res.ok) {
               const data = await res.json()
-              // Narrow unknown JSON to Agent via runtime shape check
               const maybe = data as Partial<Agent>
               if (
                 maybe &&
@@ -187,7 +171,6 @@ export default function Home() {
             console.warn("Failed to load watchlist agent", id, e)
           }
         }
-        // Keep ordering consistent with stored ids
         setWatchlistAgents(results.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)))
       } finally {
         setWatchlistLoading(false)
@@ -196,7 +179,6 @@ export default function Home() {
     loadWatchlistAgents()
   }, [watchlistOnly, watchlist])
 
-  // Safety: auto-exit watchlist-only mode if it becomes empty outside toggle path
   useEffect(() => {
     if (watchlistOnly && watchlist.size === 0) {
       setWatchlistOnly(false)
@@ -204,9 +186,6 @@ export default function Home() {
     }
   }, [watchlistOnly, watchlist])
 
-  /* --------------------
-    Handlers
-  -------------------- */
   const toggleWatchlist = (id: string) => {
     setWatchlist(prev => {
       const next = new Set(prev)
@@ -220,7 +199,6 @@ export default function Home() {
       } catch (e) {
         console.warn("Failed to persist watchlist", e)
       }
-      // If we are in watchlist-only mode and the last item was removed, exit the mode
       if (watchlistOnly && next.size === 0) {
         setWatchlistOnly(false)
         setCurrentPage(1)
@@ -229,15 +207,11 @@ export default function Home() {
     })
   }
 
-  /* --------------------
-    Constants
-  -------------------- */
   const inWatchlistMode = watchlistOnly
   const effectiveAgents = inWatchlistMode ? watchlistAgents : agents
   const effectiveTotal = inWatchlistMode ? watchlistAgents.length : totalAgents
   const totalPages = Math.max(1, Math.ceil(effectiveTotal / limit))
 
-  // Slice only in watchlist mode (server already slices normal mode)
   const pagedAgents = inWatchlistMode
     ? effectiveAgents.slice((currentPage - 1) * limit, (currentPage) * limit)
     : effectiveAgents
@@ -262,10 +236,9 @@ export default function Home() {
     return <div className="text-red-500">{error}</div>
   }
 
-  // --- Render ---
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      {/* Header: total count + create button */}
+      {/* Header */}
       <div className="flex items-center justify-between px-2">
         <Button
           variant="outline"
@@ -284,7 +257,7 @@ export default function Home() {
         </Button>
       </div>
 
-      {/* Filters: search, order, limit, toggles */}
+      {/* Filters */}
       <div className="flex flex-wrap gap-2 p-2 sticky top-0 bg-neutral-950 z-10">
         <input
           id="search"

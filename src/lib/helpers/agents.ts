@@ -1,6 +1,5 @@
 import { publicEnv } from "../env.public";
 
-// --- Helper: Check name/ticker uniqueness ---
 export const normalizeForCheck = (rawName: string, rawTicker: string) => ({
   name: rawName.trim(),
   ticker: rawTicker.trim().replace(/^\$/, "").toUpperCase(),

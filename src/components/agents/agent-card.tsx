@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react"
+import React from "react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -16,7 +16,7 @@ import Image from "next/image"
 import { CircleCheckBigIcon } from "lucide-react";
 
 import { useRouter } from "next/navigation";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount } from "wagmi";
 
 interface AgentCardProps {
   agent: {
@@ -55,10 +55,7 @@ export function AgentCard({ agent }: AgentCardProps) {
 
   const router = useRouter();
   const { address, isConnected } = useAccount();
-
   
-  console.log("Rendering AgentCard for agent:", agent);
-
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
   };
