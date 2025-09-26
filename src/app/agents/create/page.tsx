@@ -3,8 +3,7 @@
 /* --------------------
   Imports
 -------------------- */
-import { useAccount, useSignMessage, useReadContract, useWriteContract } from "wagmi"
-import { useQueryClient } from "@tanstack/react-query"
+import { useAccount, useSignMessage, useWriteContract } from "wagmi"
 
 import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
@@ -18,8 +17,6 @@ import { Button } from "@/components/ui/button"
 import forbiddenWords from "@/lib/forbidden_words.json"
 import { normalizeForCheck, checkAgent } from "@/lib/helpers/agents"
 import { publicEnv } from "@/lib/env.public"
-import { erc20Abi } from "@/lib/abis/erc20Abi";
-import { factoryAbi } from "@/lib/abis/factoryAbi"
 import { sponsorAbi } from "@/lib/abis/sponsorAbi"
 
 /* --------------------
@@ -27,12 +24,8 @@ import { sponsorAbi } from "@/lib/abis/sponsorAbi"
 -------------------- */
 const apiUrl = publicEnv.NEXT_PUBLIC_API_URL
 const cloudfrontUrl = publicEnv.NEXT_PUBLIC_CLOUDFRONT_BASEURL
-const agentFactoryAddress = publicEnv.NEXT_PUBLIC_AGENT_FACTORY as `0x${string}`;
 const agentSponsorAddress = publicEnv.NEXT_PUBLIC_AGENT_SPONSOR as `0x${string}`;
-const usdcAddress = publicEnv.NEXT_PUBLIC_USDC_ARBITRUM_ADDRESS as `0x${string}`;
 
-const ERC20_ABI = erc20Abi;
-const AgentFactoryABI = factoryAbi;
 const AgentSponsorABI = sponsorAbi;
 
 /* --------------------
@@ -68,7 +61,6 @@ export default function CreateAgentPage() {
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { writeContractAsync, isPending } = useWriteContract();
-  const queryClient = useQueryClient();
 
   /* --------------------
     Helpers

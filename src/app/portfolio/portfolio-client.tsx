@@ -1,17 +1,18 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { formatUnits } from 'viem'
 import { useQuery } from '@tanstack/react-query'
 import { DollarSign, Table2, LayoutGrid } from 'lucide-react'
 import { fetchBalances, UserBalance } from '@/lib/queries/fetchBalances'
+import fetchAgentPrice from '@/lib/api/fetchAgentPrice'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 
 type BalanceItem = {
-  id: string; ticker: string; name: string; marketCap: number; price: number; balance: number; value: number;
+  id: string; ticker: string; name: string; positionId: string; marketCap: number; price: number; balance: number; value: number;
 }
 
 const safeBigInt = (val?: string | number | null) => { 
@@ -29,16 +30,22 @@ function useBalances() {
   })
 }
 
-function transform(balances: UserBalance[]): BalanceItem[] {
-  return balances.map(b => {
-    const balanceFmt = Number(formatUnits(safeBigInt(b.balance), 18))
-    const reserveUsdcFmt = Number(formatUnits(safeBigInt(b.token.reserveUsdc), 6))
-    const reserveAgentFmt = Number(formatUnits(safeBigInt(b.token.reserveAgent), 18))
-    const marketCapFmt = Number(formatUnits(safeBigInt(b.token.marketCap), 6))
-    let price = 0, value = 0
-    if (reserveAgentFmt > 0) { price = reserveUsdcFmt / reserveAgentFmt; value = price * balanceFmt }
-    return { id: b.id, ticker: b.token.symbol, name: b.token.name, marketCap: marketCapFmt, price, balance: balanceFmt, value }
-  })
+async function transform(balances: UserBalance[]): Promise<BalanceItem[]> {
+  return Promise.all(
+    balances.map(async b => {
+      const balanceFmt = Number(formatUnits(safeBigInt(b.balance), 18))
+      const reserveUsdcFmt = Number(formatUnits(safeBigInt(b.token.reserveUsdc), 6))
+      const reserveAgentFmt = Number(formatUnits(safeBigInt(b.token.reserveAgent), 18))
+      const marketCapFmt = Number(formatUnits(safeBigInt(b.token.marketCap), 6))
+      let price = 0, value = 0
+      if (reserveAgentFmt > 0) { price = reserveUsdcFmt / reserveAgentFmt; value = price * balanceFmt }
+      if (Number(b.token.positionId) > 0) {
+          // Uniswap V3 LP token
+          price = await fetchAgentPrice({ contract: b.token.id }) as unknown as number
+      }
+      return { id: b.id, ticker: b.token.symbol, name: b.token.name, positionId: b.token.positionId, marketCap: marketCapFmt, price, balance: balanceFmt, value }
+    })
+  )
 }
 
 function TableView({ balances }: { balances: BalanceItem[] }) {
@@ -80,7 +87,7 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
           <div className='flex justify-between items-center'>
             <span className='font-mono font-medium'>{item.ticker}</span>
             <Badge variant={item.value > 0 ? 'default' : 'secondary'} className='text-xs'>
-              {item.value > 0 ? 'Active' : 'Zero'}
+              {Number(item.positionId) > 0 ? 'Uniswap' : ''}
             </Badge>
           </div>
           <div className='text-xs text-neutral-400'>{item.name}</div>
@@ -102,10 +109,14 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
 export default function PortfolioClient() {
   const [view, setView] = useState<'table' | 'cards'>('cards')
   const { address, isConnected } = useAccount()
-  const { data = [], isLoading, error } = useBalances()
-  const balances = transform(data)
+  const { data: rawBalances = [], isLoading, error } = useBalances()
+  const [balances, setBalances] = useState<BalanceItem[]>([])
 
-  // ✅ Total portfolio value
+  useEffect(() => {
+    transform(rawBalances).then(setBalances).catch(() => setBalances([]))
+  }, [rawBalances])
+
+
   const totalValue = balances.reduce((sum, b) => sum + b.value, 0)
 
   if (!isConnected) return <div className='p-4 text-neutral-400'>Connect your wallet to view your portfolio.</div>

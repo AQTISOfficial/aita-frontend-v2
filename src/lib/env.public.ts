@@ -24,7 +24,8 @@ const schema = z.object({
   NEXT_PUBLIC_UNIVERSAL_ROUTER: z.string().min(1).optional(),
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: z.string().min(1).optional(),
   NEXT_PUBLIC_UNISWAP_FACTORY: z.string().min(1).optional(),
-  NEXT_PUBLIC_HYPERLIQUID_URL: z.string().min(1).optional()
+  NEXT_PUBLIC_HYPERLIQUID_URL: z.string().min(1).optional(),
+  NEXT_PUBLIC_AITA_MORALIS_KEY: z.string().min(1).optional()
 })
 
 export const publicEnv = schema.parse({
@@ -48,5 +49,6 @@ export const publicEnv = schema.parse({
   NEXT_PUBLIC_UNIVERSAL_ROUTER: process.env.NEXT_PUBLIC_UNIVERSAL_ROUTER,
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: process.env.NEXT_PUBLIC_QUOTER_V2_ADDRESS,
   NEXT_PUBLIC_UNISWAP_FACTORY: process.env.NEXT_PUBLIC_UNISWAP_FACTORY,
-  NEXT_PUBLIC_HYPERLIQUID_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_URL
+  NEXT_PUBLIC_HYPERLIQUID_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_URL,
+  NEXT_PUBLIC_AITA_MORALIS_KEY: process.env.NEXT_PUBLIC_AITA_MORALIS_KEY
 })

@@ -31,7 +31,7 @@ type AgentDetails = {
 
 export default function Page({ params }: PageProps) {
   const { id } = use(params)           // unwrap dynamic route param
-  const { isConnected, isConnecting, status } = useAccount() // wallet connection state
+  const { isConnected, isConnecting } = useAccount() // wallet connection state
   const [agentDetails, setAgentDetails] = useState<AgentDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -57,7 +57,7 @@ export default function Page({ params }: PageProps) {
       fetchAgentDetails()
     }
 
-  }, [isConnected])
+  }, [id, isConnected])
 
   if (isConnecting) {
     return <div>Connecting wallet...</div>
