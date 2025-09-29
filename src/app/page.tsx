@@ -448,11 +448,11 @@ export default function Home() {
                       )}`}
                       >
                         {valueLabels["direction"][agent.strategy.direction]}</td>
-                      <td className="p-2 text-teal-500">{fmt(Number(r?.accumulatedReturns), true)}</td>
-                      <td className="p-2 text-amber-500">{fmt(Number(r?.CAGR), true)}</td>
-                      <td className="p-2 text-green-500">{r?.sharpe ?? "—"}</td>
-                      <td className="p-2 text-purple-500">{r?.volatility ?? "—"}</td>
-                      <td className="p-2 text-cyan-500">{r?.profitFactor ?? "—"}</td>
+                      <td className="p-2 text-teal-400">{fmt(Number(r?.accumulatedReturns), true)}</td>
+                      <td className="p-2 text-sky-400">{fmt(Number(r?.CAGR), true)}</td>
+                      <td className="p-2 text-amber-400">{r?.sharpe ?? "—"}</td>
+                      <td className="p-2 text-purple-400">{r?.volatility ?? "—"}</td>
+                      <td className="p-2 text-cyan-400">{r?.profitFactor ?? "—"}</td>
                       <td className="p-2 text-neutral-500">{fmt(Number(r?.maxDrawdown))}</td>
                       <td className="p-2"><ChevronRight className="size-4 text-neutral-400" /></td>
                     </tr>

@@ -74,23 +74,23 @@ export const valueLabels: ValueLabels = {
 
 export const valueColorClasses: ValueColorClasses = {
   direction: {
-    longonly: "text-teal-500",
+    longonly: "text-emerald-400",
     shortonly: "text-red-400",
     both: "text-neutral-400"
   },
   signal_detection_entry: {
-    fast: "text-teal-500",
+    fast: "text-emerald-400",
     slow: "text-red-400",
     medium: "text-neutral-500"
   },
   signal_detection_exit: {
-    fast: "text-teal-500",
+    fast: "text-emerald-400",
     slow: "text-red-400",
     medium: "text-neutral-500"
   },
   risk_management: {
     Aggressive: "text-red-400",
     Medium: "text-neutral-500",
-    Conservative: "text-teal-500"
+    Conservative: "text-emerald-400"
   }
 };
