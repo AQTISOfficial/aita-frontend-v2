@@ -49,9 +49,9 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
     const vault = vaults.find((v) => v.id === agent.id);
 
     return (
-        <div className="grid gap-3 text-xs text-neutral-400 my-2">
+        <div className="grid gap-3 text-xs text-neutral-400 my-2 border rounded-md p-4 bg-gradient-to-t from-neutral-800/50 to-transparent border-neutral-800 shadow-xl">
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1">
                 <span className="text-neutral-300">Strategy:</span>
                 <span
                     className={clsx(
