@@ -320,7 +320,7 @@ export default function Home() {
                         Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? <ChevronUp size={16} className="ml-1" /> : <ChevronDown size={16} className="ml-1" />)}
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        The specific approach or method used by the agent in trading.
+                        The specific approach or factor used by the agent in trading.
                       </TooltipContent>
                     </Tooltip>
                   </th>
@@ -330,7 +330,7 @@ export default function Home() {
                         Direction {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? <ChevronUp size={16} className="ml-1" /> : <ChevronDown size={16} className="ml-1" />)}
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        The general trend of the market, indicating whether it is moving up or down.
+                        The direction of our trades. Long, short, or both.
                       </TooltipContent>
                     </Tooltip>
                   </th>
