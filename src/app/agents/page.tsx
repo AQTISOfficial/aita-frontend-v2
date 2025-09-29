@@ -400,7 +400,7 @@ export default function Home() {
                             <span>CAGR</span><span className="text-amber-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
                             <span>Volatility</span><span className="text-purple-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"}</span>
                             <span>Sharpe</span><span className="text-green-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
-                            <span>Risk Reward</span><span className="text-cyan-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
+                            <span>Profit Factor</span><span className="text-cyan-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
                             <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
                           </div>
                         </>
