@@ -319,7 +319,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Strategy
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         The specific approach or method used by the agent in trading.
                       </TooltipContent>
                     </Tooltip>
@@ -330,7 +330,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Direction
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         The general trend of the market, indicating whether it is moving up or down.
                       </TooltipContent>
                     </Tooltip>
@@ -341,7 +341,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Cum. return
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         Cumulative return: The total return on an investment over a specific period, expressed as a percentage.
                       </TooltipContent>
                     </Tooltip>
@@ -352,7 +352,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         CAGR
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         Compound Annual Growth Rate: The annualized average rate of return over a specified time period.
                       </TooltipContent>
                     </Tooltip>
@@ -363,7 +363,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Sharpe
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         Sharpe Ratio: A measure of risk-adjusted return, calculated as the excess return per unit of volatility.
                       </TooltipContent>
                     </Tooltip>
@@ -374,7 +374,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Volatility
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         Volatility: A statistical measure of the dispersion of returns for a given security or market index.
                       </TooltipContent>
                     </Tooltip>
@@ -385,8 +385,8 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         PF 
                       </TooltipTrigger>
-                      <TooltipContent>
-                        Profit Factor: Sum of all winning trades divided by sum of all losing trades. A PF greater than 1 indicates a profitable strategy.
+                      <TooltipContent className="max-w-xs">
+                        Profit Factor: Sum of all winning trades divided by sum of all losing trades.<br />A PF greater than 1 indicates a profitable strategy.
                       </TooltipContent>
                     </Tooltip> {mode === "client" && sortKey === "profitFactor" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
@@ -395,7 +395,7 @@ export default function Home() {
                       <TooltipTrigger className="underline decoration-dotted underline-offset-4">
                         Max. DD
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="max-w-xs">
                         Maximum Drawdown: The largest peak-to-trough decline in the value of a portfolio.
                       </TooltipContent>
                     </Tooltip>
