@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { PaginationFunction } from "@/components/ui/pagination-function"
 import { Card, CardTitle, CardHeader, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 
 type SortKey = "asc" | "desc"
 
@@ -39,9 +40,12 @@ type Agent = {
   backtestingPaid: boolean;
   strategy: {
     backtested: {
+      profitFactor: number;
       accumulatedReturns: number;
+      volatility: number;
       CAGR: number;
       maxDrawdown: number;
+      sharpe: number;
     };
     timeframe: string;
     risk_management: string;
@@ -344,7 +348,8 @@ export default function Home() {
       </div>
 
       {/* Agents grid */}
-      <div className="grid grid-cols-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 md:gap-6">
+      <div className="grid gap-4 p-2 md:gap-6 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+
         {watchlistLoading && watchlistOnly && (
           <div className="col-span-full text-center text-sm text-neutral-500">Loading watchlist...</div>
         )}
@@ -377,29 +382,26 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <CardHeader className="-my-8">
+                <CardHeader className="-mt-8 mb-2">
                   <CardTitle className="flex flex-col items-start text-white-400">
                     <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
                   </CardTitle>
                   <CardAction />
-                  <CardDescription className="py-2 min-h-40 md:min-h-36">{agent.description}</CardDescription>
+                  <CardDescription className="py-2 min-h-32 text-xs">{agent.description}</CardDescription>
                 </CardHeader>
 
-                <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
+                <CardContent className="flex-1 text-xs bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mx-2 p-2 mb-2 shadow-xl">
                   {agent?.strategy ? (
                     <>
                       {agent.strategy?.backtested ? (
                         <>
-                          <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
-                            </div>
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
-                            </div>
-                            <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                              <span>Max. DD</span> <span className="text-neutral-500/80 font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
-                            </div>
+                          <div className="grid grid-cols-2 gap-1 px-2 w-full text-neutral-300">
+                            <span>Cumulative return</span><span className="text-teal-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
+                            <span>CAGR</span><span className="text-amber-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
+                            <span>Volatility</span><span className="text-purple-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"} %</span>
+                            <span>Sharpe</span><span className="text-green-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
+                            <span>Risk Reward</span><span className="text-cyan-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
+                            <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
                           </div>
                         </>
                       ) : (
@@ -419,48 +421,63 @@ export default function Home() {
 
                     </div>
                   }
-                  <div className="mt-4 pt-4">
-                    <div className="grid grid-cols-2 gap-1">
-                      <span>Contract Address:</span>
-                      <span className="text-end">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
-                      <span>Owner Address:</span>
-                      <span className="text-end">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
-                      <span>Created:</span>
-                      <span className="text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
-                    </div>
-                  </div>
+
                 </CardContent>
 
-                <CardFooter className="mt-auto flex items-end justify-between gap-1 text-sm">
-                  <div className="flex gap-1">
-                    {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.backtestingPaid && !agent.strategy && (
-                      <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
-                        Add Strategy
+                <CardFooter className="flex flex-col w-full">
+                  <div className="grid grid-cols-2 gap-1 text-neutral-400 w-full text-xs mb-4">
+                    <span>Contract Address:</span>
+                    <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
+                    <span>Owner Address:</span>
+                    <span className="text-end font-mono">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
+                    <span>Created:</span>
+                    <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
+                  </div>
+                  <div className="w-full flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {/* Add/Finalize Strategy */}
+                      {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="text-xs"
+                          onClick={() => router.push(`/agents/strategy/create/${agent.id}`)}
+                        >
+                          {!agent.backtestingPaid ? "Add Strategy" : "Finalize Strategy"}
+                        </Button>
+                      )}
+
+                      {/* Watchlist */}
+                      <Button
+                        size="icon"
+                        variant={isWatched ? "secondary" : "outline"}
+                        onClick={() => toggleWatchlist(agent.id)}
+                        aria-pressed={isWatched}
+                        aria-label={isWatched ? "Remove from watchlist" : "Add to watchlist"}
+                      >
+                        {isWatched ? (
+                          <Star className="size-4 fill-amber-400 text-amber-400" />
+                        ) : (
+                          <StarOff className="size-4" />
+                        )}
                       </Button>
-                    )}
-                    {isConnected && address?.toLowerCase() === agent.ownerAddress && agent.backtestingPaid && !agent.strategy && (
-                      <Button variant={"tertiary"} className="text-xs" onClick={() => router.push(`/agents/strategy/create/${agent.id}`)} >
-                        Finalize Strategy
-                      </Button>
-                    )}
+                    </div>
+
+                    {/* Primary CTA */}
                     <Button
-                      variant={isWatched ? "secondary" : "outline"}
-                      type="button"
-                      className={`text-xs flex items-center gap-1 ${isWatched ? "text-amber-400" : ""}`}
-                      onClick={() => toggleWatchlist(agent.id)}
-                      aria-pressed={isWatched}
-                      aria-label={isWatched ? "Remove from watchlist" : "Add to watchlist"}
+                      size="sm"
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => {
+                        setSelectedAgent(agent)
+                        setOpen(true)
+                      }}
                     >
-                      {isWatched ? <Star className="size-3 fill-amber-400" /> : <StarOff className="size-3" />}
-                      {isWatched ? "Watching" : "Watch"}
+                      View Details
                     </Button>
                   </div>
-                  <Button variant="outline" type="button" className="text-xs" onClick={() => {
-                    setSelectedAgent(agent)
-                    setOpen(true)
-                  }}>
-                    {"View Details"}
-                  </Button>
+
+
                 </CardFooter>
               </Card>
             )

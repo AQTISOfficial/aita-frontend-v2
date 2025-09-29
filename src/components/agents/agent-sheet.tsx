@@ -30,9 +30,12 @@ type Agent = {
     image: string;
     strategy: {
         backtested?: {
+            profitFactor: number;
             accumulatedReturns: number;
+            volatility: number;
             CAGR: number;
             maxDrawdown: number;
+            sharpe: number;
         };
         timeframe: string;
         risk_management: string;
@@ -94,21 +97,21 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
 
                         <div className="text-neutral-400">
                             {agent.contractAddress && (
-                                <div className="grid grid-cols-2 gap-2 mb-4 w-full">
+                                <div className="grid grid-cols-2 gap-1 mb-2 w-full">
                                     <span className="text-neutral-400">Ticker:</span>
-                                    <span className="text-white">{agent.ticker}</span>
-                                    <span className="text-neutral-400">Contract:</span>
-                                    <span className="text-white">
+                                    <span className="text-white font-mono text-end">{agent.ticker}</span>
+                                    <span className="text-neutral-400">Contract Address:</span>
+                                    <span className="text-white font-mono text-end">
                                         {agent.contractAddress.substring(0, 6)}...
                                         {agent.contractAddress.substring(agent.contractAddress.length - 4)}
                                     </span>
-                                    <span className="text-neutral-400">Owner:</span>
-                                    <span className="text-white">
+                                    <span className="text-neutral-400">Owner Address:</span>
+                                    <span className="text-white font-mono text-end">
                                         {agent.ownerAddress.substring(0, 6)}...
                                         {agent.ownerAddress.substring(agent.ownerAddress.length - 4)}
                                     </span>
                                     <span className="text-neutral-400">Created:</span>
-                                    <span className="text-white">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
+                                    <span className="text-white font-mono text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
                                 </div>
                             )}
                         </div>

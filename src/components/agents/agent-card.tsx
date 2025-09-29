@@ -31,10 +31,13 @@ interface AgentCardProps {
     backtestingPaid: boolean;
     strategy: {
       backtested: {
+        profitFactor: number;
         accumulatedReturns: number;
+        volatility: number;
         CAGR: number;
         maxDrawdown: number;
-      },
+        sharpe: number;
+      };
       timeframe: string,
       signal_detection_entry: string,
       signal_detection_exit: string,
@@ -55,7 +58,7 @@ export function AgentCard({ agent }: AgentCardProps) {
 
   const router = useRouter();
   const { address, isConnected } = useAccount();
-  
+
   const handleViewDetails = () => {
     router.push(`/agents/details/${agent.id}`);
   };
@@ -91,27 +94,27 @@ export function AgentCard({ agent }: AgentCardProps) {
       <CardContent className="text-xs text-neutral-300 flex flex-col gap-1 justify-between h-full">
         {agent?.strategy ? (
           <>
-              {agent.strategy?.backtested ? (
-                <>
-                  <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
-                    </div>
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
-                    </div>
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                      <span>Max. DD</span> <span className="text-neutral-500/80 font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
-                    </div>
+            {agent.strategy?.backtested ? (
+              <>
+                <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
+                  <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                    <span>Cum. return</span> <span className="text-teal-500/80 font-bold">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
                   </div>
-                </>
-              ) : (
-                <div>
-                  <span className="text-neutral-500">
-                    Backtest data not available yet. This may take a few minutes to process.
-                  </span>
+                  <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                    <span>CAGR</span> <span className="text-amber-500/80 font-bold">+{agent.strategy?.backtested?.CAGR}%</span>
+                  </div>
+                  <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
+                    <span>Max. DD</span> <span className="text-neutral-500/80 font-bold">{agent.strategy?.backtested?.maxDrawdown}%</span>
+                  </div>
                 </div>
-              )}
+              </>
+            ) : (
+              <div>
+                <span className="text-neutral-500">
+                  Backtest data not available yet. This may take a few minutes to process.
+                </span>
+              </div>
+            )}
           </>
         )
           :

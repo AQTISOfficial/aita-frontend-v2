@@ -30,9 +30,12 @@ type Agent = {
   created: number;
   strategy: {
     backtested: {
+      profitFactor: number;
       accumulatedReturns: number;
+      volatility: number;
       CAGR: number;
       maxDrawdown: number;
+      sharpe: number;
     };
     timeframe: string;
     risk_management: string;
