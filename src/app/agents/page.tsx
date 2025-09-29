@@ -24,7 +24,6 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { PaginationFunction } from "@/components/ui/pagination-function"
 import { Card, CardTitle, CardHeader, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 
 type SortKey = "asc" | "desc"
 
