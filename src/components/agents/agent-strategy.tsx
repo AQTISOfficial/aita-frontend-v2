@@ -20,9 +20,12 @@ type Agent = {
     image: string;
     strategy: {
         backtested?: {
+            profitFactor: number;
             accumulatedReturns: number;
+            volatility: number;
             CAGR: number;
             maxDrawdown: number;
+            sharpe: number;
         };
         timeframe: string;
         risk_management: string;
@@ -46,52 +49,39 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
     const vault = vaults.find((v) => v.id === agent.id);
 
     return (
-        <div className="grid gap-3 text-sm text-neutral-400 my-2">
-            {agent.strategy?.backtested && (
-                <div className="grid grid-cols-3 gap-2 mb-4 w-full text-neutral-400">
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                        <span className="text-xs">Cum. return</span>{" "}
-                        <span className="text-teal-500/80 font-bold">
-                            +{agent.strategy.backtested.accumulatedReturns}%
-                        </span>
-                    </div>
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                        <span className="text-xs">CAGR</span>{" "}
-                        <span className="text-amber-500/80 font-bold">
-                            +{agent.strategy.backtested.CAGR}%
-                        </span>
-                    </div>
-                    <div className="p-2 border border-neutral-700 rounded-md flex justify-between flex-col space-y-1">
-                        <span className="text-xs">Max. DD</span>{" "}
-                        <span className="text-neutral-500/80 font-bold">
-                            {agent.strategy.backtested.maxDrawdown}%
-                        </span>
-                    </div>
-                </div>
-            )}
-
-
+        <div className="grid gap-3 text-xs text-neutral-400 my-2">
 
             <div className="grid grid-cols-2 gap-2">
-                <span className="text-neutral-400">Strategy:</span>
+                <span className="text-neutral-300">Strategy:</span>
                 <span
                     className={clsx(
-                        valueColorClasses["type"]?.[agent.strategy.type] || "text-white"
+                        valueColorClasses["type"]?.[agent.strategy.type] || "text-white text-end"
                     )}
                 >
                     {valueLabels["type"][agent.strategy.type]}
                 </span>
-                <span className="text-neutral-400">Direction:</span>
+                <span className="text-neutral-300">Direction:</span>
                 <span
                     className={clsx(
                         valueColorClasses["direction"]?.[agent.strategy.direction] ||
                         "text-white"
-                    )}
+                    ) + " text-end"}
                 >
                     {valueLabels["direction"][agent.strategy.direction]}
                 </span>
-                
+
             </div>
+
+            {agent.strategy?.backtested && (
+                <div className="grid grid-cols-2 gap-1 w-full text-neutral-300">
+                    <span>Cumulative return</span><span className="text-teal-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
+                    <span>CAGR</span><span className="text-amber-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
+                    <span>Volatility</span><span className="text-purple-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"} %</span>
+                    <span>Sharpe</span><span className="text-green-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
+                    <span>Risk Reward</span><span className="text-cyan-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
+                    <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
+                </div>
+            )}
 
             {isConnected && address && address.toLowerCase() === agent.ownerAddress.toLowerCase() && (
                 <>

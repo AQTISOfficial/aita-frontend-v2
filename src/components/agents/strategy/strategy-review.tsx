@@ -19,9 +19,12 @@ type AgentDetails = {
   image: string;
   strategy: {
     backtested?: {
+      profitFactor: number;
       accumulatedReturns: number;
+      volatility: number;
       CAGR: number;
       maxDrawdown: number;
+      sharpe: number;
     };
     timeframe: string;
     risk_management: string;
@@ -40,10 +43,10 @@ type StrategyReviewProps = {
   formData: Record<string, string>;
   details?: AgentDetails | null;
 };
- 
+
 const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
- 
-    if (!details) {
+
+  if (!details) {
     return (
       <Card className="p-2">
         <CardContent>No agent details available</CardContent>
@@ -79,31 +82,31 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
       <Card className="p-4 mb-2">
         <CardContent>
           <CardTitle>General Information</CardTitle>
-            <List className="text-sm my-4">
-              <ListItem className="mb-4">
-                <span>Agent Name</span>
-                <span className="text-white font-bold">{details?.name}</span>
+          <List className="text-sm my-4">
+            <ListItem className="mb-4">
+              <span>Agent Name</span>
+              <span className="text-white font-bold">{details?.name}</span>
+            </ListItem>
+            <ListItem className="mb-4">
+              <span>Ticker</span>
+              <span className="text-white font-bold">{details?.ticker}</span>
+            </ListItem>
+            {details?.image && (
+              <ListItem className="">
+                <span>Image</span>
+                <Image
+                  aria-hidden
+                  src={details.image}
+                  alt={details.name}
+                  width={40}
+                  height={40}
+                  className="rounded-md aspect-square"
+                  loading="lazy"
+                />
               </ListItem>
-              <ListItem className="mb-4">
-                <span>Ticker</span>
-                <span className="text-white font-bold">{details?.ticker}</span>
-              </ListItem>
-              {details?.image && (
-                <ListItem className="">
-                  <span>Image</span>
-                  <Image
-                    aria-hidden
-                    src={details.image}
-                    alt={details.name}
-                    width={40}
-                    height={40}
-                    className="rounded-md aspect-square"
-                    loading="lazy"
-                  />
-                </ListItem>
-              )}
-              
-            </List>
+            )}
+
+          </List>
         </CardContent>
       </Card>
 
@@ -111,30 +114,30 @@ const StrategyReview = ({ formData, details }: StrategyReviewProps) => {
       <Card className="p-4 mb-2">
         <CardContent>
           <CardTitle>Trading Strategy</CardTitle>
-            <List className="text-sm my-4 text-neutral-400">
-              {Object.entries(formData).map(([key, value]) => {
-                if (!value || key === "liquidity_filter") return null;
+          <List className="text-sm my-4 text-neutral-400">
+            {Object.entries(formData).map(([key, value]) => {
+              if (!value || key === "liquidity_filter") return null;
 
-                const label = keyLabels[key] || key.replace(/_/g, " ");
-                const display = valueLabels[key]?.[value] || value;
-                const colorClass =
-                  valueColorClasses[key]?.[value] || "text-white";
+              const label = keyLabels[key] || key.replace(/_/g, " ");
+              const display = valueLabels[key]?.[value] || value;
+              const colorClass =
+                valueColorClasses[key]?.[value] || "text-white";
 
-                return (
-                  <ListItem key={key} className="mb-4">
-                    <span>{label}</span>
-                    <span
-                      className={clsx(
-                        colorClass,
-                        "font-bold tracking-wide capitalize"
-                      )}
-                    >
-                      {display.replaceAll("_", " ")}
-                    </span>
-                  </ListItem>
-                );
-              })}
-            </List>
+              return (
+                <ListItem key={key} className="mb-4">
+                  <span>{label}</span>
+                  <span
+                    className={clsx(
+                      colorClass,
+                      "font-bold tracking-wide capitalize"
+                    )}
+                  >
+                    {display.replaceAll("_", " ")}
+                  </span>
+                </ListItem>
+              );
+            })}
+          </List>
         </CardContent>
       </Card>
 
