@@ -76,9 +76,12 @@ type AgentDetails = {
   backtestingPaid: boolean;
   strategy: {
     backtested?: {
+      profitFactor: number;
       accumulatedReturns: number;
+      volatility: number;
       CAGR: number;
       maxDrawdown: number;
+      sharpe: number;
     };
     timeframe: string;
     risk_management: string;
