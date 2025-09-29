@@ -14,7 +14,7 @@ import { ChevronRight, ShieldCheck, Crown } from "lucide-react";
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
 
-type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "type" | "direction";
+type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "profitFactor" | "sharpe" | "volatility" | "type" | "direction";
 type SortDir = "asc" | "desc";
 type SortDate = "asc" | "desc";
 type Mode = "server" | "client";
@@ -223,7 +223,7 @@ export default function Home() {
         let aVal: number | string = 0;
         let bVal: number | string = 0;
 
-        if (sortKey === "accumulatedReturns" || sortKey === "CAGR" || sortKey === "maxDrawdown") {
+        if (sortKey === "accumulatedReturns" || sortKey === "CAGR" || sortKey === "maxDrawdown" || sortKey === "profitFactor" || sortKey === "sharpe" || sortKey === "volatility") {
           aVal = Number(a.strategy?.backtested?.[sortKey] ?? 0);
           bVal = Number(b.strategy?.backtested?.[sortKey] ?? 0);
 
@@ -325,6 +325,15 @@ export default function Home() {
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("CAGR")}>
                     CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("sharpe")}>
+                    Sharpe {mode === "client" && sortKey === "sharpe" && (sortDir === "asc" ? "↑" : "↓")}
+                  </th>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("volatility")}>
+                    Volatility {mode === "client" && sortKey === "volatility" && (sortDir === "asc" ? "↑" : "↓")}
+                  </th>
+                  <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("profitFactor")}>
+                    R/R {mode === "client" && sortKey === "profitFactor" && (sortDir === "asc" ? "↑" : "↓")}
+                  </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("maxDrawdown")}>
                     Max. DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
@@ -375,8 +384,11 @@ export default function Home() {
                       )}`}
                       >
                         {valueLabels["direction"][agent.strategy.direction]}</td>
-                      <td className="p-2 text-teal-500/80">{fmt(Number(r?.accumulatedReturns), true)}</td>
-                      <td className="p-2 text-amber-500/80">{fmt(Number(r?.CAGR), true)}</td>
+                      <td className="p-2 text-teal-500">{fmt(Number(r?.accumulatedReturns), true)}</td>
+                      <td className="p-2 text-amber-500">{fmt(Number(r?.CAGR), true)}</td>
+                      <td className="p-2 text-green-500">{r?.sharpe ? r.sharpe.toFixed(2) : "—"}</td>
+                      <td className="p-2 text-purple-500">{r?.volatility ? r.volatility.toFixed(2) : "—"}</td>
+                      <td className="p-2 text-cyan-500">{r?.profitFactor ? r.profitFactor.toFixed(2) : "—"}</td>
                       <td className="p-2 text-neutral-500">{fmt(Number(r?.maxDrawdown))}</td>
                       <td className="p-2"><ChevronRight className="size-4 text-neutral-400" /></td>
                     </tr>
