@@ -331,7 +331,7 @@ export default function Home() {
                         Direction
                       </TooltipTrigger>
                       <TooltipContent>
-                        The general trend of the market or the specific asset, indicating whether it is moving up or down.
+                        The general trend of the market, indicating whether it is moving up or down.
                       </TooltipContent>
                     </Tooltip>
                     {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
