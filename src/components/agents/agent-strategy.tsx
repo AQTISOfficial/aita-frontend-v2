@@ -76,7 +76,7 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
                 <div className="grid grid-cols-2 gap-1 w-full text-neutral-300">
                     <span>Cumulative return</span><span className="text-teal-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
                     <span>CAGR</span><span className="text-amber-500 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
-                    <span>Volatility</span><span className="text-purple-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"} %</span>
+                    <span>Volatility</span><span className="text-purple-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"}%</span>
                     <span>Sharpe</span><span className="text-green-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
                     <span>Risk Reward</span><span className="text-cyan-500 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
                     <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
