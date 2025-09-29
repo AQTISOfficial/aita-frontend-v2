@@ -382,15 +382,15 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <CardHeader className="-mt-8 mb-2">
+                <CardHeader className="-mt-8 mb-2 mx-0 px-4">
                   <CardTitle className="flex flex-col items-start text-white-400">
                     <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
                   </CardTitle>
                   <CardAction />
-                  <CardDescription className="py-2 min-h-32 text-xs">{agent.description}</CardDescription>
+                  <CardDescription className="py-1 text-xs min-h-24">{agent.description}</CardDescription>
                 </CardHeader>
 
-                <CardContent className="flex-1 text-xs bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mx-2 p-2 mb-2 shadow-xl">
+                <CardContent className="flex-1 text-xs bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mx-2 px-1 py-2 shadow-xl">
                   {agent?.strategy ? (
                     <>
                       {agent.strategy?.backtested ? (
@@ -424,16 +424,18 @@ export default function Home() {
 
                 </CardContent>
 
-                <CardFooter className="flex flex-col w-full">
-                  <div className="grid grid-cols-2 gap-1 text-neutral-400 w-full text-xs mb-4">
-                    <span>Contract Address:</span>
-                    <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
-                    <span>Owner Address:</span>
-                    <span className="text-end font-mono">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
-                    <span>Created:</span>
-                    <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
+                <CardFooter className="flex flex-col w-full mx-0 -mt-4 p-2">
+                  <div className="w-full bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mb-2 shadow-xl p-2">
+                    <div className="grid grid-cols-2 gap-1 text-neutral-400 text-xs">
+                      <span>Contract Address:</span>
+                      <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
+                      <span>Owner Address:</span>
+                      <span className="text-end font-mono">{agent.ownerAddress.slice(0, 6)}...{agent.ownerAddress.slice(-4)}</span>
+                      <span>Created:</span>
+                      <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
+                    </div>
                   </div>
-                  <div className="w-full flex items-center justify-between gap-2">
+                  <div className="w-full flex items-center justify-between gap-2 mt-2 -mb-4">
                     <div className="flex items-center gap-2">
                       {/* Add/Finalize Strategy */}
                       {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy && (
@@ -476,8 +478,6 @@ export default function Home() {
                       View Details
                     </Button>
                   </div>
-
-
                 </CardFooter>
               </Card>
             )
