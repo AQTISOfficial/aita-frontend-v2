@@ -13,6 +13,7 @@ import { ChevronRight, ShieldCheck, Crown } from "lucide-react";
 
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "profitFactor" | "sharpe" | "volatility" | "type" | "direction";
 type SortDir = "asc" | "desc";
@@ -314,28 +315,91 @@ export default function Home() {
                   <th className="p-2 border-b">Name</th>
                   <th className="p-2 w-12 border-b"></th>
                   <th className="p-2 w-40 border-b" onClick={() => handleSort("type")}>
-                    Strategy {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Strategy
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        The specific approach or method used by the agent in trading.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "type" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b" onClick={() => handleSort("direction")}>
-                    Direction {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Direction
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        The general trend of the market, indicating whether it is moving up or down.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "direction" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("accumulatedReturns")}>
-                    Cum. return {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Cum. return
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Cumulative return: The total return on an investment over a specific period, expressed as a percentage.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "accumulatedReturns" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("CAGR")}>
-                    CAGR {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        CAGR
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Compound Annual Growth Rate: The annualized average rate of return over a specified time period.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "CAGR" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("sharpe")}>
-                    Sharpe {mode === "client" && sortKey === "sharpe" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Sharpe
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Sharpe Ratio: A measure of risk-adjusted return, calculated as the excess return per unit of volatility.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "sharpe" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("volatility")}>
-                    Volatility {mode === "client" && sortKey === "volatility" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Volatility
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Volatility: A statistical measure of the dispersion of returns for a given security or market index.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "volatility" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("profitFactor")}>
-                    R/R {mode === "client" && sortKey === "profitFactor" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        PF 
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Profit Factor: Sum of all winning trades divided by sum of all losing trades.<br />A PF greater than 1 indicates a profitable strategy.
+                      </TooltipContent>
+                    </Tooltip> {mode === "client" && sortKey === "profitFactor" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-32 border-b cursor-pointer truncate" onClick={() => handleSort("maxDrawdown")}>
-                    Max. DD {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
+                    <Tooltip>
+                      <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                        Max. DD
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        Maximum Drawdown: The largest peak-to-trough decline in the value of a portfolio.
+                      </TooltipContent>
+                    </Tooltip>
+                    {mode === "client" && sortKey === "maxDrawdown" && (sortDir === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="p-2 w-8 border-b rounded-tr-md"></th>
                 </tr>
@@ -384,11 +448,11 @@ export default function Home() {
                       )}`}
                       >
                         {valueLabels["direction"][agent.strategy.direction]}</td>
-                      <td className="p-2 text-teal-500">{fmt(Number(r?.accumulatedReturns), true)}</td>
-                      <td className="p-2 text-amber-500">{fmt(Number(r?.CAGR), true)}</td>
-                      <td className="p-2 text-green-500">{r?.sharpe ?? "—"}</td>
-                      <td className="p-2 text-purple-500">{r?.volatility ?? "—"}</td>
-                      <td className="p-2 text-cyan-500">{r?.profitFactor ?? "—"}</td>
+                      <td className="p-2 text-teal-400">{fmt(Number(r?.accumulatedReturns), true)}</td>
+                      <td className="p-2 text-sky-400">{fmt(Number(r?.CAGR), true)}</td>
+                      <td className="p-2 text-amber-400">{r?.sharpe ?? "—"}</td>
+                      <td className="p-2 text-purple-400">{r?.volatility ?? "—"}</td>
+                      <td className="p-2 text-cyan-400">{r?.profitFactor ?? "—"}</td>
                       <td className="p-2 text-neutral-500">{fmt(Number(r?.maxDrawdown))}</td>
                       <td className="p-2"><ChevronRight className="size-4 text-neutral-400" /></td>
                     </tr>
