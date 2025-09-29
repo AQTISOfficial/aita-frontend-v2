@@ -95,9 +95,9 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
                             />
                         </div>
 
-                        <div className="text-neutral-400">
+                        <div className="text-neutral-400 border rounded-md px-4 py-2 bg-gradient-to-t from-neutral-800/50 to-transparent border-neutral-800 shadow-xl">
                             {agent.contractAddress && (
-                                <div className="grid grid-cols-2 gap-1 mb-2 w-full">
+                                <div className="grid grid-cols-2 gap-1 w-full">
                                     <span className="text-neutral-400">Ticker:</span>
                                     <span className="text-white font-mono text-end">{agent.ticker}</span>
                                     <span className="text-neutral-400">Contract Address:</span>
