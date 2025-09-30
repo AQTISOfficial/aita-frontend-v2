@@ -1,6 +1,6 @@
 "use client"
 
-import { BotIcon, Landmark, Store, Settings, Wallet } from "lucide-react"
+import { BotIcon, Landmark, Store, Settings, Wallet, HandCoins } from "lucide-react"
 
 import {
     Sidebar,
@@ -37,6 +37,11 @@ const items = [
         title: "Vaults",
         url: "/vaults",
         icon: Landmark,
+    },
+    {
+        title: "Staking",
+        url: "/staking",
+        icon: HandCoins,
     },
     {
         title: "Portfolio",
