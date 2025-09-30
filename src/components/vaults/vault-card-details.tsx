@@ -45,6 +45,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
   const [vault, setVault] = useState<VaultData | null>(null);
   const [totalVaultValue, setTotalVaultValue] = useState<string | null>(null);
   const [totalVaultPnl, setTotalVaultPnl] = useState<string | null>(null);
+  const [totalVaultPnlRaw, setTotalVaultPnlRaw] = useState<number | null>(null);
   const [currentApr, setCurrentApr] = useState<number | null>(null);
   const [currentPnl, setCurrentPnl] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -107,6 +108,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
           const apr = parseFloat((data.apr * 100).toFixed(2));
           const pnl = parseFloat(((totalPnl / totalValueEquity) * 100).toFixed(2));
 
+          setTotalVaultPnlRaw(totalPnl);
           setTotalVaultPnl(formattedPnl);
           setTotalVaultValue(formattedTvl);
           setCurrentApr(apr);
@@ -131,7 +133,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Total Value Locked</CardTitle>
+              <CardTitle className="text-sm text-neutral-400 font-light">Total Value Locked</CardTitle>
             </CardHeader>
             <CardContent className={`text-lg md:text-2xl font-mono flex items-center`}>
               {totalVaultValue ?? "N/A"}
@@ -139,7 +141,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Current APR</CardTitle>
+              <CardTitle className="text-sm text-neutral-400 font-light">Current APR</CardTitle>
             </CardHeader>
             <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(currentApr ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {(currentApr ?? 0) > 0 && "+"} {(currentApr ?? 0).toFixed(2)}% {(currentApr ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}
@@ -147,11 +149,11 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Unrealized PnL</CardTitle>
+              <CardTitle className="text-sm text-neutral-400 font-light">Unrealized PnL</CardTitle>
             </CardHeader>
-            <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(Number(totalVaultPnl) ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
+            <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(Number(totalVaultPnlRaw) ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {totalVaultPnl ?? "N/A"}
-              {Number(totalVaultPnl) < 0 ? (
+              {Number(totalVaultPnlRaw) < 0 ? (
                 <IconTrendingDown className="size-4 ml-2" />
               ) : (
                 <IconTrendingUp className="size-4 ml-2" />
@@ -160,7 +162,7 @@ export function VaultCardDetails({ vaultAddress, className }: HyperliquidVaultsP
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm md:text-base text-neutral-400 font-light">Current PnL</CardTitle>
+              <CardTitle className="text-sm text-neutral-400 font-light">Current PnL</CardTitle>
             </CardHeader>
             <CardContent className={`text-lg md:text-2xl font-mono flex items-center ${(currentPnl ?? 0) < 0 ? "text-red-500" : "text-teal-500"}`}>
               {(currentPnl ?? 0) > 0 && "+"} {(currentPnl ?? 0).toFixed(2)}% {(currentPnl ?? 0) < 0 ? <IconTrendingDown className="size-4 ml-2" /> : <IconTrendingUp className="size-4 ml-2" />}

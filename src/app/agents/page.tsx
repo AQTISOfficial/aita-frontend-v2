@@ -242,20 +242,20 @@ export default function Home() {
       let offsetAll = 0;
       let total = 0;
       const acc: Agent[] = [];
-      const MAX_TOTAL = 5000; 
-      for (let page = 0; page < 50; page++) { 
+      const MAX_TOTAL = 5000;
+      for (let page = 0; page < 50; page++) {
         const res = await fetch('/api/agents/list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              limit: pageLimit,
-              offset: offsetAll,
-              sort,
-              search,
-              address,
-              strategy,
-              userAgents,
-            })
+          body: JSON.stringify({
+            limit: pageLimit,
+            offset: offsetAll,
+            sort,
+            search,
+            address,
+            strategy,
+            userAgents,
+          })
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const json = await res.json()
@@ -316,20 +316,21 @@ export default function Home() {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-2 md:gap-4 mb-2 lg:mb-4">
-          <div className="space-y-2">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
-              Agents
-            </h1>
-            <p className="text-sm text-neutral-400 max-w-prose">
-              Create and manage your trading agents or explore community strategies.
-            </p>
-          </div>
-          <div className="flex items-start">
-            <Badge variant="outline" className="text-xs border-green-500/40 text-green-300 bg-green-500/5">Live<span className="text-green-300 rounded-full bg-green-400 animate-pulse h-2 w-2"></span></Badge>
-          </div>
-        </header>
-      <div className="flex items-center justify-between px-4">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between px-2 gap-2 md:gap-4 mb-2 lg:mb-4">
+        <div className="space-y-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
+            Agents
+          </h1>
+          <p className="text-sm text-neutral-400 max-w-prose">
+            Create and manage your trading agents or explore community strategies.
+          </p>
+        </div>
+        <div className="flex items-start">
+          <Badge variant="outline" className="text-xs border-green-500/40 text-green-300 bg-green-500/5">Live<span className="text-green-300 rounded-full bg-green-400 animate-pulse h-2 w-2"></span></Badge>
+        </div>
+      </header>
+      {/* Actions */}
+      <div className="flex items-center justify-between px-2">
         <Button
           variant="outline"
           className="p-2 border rounded-md text-sm flex"
@@ -348,7 +349,7 @@ export default function Home() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 px-4 sticky top-0 bg-neutral-950 z-10">
+      <div className="flex flex-wrap gap-2 px-2 py-2 sticky top-0 bg-neutral-950 z-10">
         <input
           id="search"
           type="text"
@@ -431,7 +432,7 @@ export default function Home() {
       </div>
 
       {/* Agents grid */}
-      <div className="grid gap-4 px-4 md:gap-6 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+      <div className="grid gap-4 px-2 md:gap-6 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
 
         {watchlistLoading && watchlistOnly && (
           <div className="col-span-full text-center text-sm text-neutral-500">Loading watchlist...</div>
@@ -441,7 +442,7 @@ export default function Home() {
             const isWatched = watchlist.has(agent.id)
             const isVault = vaultIds.has(agent.id);
             return (
-              <Card key={index} className={`max-w-96 ${kingId && agent.id === kingId ? "border border-amber-400/40" : "border border-neutral-800"} flex flex-col hover:shadow-lg transition-shadow`}>
+              <Card key={index} className={`w-full lg:max-w-96 ${kingId && agent.id === kingId ? "border border-amber-400/40" : "border border-neutral-800"} flex flex-col hover:shadow-lg transition-shadow`}>
                 <div className="w-full relative -top-6">
                   <Image
                     aria-hidden
@@ -577,7 +578,7 @@ export default function Home() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-end items-center py-2 px-4">
+      <div className="flex justify-end items-center py-2 px-2">
         {effectiveTotal > 0 && (
           <PaginationFunction
             currentPage={currentPage}
