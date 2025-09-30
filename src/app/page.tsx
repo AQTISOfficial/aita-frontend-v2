@@ -295,7 +295,7 @@ export default function Home() {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       {/* Top */}
-			<header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-2 md:gap-4 mb-2 lg:mb-4">
+			<header className="flex flex-col md:flex-row md:items-center md:justify-between px-2 gap-2 md:gap-4 mb-2 lg:mb-4">
 				<div className="space-y-2">
 					<h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
 						Marketplace
@@ -317,7 +317,7 @@ export default function Home() {
 
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
-          <div className="overflow-x-auto px-4">
+          <div className="overflow-x-auto px-2">
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
@@ -471,7 +471,7 @@ export default function Home() {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-end items-center py-2 px-4 ">
+          <div className="flex justify-end items-center py-2 px-2 ">
             {effectiveTotal > 0 && (
               <PaginationFunction
                 currentPage={currentPage}
