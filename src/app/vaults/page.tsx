@@ -9,7 +9,7 @@ export default function VaultList() {
   return (
     <Suspense fallback={null}>
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-2 md:gap-4 mb-2 lg:mb-4">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between px-2 gap-2 md:gap-4 mb-2 lg:mb-4">
           <div className="space-y-2">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
               Vaults

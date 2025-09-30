@@ -80,7 +80,7 @@ export function Header() {
 
   return (
     <div
-      className="grid grid-cols-1 gap-4 px-4
+      className="grid grid-cols-1 gap-4 px-2
     md:grid-cols-2
     xl:grid-cols-4
     *:data-[slot=card]:bg-gradient-to-t

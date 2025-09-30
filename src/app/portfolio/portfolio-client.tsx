@@ -53,7 +53,7 @@ async function transform(balances: UserBalance[]): Promise<BalanceItem[]> {
 
 function TableView({ balances }: { balances: BalanceItem[] }) {
   return (
-    <div className='overflow-x-auto px-4'>
+    <div className='overflow-x-auto px-2'>
       <table className='w-full text-sm'>
         <thead className='bg-neutral-900/70'>
           <tr>
@@ -94,7 +94,7 @@ function TableView({ balances }: { balances: BalanceItem[] }) {
 
 function CardView({ balances }: { balances: BalanceItem[] }) {
   return (
-    <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4'>
+    <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2'>
       {balances.map(item => (
         <Card key={item.id} className='rounded-2xl border border-neutral-800 bg-gradient-to-b from-neutral-950 to-neutral-900 p-4 space-y-2'>
           <div className='flex justify-between items-center'>
@@ -172,7 +172,7 @@ export default function PortfolioClient() {
 
   return (
     <>
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-3 md:gap-4 mb-2 lg:mb-4">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between px-2 gap-3 md:gap-4 mb-2 lg:mb-4">
         <div className="space-y-2">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
             Portfolio Value:
@@ -198,8 +198,6 @@ export default function PortfolioClient() {
             </div>
           </div>
         </div>
-
-
       </header>
 
       {view === 'table' ? <TableView balances={balances} /> : <CardView balances={balances} />}
