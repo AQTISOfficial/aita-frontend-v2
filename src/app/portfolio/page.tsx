@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic'
 export default function PortfolioPage() {
   return (
     <Suspense fallback={null}>
-      <PortfolioClient />
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <PortfolioClient />
+      </div>
     </Suspense>
   )
 }

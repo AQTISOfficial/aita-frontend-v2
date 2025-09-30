@@ -9,11 +9,12 @@ import { Header } from "@/components/header";
 import { PaginationFunction } from "@/components/ui/pagination-function";
 import { valueLabels, valueColorClasses } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ShieldCheck, Crown, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronRight, ShieldCheck, Crown, ChevronUp, ChevronDown, Clock } from "lucide-react";
 
 import { vaults } from "@/lib/vaults";
 import { AgentSheet } from "@/components/agents/agent-sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 type SortKey = "accumulatedReturns" | "CAGR" | "maxDrawdown" | "profitFactor" | "sharpe" | "volatility" | "type" | "direction";
 type SortDir = "asc" | "desc";
@@ -293,20 +294,30 @@ export default function Home() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="px-4 lg:px-6 mb-2">
-        <h1 className="text-2xl font-bold">Welcome to AITA</h1>
-        <p className="text-neutral-400">Explore the agents with backtesting results</p>
-      </div>
+      {/* Top */}
+			<header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-2 md:gap-4 mb-2 lg:mb-4">
+				<div className="space-y-2">
+					<h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
+						Marketplace
+					</h1>
+					<p className="text-sm text-neutral-400 max-w-prose">
+						Explore and invest in trading agents developed by our community. Each agent operates autonomously on-chain, executing trades based on its unique strategy.
+					</p>
+				</div>
+				<div className="flex items-start">
+					<Badge variant="outline" className="text-xs border-green-500/40 text-green-300 bg-green-500/5">Live<span className="text-green-300 rounded-full bg-green-400 animate-pulse h-2 w-2"></span></Badge>
+				</div>
+			</header>
 
-      <div className="flex flex-col gap-4 md:gap-6 mb-2">
+      <div className="flex flex-col gap-4 mb-2">
         <Header />
       </div>
 
-      {error && <div className="px-4 lg:px-6 text-red-400">{error}</div>}
+      {error && <div className="px-4 text-red-400">{error}</div>}
 
       {Array.isArray(visibleAgents) && visibleAgents.length > 0 ? (
         <>
-          <div className="overflow-x-auto px-4 lg:px-6">
+          <div className="overflow-x-auto px-4">
             <table className="min-w-full border-collapse text-xs md:text-sm">
               <thead>
                 <tr className="bg-neutral-900 text-left rounded-t-md">
