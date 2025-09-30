@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react"
-import { BotIcon, LockIcon } from "lucide-react"
+import { Activity, BotIcon, Landmark, LockIcon, Shield, Vault } from "lucide-react"
 
 import { useRouter } from "next/navigation"
 import { Counter } from "./ui/counter";
@@ -101,7 +101,7 @@ export function Header() {
 
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex items-start justify-between absolute bottom-4 right-0">
+        {/* <CardFooter className="flex items-start justify-between absolute bottom-4 right-0">
           <Button
             variant="outline"
             className="text-foreground flex items-center w-24 text-xs"
@@ -110,59 +110,59 @@ export function Header() {
           >
             View Agents
           </Button>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
 
       {/* TVL Agents card */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="flex items-start mb-2 text-xs">
-            <LockIcon className="mr-2 inline-block size-4" />Total Volume Agents
+            <Activity className="mr-2 inline-block size-4" />Total Volume Agents
           </CardDescription>
           <CardTitle className="text-xl font-semibold tabular-nums">
             <Counter value={totalVolume} prefix="$" />
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        {/* <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="text-muted-foreground text-xs">
             Total across all agents
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
 
       {/* TVL Agents card */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="flex items-start mb-2 text-xs">
-            <LockIcon className="mr-2 inline-block size-4" />Total Value Locked Agents
+            <Shield className="mr-2 inline-block size-4" />Total Value Locked Agents
           </CardDescription>
           <CardTitle className="text-xl font-semibold tabular-nums">
             <Counter value={totalValueLocked} prefix="$" />
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        {/* <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="text-muted-foreground text-xs">
             Total across all agents
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
 
       {/* TVL Vaults card */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="flex items-center mb-2 text-xs">
-            <LockIcon className="mr-2 inline-block size-4" />Total Value Locked Vaults
+            <Landmark className="mr-2 inline-block size-4" />Total Value Locked Vaults
           </CardDescription>
           <CardTitle className="text-xl font-semibold tabular-nums">
             <Counter value={data?.totalTVL ?? 0} prefix="$" />
           </CardTitle>
 
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        {/* <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="text-muted-foreground text-xs">
             Total across all vaults
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   )
