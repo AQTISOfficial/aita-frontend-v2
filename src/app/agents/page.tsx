@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useQuery } from '@tanstack/react-query'
 import { useAccount } from "wagmi"
 import { useRouter } from "next/navigation"
 import { IconRobotFace } from "@tabler/icons-react"
-import { CircleCheckBigIcon, ShieldCheck, Star, StarOff } from "lucide-react"
+import { CircleCheckBigIcon, Crown, ShieldCheck, Star, StarOff } from "lucide-react"
 
 import { vaults } from "@/lib/vaults";
 import { Button } from "@/components/ui/button"
@@ -132,6 +132,8 @@ export default function Home() {
     }
   }, [agentsData])
 
+
+
   useEffect(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("agentWatchlist") : null
@@ -221,6 +223,75 @@ export default function Home() {
   const pagedAgents = inWatchlistMode
     ? effectiveAgents.slice((currentPage - 1) * limit, (currentPage) * limit)
     : effectiveAgents
+
+  const fullAgentsQueryKey = [
+    'agents',
+    'full',
+    { sort, search, strategy, userAgents, addr: userAgents ? address?.toLowerCase() : null }
+  ] as const
+
+  const { data: fullAgentsData } = useQuery({
+    queryKey: fullAgentsQueryKey,
+    enabled: true,
+    staleTime: 30_000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    queryFn: async () => {
+      const pageLimit = 200;
+      let offsetAll = 0;
+      let total = 0;
+      const acc: Agent[] = [];
+      const MAX_TOTAL = 5000; 
+      for (let page = 0; page < 50; page++) { 
+        const res = await fetch('/api/agents/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              limit: pageLimit,
+              offset: offsetAll,
+              sort,
+              search,
+              address,
+              strategy,
+              userAgents,
+            })
+        })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const json = await res.json()
+        const list: Agent[] = Array.isArray(json?.data) ? json.data : []
+        if (page === 0) {
+          total = json?.meta?.totalCount || list.length
+        }
+        acc.push(...list)
+        offsetAll += pageLimit
+        if (acc.length >= total) break
+        if (acc.length >= MAX_TOTAL) break
+      }
+      return { list: acc, total }
+    }
+  })
+
+  const rankingAgents: Agent[] = fullAgentsData?.list || []
+  const rankingTotal = fullAgentsData?.total || 0
+
+  const kingId = useMemo(() => {
+    if (!rankingAgents || rankingAgents.length === 0 || rankingTotal === 0) return null
+    if (rankingAgents.length !== rankingTotal) return null
+
+    let maxReturn = -Infinity
+    let king: Agent | null = null
+    for (const agent of rankingAgents) {
+      const raw = agent.strategy?.backtested?.accumulatedReturns
+      const ret = Number(raw)
+      if (!Number.isFinite(ret)) continue
+      if (ret > maxReturn) {
+        maxReturn = ret
+        king = agent
+      }
+    }
+    return king?.id ?? null
+  }, [rankingAgents, rankingTotal])
 
   const handlePrevious = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1)
@@ -357,7 +428,7 @@ export default function Home() {
             const isWatched = watchlist.has(agent.id)
             const isVault = vaultIds.has(agent.id);
             return (
-              <Card key={index} className="max-w-96">
+              <Card key={index} className={`max-w-96 ${kingId && agent.id === kingId ? "border border-amber-400/40" : "border border-neutral-800"} flex flex-col hover:shadow-lg transition-shadow`}>
                 <div className="w-full relative -top-6">
                   <Image
                     aria-hidden
@@ -383,7 +454,11 @@ export default function Home() {
                 </div>
                 <CardHeader className="-mt-8 mb-2 mx-0 px-4">
                   <CardTitle className="flex flex-col items-start text-white-400">
-                    <span className="flex items-center lg:text-xl">{agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
+                    <span className="flex items-center lg:text-xl">
+                      {kingId && agent.id === kingId && (
+                        <Crown className="size-5 text-amber-400 mr-2" />
+                      )}
+                      {agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
                   </CardTitle>
                   <CardAction />
                   <CardDescription className="py-1 text-xs min-h-24">{agent.description}</CardDescription>
@@ -506,6 +581,7 @@ export default function Home() {
         open={open}
         onOpenChange={setOpen}
         agent={selectedAgent}
+        isKing={selectedAgent?.id === kingId}
       />
     </div>
   )

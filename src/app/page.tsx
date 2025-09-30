@@ -409,7 +409,7 @@ export default function Home() {
                   return (
                     <tr
                       key={agent.id}
-                      className="hover:bg-neutral-900/80 transition-colors duration-200 cursor-pointer border-b"
+                      className={`hover:bg-neutral-900/80 transition-colors duration-200 cursor-pointer border-b ${agent.id === kingId ? "bg-amber-400/5 border-amber-400/30" : ""}`}
                       onClick={() => {
                         setSelectedAgent(agent)
                         setOpen(true)
