@@ -301,7 +301,7 @@ export default function Home() {
 						Marketplace
 					</h1>
 					<p className="text-sm text-neutral-400 max-w-prose">
-						Explore and invest in trading agents developed by our community. Each agent operates autonomously on-chain, executing trades based on its unique strategy.
+						Explore and invest in trading agents developed by our community.
 					</p>
 				</div>
 				<div className="flex items-start">
