@@ -64,7 +64,7 @@ export default function StakingPage() {
 	return (
 		<div className="@container/main flex flex-1 flex-col gap-2">
 			{/* Top Coming Soon Banner */}
-			<header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-6 gap-3 md:gap-4 mb-2 lg:mb-4">
+			<header className="flex flex-col md:flex-row md:items-center md:justify-between px-4 gap-3 md:gap-4 mb-2 lg:mb-4">
 				<div className="space-y-2">
 					<h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2 sm:gap-3">
 						Staking
@@ -80,7 +80,7 @@ export default function StakingPage() {
 			</header>
 
 			{/* Stake + Wallet Info */}
-			<section className="grid gap-4 sm:gap-5 md:gap-6 md:grid-cols-2 px-4 lg:px-6">
+			<section className="grid gap-4 sm:gap-5 md:gap-6 md:grid-cols-2 px-4">
 				<Card className="border-neutral-800 overflow-hidden">
 					<CardHeader>
 						<CardTitle className="text-base">Stake your {tokenSymbol}</CardTitle>
@@ -126,7 +126,7 @@ export default function StakingPage() {
 			</section>
 
 			{/* Positions */}
-			<section className="space-y-3 px-4 lg:px-6">
+			<section className="space-y-3 px-4">
 				<Card className="border-neutral-800">
 					<CardHeader>
 						<CardTitle className="text-base">My Positions</CardTitle>
@@ -165,7 +165,7 @@ export default function StakingPage() {
 				</Card>
 			</section>
 
-			<section className="mt-2 px-4 lg:px-6">
+			<section className="mt-2 px-4">
 				<div className="relative overflow-hidden rounded-lg border border-neutral-800 p-6 bg-gradient-to-br from-neutral-900 to-neutral-950">
 					<div className="space-y-4 max-w-prose">
 						<h2 className="text-lg font-medium flex items-center gap-2">

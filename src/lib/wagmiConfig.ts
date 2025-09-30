@@ -1,6 +1,6 @@
 // wagmiConfig.ts
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { arbitrum, arbitrumSepolia } from 'wagmi/chains';
+import { arbitrum } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
   metaMaskWallet,
@@ -29,10 +29,9 @@ export const wagmiConfig =
       ...wallets,
     ],
     projectId: publicEnv.NEXT_PUBLIC_REOWN_ID!,
-    chains: [arbitrum, arbitrumSepolia],
+    chains: [arbitrum],
     transports: {
       [arbitrum.id]: http(publicEnv.NEXT_PUBLIC_RPC_URL_ARBITRUM!),
-      [arbitrumSepolia.id]: http(publicEnv.NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA!),
     },
     ssr: true,
   });
