@@ -357,7 +357,7 @@ export default function Home() {
             const isWatched = watchlist.has(agent.id)
             const isVault = vaultIds.has(agent.id);
             return (
-              <Card key={index}>
+              <Card key={index} className="max-w-96">
                 <div className="w-full relative -top-6">
                   <Image
                     aria-hidden
@@ -389,18 +389,18 @@ export default function Home() {
                   <CardDescription className="py-1 text-xs min-h-24">{agent.description}</CardDescription>
                 </CardHeader>
 
-                <CardContent className="flex-1 text-xs bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mx-2 px-1 py-2 shadow-xl">
+                <CardContent className="flex-1 text-xs px-4 pb-2 text-neutral-300">
                   {agent?.strategy ? (
                     <>
                       {agent.strategy?.backtested ? (
                         <>
-                          <div className="grid grid-cols-2 gap-1 px-2 w-full text-neutral-300">
-                            <span>Cumulative return</span><span className="text-emerald-400 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
-                            <span>CAGR</span><span className="text-sky-400 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
-                            <span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
-                            <span>Volatility</span><span className="text-purple-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"}</span>
-                            <span>Profit Factor</span><span className="text-cyan-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
-                            <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
+                          <div className="grid grid-cols-3 gap-2 w-full text-neutral-300">
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Cum. return</span><span className="text-emerald-400 font-mono tabular-nums">+{agent.strategy?.backtested?.accumulatedReturns}%</span></div>
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>CAGR</span><span className="text-sky-400 font-mono tabular-nums">+{agent.strategy?.backtested?.CAGR}%</span></div>
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums">{agent.strategy?.backtested?.sharpe ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Volatility</span><span className="text-purple-400 font-mono tabular-nums">{agent.strategy?.backtested?.volatility ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Profit Factor</span><span className="text-cyan-400 font-mono tabular-nums">{agent.strategy?.backtested?.profitFactor ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span></div>
                           </div>
                         </>
                       ) : (
@@ -423,8 +423,8 @@ export default function Home() {
 
                 </CardContent>
 
-                <CardFooter className="flex flex-col w-full mx-0 -mt-4 p-2">
-                  <div className="w-full bg-gradient-to-t from-neutral-800/50 to-transparent border border-neutral-800 rounded-md mb-2 shadow-xl p-2">
+                <CardFooter className="flex flex-col w-full -mt-4 px-4">
+                  <div className="w-full p-2">
                     <div className="grid grid-cols-2 gap-1 text-neutral-400 text-xs">
                       <span>Contract Address:</span>
                       <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
@@ -434,7 +434,7 @@ export default function Home() {
                       <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
                     </div>
                   </div>
-                  <div className="w-full flex items-center justify-between gap-2 mt-2 -mb-4">
+                  <div className="w-full flex items-center justify-between gap-1 mt-2 -mb-4">
                     <div className="flex items-center gap-2">
                       {/* Add/Finalize Strategy */}
                       {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy && (

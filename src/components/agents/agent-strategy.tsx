@@ -73,13 +73,13 @@ export default function AgentStrategy({ agent }: { agent: Agent }) {
             </div>
 
             {agent.strategy?.backtested && (
-                <div className="grid grid-cols-2 gap-1 w-full text-neutral-300">
-                    <span>Cumulative return</span><span className="text-emerald-400 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.accumulatedReturns}%</span>
-                    <span>CAGR</span><span className="text-sky-400 font-mono tabular-nums text-end">+{agent.strategy?.backtested?.CAGR}%</span>
-                    <span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.sharpe ?? "-"}</span>
-                    <span>Volatility</span><span className="text-purple-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.volatility ?? "-"}</span>
-                    <span>Profit Factor</span><span className="text-cyan-400 font-mono tabular-nums text-end">{agent.strategy?.backtested?.profitFactor ?? "-"}</span>
-                    <span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums text-end">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span>
+                <div className="grid grid-cols-3 gap-2 w-full text-neutral-300">
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Cum. return</span><span className="text-emerald-400 font-mono tabular-nums">+{agent.strategy?.backtested?.accumulatedReturns}%</span></div>
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>CAGR</span><span className="text-sky-400 font-mono tabular-nums">+{agent.strategy?.backtested?.CAGR}%</span></div>
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums">{agent.strategy?.backtested?.sharpe ?? "-"}</span></div>
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Volatility</span><span className="text-purple-400 font-mono tabular-nums">{agent.strategy?.backtested?.volatility ?? "-"}</span></div>
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Profit Factor</span><span className="text-cyan-400 font-mono tabular-nums">{agent.strategy?.backtested?.profitFactor ?? "-"}</span></div>
+                    <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span></div>
                 </div>
             )}
 
