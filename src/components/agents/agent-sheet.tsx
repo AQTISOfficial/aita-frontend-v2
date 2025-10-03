@@ -92,7 +92,7 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
                                         </Badge>
                                     )}
                                 </span>
-                                <span>
+                                <span className="text-[11px]">
                                     {agent.description}
                                 </span>
                             </div>
