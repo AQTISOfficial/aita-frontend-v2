@@ -8,6 +8,8 @@ const schema = z.object({
   NEXT_PUBLIC_CLOUDFRONT: z.string().min(1),
   NEXT_PUBLIC_AITA_SUBGRAPH: noTrailingSlash,
   NEXT_PUBLIC_HYPERLIQUID_API_URL: noTrailingSlash,
+  NEXT_PUBLIC_RPC_URL_ETHEREUM: noTrailingSlash,
+  NEXT_PUBLIC_RPC_URL_SEPOLIA: noTrailingSlash,
   NEXT_PUBLIC_RPC_URL_ARBITRUM: noTrailingSlash,
   NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA: noTrailingSlash,
   NEXT_PUBLIC_REOWN_ID: z.string().min(1),
@@ -24,7 +26,8 @@ const schema = z.object({
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: z.string().min(1).optional(),
   NEXT_PUBLIC_UNISWAP_FACTORY: z.string().min(1).optional(),
   NEXT_PUBLIC_HYPERLIQUID_URL: z.string().min(1).optional(),
-  NEXT_PUBLIC_AITA_MORALIS_KEY: z.string().min(1).optional()
+  NEXT_PUBLIC_AITA_MORALIS_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_ENV: z.enum(['development', 'production', 'dev', 'prod']).default('production'),
 })
 
 export const publicEnv = schema.parse({
@@ -33,6 +36,8 @@ export const publicEnv = schema.parse({
   NEXT_PUBLIC_CLOUDFRONT: process.env.NEXT_PUBLIC_CLOUDFRONT,
   NEXT_PUBLIC_AITA_SUBGRAPH: process.env.NEXT_PUBLIC_AITA_SUBGRAPH,
   NEXT_PUBLIC_HYPERLIQUID_API_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_API_URL,
+  NEXT_PUBLIC_RPC_URL_ETHEREUM: process.env.NEXT_PUBLIC_RPC_URL_ETHEREUM,
+  NEXT_PUBLIC_RPC_URL_SEPOLIA: process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA,
   NEXT_PUBLIC_RPC_URL_ARBITRUM: process.env.NEXT_PUBLIC_RPC_URL_ARBITRUM,
   NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA: process.env.NEXT_PUBLIC_RPC_URL_ARBITRUM_SEPOLIA,
   NEXT_PUBLIC_REOWN_ID: process.env.NEXT_PUBLIC_REOWN_ID,
@@ -49,5 +54,6 @@ export const publicEnv = schema.parse({
   NEXT_PUBLIC_QUOTER_V2_ADDRESS: process.env.NEXT_PUBLIC_QUOTER_V2_ADDRESS,
   NEXT_PUBLIC_UNISWAP_FACTORY: process.env.NEXT_PUBLIC_UNISWAP_FACTORY,
   NEXT_PUBLIC_HYPERLIQUID_URL: process.env.NEXT_PUBLIC_HYPERLIQUID_URL,
-  NEXT_PUBLIC_AITA_MORALIS_KEY: process.env.NEXT_PUBLIC_AITA_MORALIS_KEY
+  NEXT_PUBLIC_AITA_MORALIS_KEY: process.env.NEXT_PUBLIC_AITA_MORALIS_KEY,
+  NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV
 })

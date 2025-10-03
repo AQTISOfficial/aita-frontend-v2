@@ -18,6 +18,7 @@ import { ShieldCheck, Crown } from "lucide-react";
 import AgentSwap from "@/components/agents/agent-swap";
 import AgentStrategy from "@/components/agents/agent-strategy";
 import { vaults } from "@/lib/vaults";
+import { AgentInfo } from "./agent-info";
 
 type Agent = {
     id: string;
@@ -64,57 +65,63 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetHeader />
             <SheetContent className="max-h-screen overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle className="flex items-center text-xl capitalize">
-                        {isKing && (<Crown className="size-5 text-amber-400 inline-block mr-2" />)}
-                        {agent.name}{" "}
-                        {vault && (
-                            <Badge variant="default" className="mx-2">
-                                <ShieldCheck />
-                                Vault
-                            </Badge>
-                        )}
-                    </SheetTitle>
-                    <SheetDescription>{agent.description}</SheetDescription>
-                </SheetHeader>
-
-                <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                <div className="grid flex-1 auto-rows-min gap-6 px-4 mt-6">
                     {/* Agent Image and Basic Info */}
-                    <div className="grid grid-cols-1 gap-3 text-neutral-400 text-xs">
-                        <div>
+                    <div className="grid grid-cols-1 gap-2 text-neutral-400 text-xs">
+                        <div className="flex justify-center">
                             <Image
                                 aria-hidden
                                 src={agent.image}
                                 alt={agent.name}
-                                width={140}
-                                height={140}
+                                width={120}
+                                height={120}
                                 quality={75}
-                                className="w-full h-40 object-cover aspect-square rounded-xl mb-2 border border-neutral-700"
+                                className="object-cover aspect-square rounded-xl mb-2 border border-neutral-700 flex-none"
                                 priority
                             />
+                            <div className="flex flex-grow flex-col ml-4">
+                                <span className="text-lg font-semibold text-white flex items-center">
+                                    {isKing && (<Crown className="size-5 text-amber-400 inline-block mr-2" />)}
+                                    {agent.name}{" "}
+                                    {vault && (
+                                        <Badge variant="default" className="mx-2">
+                                            <ShieldCheck />
+                                            Vault
+                                        </Badge>
+                                    )}
+                                </span>
+                                <span>
+                                    {agent.description}
+                                </span>
+                            </div>
                         </div>
 
-                        <div className="text-neutral-400 border rounded-md px-4 py-2 bg-gradient-to-t from-neutral-800/50 to-transparent border-neutral-800 shadow-xl">
+                        <div className="text-neutral-400 rounded-sm ">
                             {agent.contractAddress && (
-                                <div className="grid grid-cols-2 gap-1 w-full">
-                                    <span className="text-neutral-400">Ticker:</span>
-                                    <span className="text-white font-mono text-end">{agent.ticker}</span>
-                                    <span className="text-neutral-400">Contract Address:</span>
-                                    <span className="text-white font-mono text-end">
-                                        {agent.contractAddress.substring(0, 6)}...
-                                        {agent.contractAddress.substring(agent.contractAddress.length - 4)}
-                                    </span>
-                                    <span className="text-neutral-400">Owner Address:</span>
-                                    <span className="text-white font-mono text-end">
-                                        {agent.ownerAddress.substring(0, 6)}...
-                                        {agent.ownerAddress.substring(agent.ownerAddress.length - 4)}
-                                    </span>
-                                    <span className="text-neutral-400">Created:</span>
-                                    <span className="text-white font-mono text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
-                                </div>
+                                <>
+                                    <div className="grid grid-cols-2 gap-1 w-full mb-2 bg-neutral-800/50 p-2 rounded-md">
+                                        <span className="text-neutral-400">Ticker:</span>
+                                        <span className="text-white font-mono text-end">{agent.ticker}</span>
+                                        <span className="text-neutral-400">Contract Address:</span>
+                                        <span className="text-white font-mono text-end">
+                                            {agent.contractAddress.substring(0, 6)}...
+                                            {agent.contractAddress.substring(agent.contractAddress.length - 4)}
+                                        </span>
+                                        <span className="text-neutral-400">Owner Address:</span>
+                                        <span className="text-white font-mono text-end">
+                                            {agent.ownerAddress.substring(0, 6)}...
+                                            {agent.ownerAddress.substring(agent.ownerAddress.length - 4)}
+                                        </span>
+                                        <span className="text-neutral-400">Created:</span>
+                                        <span className="text-white font-mono text-end">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
+                                    </div>
+                                    <AgentInfo tokenAddress={agent.contractAddress as `0x${string}`} />
+                                </>
                             )}
                         </div>
+
                     </div>
                     <Tabs defaultValue={agent?.strategy ? "strategy" : "swap"} className="w-full ">
                         <TabsList className="w-full h-10">
@@ -126,7 +133,6 @@ export function AgentSheet({ open, onOpenChange, agent, isKing }: AgentSheetProp
                                     <TabsTrigger value="signals" className="data-[state=active]:border-0">
                                         Signals
                                     </TabsTrigger>
-
                                 </>
                             )}
 

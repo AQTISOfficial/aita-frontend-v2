@@ -4,10 +4,12 @@ import { Montserrat } from "next/font/google";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { LayoutSidebar } from "@/components/layout-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { Toaster
+import {
+  Toaster
 
- } from "@/components/ui/sonner";
+} from "@/components/ui/sonner";
 import Providers from "./providers";
+import { GlobalChainGuard } from "@/components/GlobalChainGuard";
 
 import "./globals.css";
 
@@ -31,19 +33,21 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${montserrat.variable} antialiased`}>
         <Providers>
-          <SidebarProvider>
-            <LayoutSidebar variant="inset" />
+          <GlobalChainGuard>
+            <SidebarProvider>
+              <LayoutSidebar variant="inset" />
 
-            <SidebarInset>
-              <SiteHeader />
-              <main className="p-4">{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
+              <SidebarInset>
+                <SiteHeader />
+                <main className="p-4">{children}</main>
+              </SidebarInset>
+            </SidebarProvider>
+          </GlobalChainGuard>
         </Providers>
         <Toaster
           position="top-center"
           toastOptions={{
-            duration: 3000,
+            duration: 5000,
           }}
         />
       </body>

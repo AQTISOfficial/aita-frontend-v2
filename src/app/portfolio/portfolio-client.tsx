@@ -122,7 +122,7 @@ function CardView({ balances }: { balances: BalanceItem[] }) {
 }
 
 export default function PortfolioClient() {
-  const [view, setView] = useState<'table' | 'cards'>('cards')
+  const [view, setView] = useState<'table' | 'cards'>('table')
   const { isConnected } = useAccount()
 
   const { data: rawBalances, isLoading, isFetching, error } = useBalances()
@@ -187,7 +187,7 @@ export default function PortfolioClient() {
         </div>
         <div className="flex flex-col items-end justify-end gap-2">
           <Badge variant="outline" className="text-xs border-green-500/40 text-green-300 bg-green-500/5">Live<span className="text-green-300 rounded-full bg-green-400 animate-pulse h-2 w-2"></span></Badge>
-          <div className='flex flex-col md:flex-row md:items-center justify-end gap-4'>
+          {/* <div className='flex flex-col md:flex-row md:items-center justify-end gap-4'>
             <div className='flex justify-end gap-2'>
               <Button variant={view === 'table' ? 'default' : 'outline'} size='sm' onClick={() => setView('table')}>
                 <Table2 className='w-4 h-4 mr-1' /> Table
@@ -196,8 +196,8 @@ export default function PortfolioClient() {
                 <LayoutGrid className='w-4 h-4 mr-1' /> Cards
               </Button>
             </div>
-          </div>
-        </div>
+          </div>*/}
+        </div> 
       </header>
 
       {view === 'table' ? <TableView balances={balances} /> : <CardView balances={balances} />}
