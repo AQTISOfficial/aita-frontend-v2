@@ -9,6 +9,7 @@ import { CircleCheckBigIcon, Crown, ShieldCheck, Star, StarOff } from "lucide-re
 
 import { vaults } from "@/lib/vaults";
 import { Button } from "@/components/ui/button"
+import { AgentInfo } from "@/components/agents/agent-info"
 import { AgentSheet } from "@/components/agents/agent-sheet"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
@@ -329,106 +330,96 @@ export default function Home() {
           <Badge variant="outline" className="text-xs border-green-500/40 text-green-300 bg-green-500/5">Live<span className="text-green-300 rounded-full bg-green-400 animate-pulse h-2 w-2"></span></Badge>
         </div>
       </header>
-      {/* Actions */}
-      <div className="flex items-center justify-between px-2">
+
+      {/* Filters */}
+      <div className="flex flex-wrap justify-between gap-2 px-2 py-2 sticky top-0 bg-neutral-950 z-10">
+        <div className="flex flex-wrap gap-2">
+          <input
+            id="search"
+            type="text"
+            value={search}
+            onChange={(e) => handleAgentSearch(e.target.value)}
+            className="antialiased text-sm p-2 border rounded-md md:max-w-[240px] focus:outline-none focus:ring-1 tracking-wide"
+            placeholder="Search Agents ..."
+            autoComplete="off"
+          />
+          <Select
+            value={sort}
+            onValueChange={(v) => {
+              setCurrentPage(1)
+              setSort(v as SortKey)
+            }}
+          >
+            <SelectTrigger className="w-[160px] focus:outline-none focus:ring-1">
+              <SelectValue placeholder="Order" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="asc">Oldest</SelectItem>
+              <SelectItem value="desc">Newest</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={limit.toString()}
+            onValueChange={(v) => {
+              setCurrentPage(1)
+              setLimit(parseInt(v, 10))
+            }}
+          >
+            <SelectTrigger className="w-[80px] focus:outline-none focus:ring-1">
+              <SelectValue placeholder="Limit" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          {isConnected && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="user-agents"
+                checked={userAgents}
+                onCheckedChange={() => {
+                  setCurrentPage(1)
+                  setUserAgents(!userAgents)
+                }}
+              />
+              <Label htmlFor="user-agents">My Agents</Label>
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="strategy"
+              checked={strategy}
+              onCheckedChange={() => {
+                setCurrentPage(1)
+                setStrategy(!strategy)
+              }}
+            />
+            <Label htmlFor="strategy">Backtested</Label>
+            <div className="flex items-center space-x-2 ml-4">
+              <Switch
+                id="watchlist-only"
+                checked={watchlistOnly}
+                onCheckedChange={() => {
+                  setCurrentPage(1)
+                  setWatchlistOnly(!watchlistOnly)
+                }}
+              />
+              <Label htmlFor="watchlist-only" className={watchlist.size === 0 ? "opacity-60" : ""}>
+                <Star className="size-5" />Watchlist{watchlist.size === 0 ? " (empty)" : ` (${watchlist.size})`}
+              </Label>
+            </div>
+          </div>
+        </div>
         <Button
           variant="outline"
           className="p-2 border rounded-md text-sm flex"
         >
           <IconRobotFace /> Total Agents: {totalAgents}
         </Button>
-        <Button
-          className="bg-white text-black"
-          variant="secondary"
-          type="button"
-          onClick={createAgent}
-          disabled={!isConnected}
-        >
-          Create Agent
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 px-2 py-2 sticky top-0 bg-neutral-950 z-10">
-        <input
-          id="search"
-          type="text"
-          value={search}
-          onChange={(e) => handleAgentSearch(e.target.value)}
-          className="antialiased text-sm p-2 border rounded-md md:max-w-[240px] focus:outline-none focus:ring-1 tracking-wide"
-          placeholder="Search Agents ..."
-          autoComplete="off"
-        />
-        <Select
-          value={sort}
-          onValueChange={(v) => {
-            setCurrentPage(1)
-            setSort(v as SortKey)
-          }}
-        >
-          <SelectTrigger className="w-[160px] focus:outline-none focus:ring-1">
-            <SelectValue placeholder="Order" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="asc">Oldest</SelectItem>
-            <SelectItem value="desc">Newest</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={limit.toString()}
-          onValueChange={(v) => {
-            setCurrentPage(1)
-            setLimit(parseInt(v, 10))
-          }}
-        >
-          <SelectTrigger className="w-[80px] focus:outline-none focus:ring-1">
-            <SelectValue placeholder="Limit" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="5">5</SelectItem>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="15">15</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-          </SelectContent>
-        </Select>
-        {isConnected && (
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="user-agents"
-              checked={userAgents}
-              onCheckedChange={() => {
-                setCurrentPage(1)
-                setUserAgents(!userAgents)
-              }}
-            />
-            <Label htmlFor="user-agents">My Agents</Label>
-          </div>
-        )}
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="strategy"
-            checked={strategy}
-            onCheckedChange={() => {
-              setCurrentPage(1)
-              setStrategy(!strategy)
-            }}
-          />
-          <Label htmlFor="strategy">Backtested</Label>
-          <div className="flex items-center space-x-2 ml-4">
-            <Switch
-              id="watchlist-only"
-              checked={watchlistOnly}
-              onCheckedChange={() => {
-                setCurrentPage(1)
-                setWatchlistOnly(!watchlistOnly)
-              }}
-            />
-            <Label htmlFor="watchlist-only" className={watchlist.size === 0 ? "opacity-60" : ""}>
-              <Star className="size-5" />Watchlist{watchlist.size === 0 ? " (empty)" : ` (${watchlist.size})`}
-            </Label>
-          </div>
-        </div>
       </div>
 
       {/* Agents grid */}
@@ -442,54 +433,50 @@ export default function Home() {
             const isWatched = watchlist.has(agent.id)
             const isVault = vaultIds.has(agent.id);
             return (
-              <Card key={index} className={`w-full lg:max-w-96 ${kingId && agent.id === kingId ? "border border-amber-400/40" : "border border-neutral-800"} flex flex-col hover:shadow-lg transition-shadow`}>
-                <div className="w-full relative -top-6">
-                  <Image
-                    aria-hidden
-                    src={agent.image}
-                    alt={agent.name}
-                    width={240}
-                    height={240}
-                    quality={75}
-                    className="w-full h-40 object-cover aspect-square rounded-t-xl border-b border-neutral-800"
-                    priority
-                  />
-                  <Badge
-                    variant="outline"
-                    className={`absolute right-2 top-2 bg-neutral-900 font-mono text-sm ${agent.strategy?.backtested ? "text-teal-500" : "text-white"}`}
-                  >
-                    {agent.ticker}
-                  </Badge>
-                  {isWatched && (
-                    <div className="absolute left-2 top-2 text-amber-400" title="On Watchlist">
-                      <Star className="size-5 fill-amber-400" />
+
+
+              <Card key={index} className={`w-full lg:max-w-96 ${kingId && agent.id === kingId ? "border border-amber-400/40" : "border border-neutral-800"} flex flex-col`}>
+                <CardHeader className="mx-0 px-4 shrink-0">
+                  <CardTitle className="grid grid-cols-2 gap-2 text-white-400">
+                    <Image
+                      aria-hidden
+                      src={agent.image}
+                      alt={agent.name}
+                      width={120}
+                      height={120}
+                      quality={75}
+                      className="object-cover aspect-square rounded-lg border border-neutral-800 shadow-2xl row-span-2 "
+                      priority
+                    />
+                    {kingId && agent.id === kingId && (
+                      <div className="absolute left-2 top-2 text-amber-400 bg-white rounded-full p-1" title="King Agent">
+                        <Crown className="size-5 text-amber-400 fill-amber-400" />
+                      </div>
+                    )}
+                    <div className="flex flex-col">
+                      <span>{agent.name}</span>
+                      <span className="text-neutral-500 text-xs pt-1">{agent.ticker}</span>
+                      <span className="text-neutral-500 text-xs font-normal mt-2 text-ellipsis">
+                        {agent.description.slice(0, 50)}...</span>
                     </div>
-                  )}
-                </div>
-                <CardHeader className="-mt-8 mb-2 mx-0 px-4">
-                  <CardTitle className="flex flex-col items-start text-white-400">
-                    <span className="flex items-center lg:text-xl">
-                      {kingId && agent.id === kingId && (
-                        <Crown className="size-5 text-amber-400 mr-2" />
-                      )}
-                      {agent.name} {agent.strategy?.backtested && <CircleCheckBigIcon className="size-4 ml-2 text-teal-500" />} {isVault && <Badge variant="default" className="mx-2"><ShieldCheck />Vault</Badge>}</span>
                   </CardTitle>
                   <CardAction />
-                  <CardDescription className="py-1 text-xs min-h-24">{agent.description}</CardDescription>
+                  <CardDescription />
                 </CardHeader>
 
-                <CardContent className="flex-1 text-xs px-4 pb-2 text-neutral-300">
+                <CardContent className="flex-1 text-xs px-4 text-neutral-300 grow">
+                  <AgentInfo tokenAddress={agent.contractAddress} />
                   {agent?.strategy ? (
                     <>
                       {agent.strategy?.backtested ? (
                         <>
-                          <div className="grid grid-cols-3 gap-2 w-full text-neutral-300">
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Cum. return</span><span className="text-emerald-400 font-mono tabular-nums">+{agent.strategy?.backtested?.accumulatedReturns}%</span></div>
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>CAGR</span><span className="text-sky-400 font-mono tabular-nums">+{agent.strategy?.backtested?.CAGR}%</span></div>
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums">{agent.strategy?.backtested?.sharpe ?? "-"}</span></div>
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Volatility</span><span className="text-purple-400 font-mono tabular-nums">{agent.strategy?.backtested?.volatility ?? "-"}</span></div>
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Profit Factor</span><span className="text-cyan-400 font-mono tabular-nums">{agent.strategy?.backtested?.profitFactor ?? "-"}</span></div>
-                            <div className="flex flex-col justify-between gap-1 border border-neutral-800 p-2 rounded-md"><span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span></div>
+                          <div className="text-[11px] grid grid-cols-3 gap-2 w-full text-neutral-300">
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>Cum. return</span><span className="text-emerald-400 font-mono tabular-nums">+{agent.strategy?.backtested?.accumulatedReturns}%</span></div>
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>CAGR</span><span className="text-sky-400 font-mono tabular-nums">+{agent.strategy?.backtested?.CAGR}%</span></div>
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>Sharpe</span><span className="text-amber-400 font-mono tabular-nums">{agent.strategy?.backtested?.sharpe ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>Volatility</span><span className="text-purple-400 font-mono tabular-nums">{agent.strategy?.backtested?.volatility ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>Profit Fact.</span><span className="text-cyan-400 font-mono tabular-nums">{agent.strategy?.backtested?.profitFactor ?? "-"}</span></div>
+                            <div className="flex flex-col justify-between gap-1 bg-neutral-800/50 p-2 rounded-sm"><span>Max. DD</span><span className="text-neutral-500/80 font-mono tabular-nums">{agent.strategy?.backtested?.maxDrawdown ?? "-"}%</span></div>
                           </div>
                         </>
                       ) : (
@@ -512,8 +499,8 @@ export default function Home() {
 
                 </CardContent>
 
-                <CardFooter className="flex flex-col w-full -mt-4 px-4">
-                  <div className="w-full p-2">
+                <CardFooter className="flex flex-col w-full px-4 shrink-0">
+                  {/* <div className="w-full p-2">
                     <div className="grid grid-cols-2 gap-1 text-neutral-400 text-xs">
                       <span>Contract Address:</span>
                       <span className="text-end font-mono">{agent.contractAddress.slice(0, 6)}...{agent.contractAddress.slice(-4)}</span>
@@ -522,8 +509,8 @@ export default function Home() {
                       <span>Created:</span>
                       <span className="text-end font-mono">{new Date(Number(agent.created) * 1000).toLocaleDateString("en-US")}</span>
                     </div>
-                  </div>
-                  <div className="w-full flex items-center justify-between gap-1 mt-2 -mb-4">
+                  </div> */}
+                  <div className="w-full flex items-center justify-between gap-1 ">
                     <div className="flex items-center gap-2">
                       {/* Add/Finalize Strategy */}
                       {isConnected && address?.toLowerCase() === agent.ownerAddress && !agent.strategy && (
@@ -542,6 +529,7 @@ export default function Home() {
                         size="icon"
                         variant={isWatched ? "secondary" : "outline"}
                         onClick={() => toggleWatchlist(agent.id)}
+                        className="cursor-pointer"
                         aria-pressed={isWatched}
                         aria-label={isWatched ? "Remove from watchlist" : "Add to watchlist"}
                       >
@@ -557,7 +545,7 @@ export default function Home() {
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="text-xs"
+                      className="text-xs cursor-pointer"
                       onClick={() => {
                         setSelectedAgent(agent)
                         setOpen(true)

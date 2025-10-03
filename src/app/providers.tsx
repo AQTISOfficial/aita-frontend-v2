@@ -11,7 +11,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
-import { arbitrumSepolia } from "wagmi/chains";
+import { mainnet, arbitrum, arbitrumSepolia } from "wagmi/chains";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 
 interface ProvidersProps {

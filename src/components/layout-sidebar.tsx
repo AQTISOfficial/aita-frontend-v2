@@ -33,16 +33,16 @@ const items = [
         url: "/agents",
         icon: BotIcon,
     },
-    {
-        title: "Vaults",
-        url: "/vaults",
-        icon: Landmark,
-    },
-    {
-        title: "Staking",
-        url: "/staking",
-        icon: HandCoins,
-    },
+    // {
+    //     title: "Vaults",
+    //     url: "/vaults",
+    //     icon: Landmark,
+    // },
+    // {
+    //     title: "Staking",
+    //     url: "/staking",
+    //     icon: HandCoins,
+    // },
     {
         title: "Portfolio",
         url: "/portfolio",
