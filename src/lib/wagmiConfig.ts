@@ -1,6 +1,6 @@
 // wagmiConfig.ts
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { arbitrum } from 'wagmi/chains';
+import { mainnet, sepolia, arbitrum, arbitrumSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import {
   metaMaskWallet,
@@ -10,6 +10,7 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { publicEnv } from '@/lib/env.public';
+import { CHAIN, RPC_URLS } from './chains';
 
 const globalForWagmi = globalThis as unknown as {
   wagmiConfig?: ReturnType<typeof getDefaultConfig>;
@@ -29,9 +30,10 @@ export const wagmiConfig =
       ...wallets,
     ],
     projectId: publicEnv.NEXT_PUBLIC_REOWN_ID!,
-    chains: [arbitrum],
+    chains: [CHAIN.ETHEREUM, CHAIN.ARBITRUM],
     transports: {
-      [arbitrum.id]: http(publicEnv.NEXT_PUBLIC_RPC_URL_ARBITRUM!),
+      [CHAIN.ETHEREUM.id]: http(RPC_URLS[CHAIN.ETHEREUM.id]),
+      [CHAIN.ARBITRUM.id]: http(RPC_URLS[CHAIN.ARBITRUM.id]),
     },
     ssr: true,
   });

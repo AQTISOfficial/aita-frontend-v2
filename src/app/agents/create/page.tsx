@@ -285,9 +285,14 @@ export default function CreateAgentPage() {
 
   return (
     <div className="px-4">
-      <div className="text-center text-sm text-neutral-300 mb-4">Create new Agent</div>
+      <div className="text-center text-sm text-neutral-300 mb-4">Create Free Agent with Backtest Strategy</div>
       <div className="text-center text-xl text-neutral-100 mb-4">
-        Let&apos;s get to know your AI Agent
+        Let&apos;s get to know your AI Agent first
+      </div>
+      <div>
+        <div className="text-center text-sm text-neutral-400 mb-1">
+          
+        </div>
       </div>
       <form onSubmit={handleSubmit}>
         <Card className="px-4 py-6 w-full lg:w-1/2 mx-auto">
@@ -395,7 +400,7 @@ export default function CreateAgentPage() {
           </CardContent>
           <CardFooter className="flex justify-end">
             <Button type="submit" disabled={loading || uploading || isPending} className="w-full lg:w-auto">
-              {loading ? "Submitting..." : "Create Agent"}
+              {loading ? "Submitting..." : "Step 1: Create Agent"}
             </Button>
           </CardFooter>
         </Card>

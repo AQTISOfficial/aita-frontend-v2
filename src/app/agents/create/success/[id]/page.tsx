@@ -68,7 +68,7 @@ export default function Page({ params }: PageProps) {
         ) : (<>
 
           <CardHeader>
-            <CardTitle className="text-teal-400">Agent Successfully created!</CardTitle>
+            <CardTitle className="text-teal-400">Step 1: Agent Successfully created!</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex mb-4">
@@ -92,6 +92,9 @@ export default function Page({ params }: PageProps) {
             <div className="flex justify-between mb-0 mt-4">
               <Button variant="outline" onClick={() => router.push(`/agents`)}>
                 Back to Agents List
+              </Button>
+              <Button onClick={() => router.push(`/agents/strategy/create/${id}`)}>
+                Step 2: Create Strategy
               </Button>
             </div>
           </CardContent>
